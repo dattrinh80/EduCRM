@@ -1,0 +1,15 @@
+#!/usr/bin/env php
+<?php
+
+define('LARAVEL_START', microtime(true));
+
+// Require Composer's autoloader...
+require __DIR__.'/vendor/autoload.php';
+
+// Bootstrap, and create the application...
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+// Handle incoming console command requests...
+$status = $app->handleCommand(new Symfony\Component\Console\Input\ArgvInput);
+
+exit($status);
