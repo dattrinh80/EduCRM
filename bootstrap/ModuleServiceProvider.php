@@ -13,17 +13,31 @@ class ModuleServiceProvider extends ServiceProvider
     {
         $modulesPath = base_path('Modules');
 
-        if (!File::exists($modulesPath)) {
+        if (!\Illuminate\Support\Facades\File::exists($modulesPath)) {
             return;
         }
 
-        $directories = File::directories($modulesPath);
+        $files = \Illuminate\Support\Facades\File::allFiles($modulesPath);
 
-        foreach ($directories as $directory) {
-            $providerClass = 'Modules\\' . basename($directory) . '\\ServiceProvider';
+        foreach ($files as $file) {
+            if ($file->getFilename() === 'ServiceProvider.php') {
+                $relativePath = $file->getRelativePath();
+                
+                if (empty($relativePath)) {
+                    continue;
+                }
 
-            if (class_exists($providerClass)) {
-                $this->app->register($providerClass);
+                $namespacePath = str_replace(['/', '\\'], '\\', $relativePath);
+                $providerClass = 'Modules\\' . $namespacePath . '\\ServiceProvider';
+                
+                \Illuminate\Support\Facades\Log::info("Found Provider: " . $providerClass);
+
+                if (class_exists($providerClass)) {
+                    $this->app->register($providerClass);
+                    \Illuminate\Support\Facades\Log::info("Registered Provider: " . $providerClass);
+                } else {
+                    \Illuminate\Support\Facades\Log::info("Class does not exist: " . $providerClass);
+                }
             }
         }
     }

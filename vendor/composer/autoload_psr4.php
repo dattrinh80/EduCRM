@@ -80,6 +80,7 @@ return array(
     'Carbon\\Doctrine\\' => array($vendorDir . '/carbonphp/carbon-doctrine-types/src/Carbon/Doctrine'),
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
+    'Bootstrap\\' => array($baseDir . '/bootstrap'),
     'App\\Core\\' => array($baseDir . '/app/Core'),
     'App\\' => array($baseDir . '/app'),
 );

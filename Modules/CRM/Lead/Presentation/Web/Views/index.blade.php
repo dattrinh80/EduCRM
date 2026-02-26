@@ -1,63 +1,104 @@
 @extends('layouts.app')
 
+@section('title', 'Leads Management')
+
 @section('content')
-<div class="container mx-auto px-4 py-8">
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold">Leads Management</h1>
-        <a href="{{ route('admin.leads.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
-            + New Lead
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-800">Leads Management</h1>
+            <p class="text-slate-500 mt-1">Manage and track all leads</p>
+        </div>
+        <a href="{{ route('admin.leads.create') }}" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>New Lead</span>
         </a>
     </div>
 
     @if (session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+        <div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl flex items-center gap-3 slide-down">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white shadow overflow-hidden sm:rounded-md">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                </tr>
-            </thead>
-            <tbody class="bg-white divide-y divide-gray-200">
-                @forelse ($leads as $lead)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $lead->name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">{{ $lead->phone }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                {{ ucfirst($lead->status) }}
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('admin.leads.edit', $lead->id) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
-                            
-                            <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Delete this lead?')">Delete</button>
-                            </form>
-                        </td>
+    <!-- Data List -->
+    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+        @if($leads->isEmpty())
+        <div class="p-12 text-center">
+            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
+            </div>
+            <p class="text-slate-500">No leads found</p>
+            <a href="{{ route('admin.leads.create') }}" class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
+                <i data-lucide="plus" class="w-4 h-4"></i> Create new lead
+            </a>
+        </div>
+        @else
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
+                        <th class="p-4 px-6">Name</th>
+                        <th class="p-4 px-6">Phone</th>
+                        <th class="p-4 px-6">Status</th>
+                        <th class="p-4 px-6 text-right">Actions</th>
                     </tr>
-                @empty
-                    <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-gray-500">No leads found.</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-    </div>
-
-    @if($leads->hasPages())
-        <div class="mt-4">
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @foreach ($leads as $lead)
+                        <tr class="hover:bg-slate-50 transition group">
+                            <td class="p-4 px-6 whitespace-nowrap">
+                                <div class="font-medium text-slate-800">{{ $lead->name }}</div>
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap text-slate-600">
+                                <div class="flex items-center gap-2">
+                                    <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                    {{ $lead->phone }}
+                                </div>
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap">
+                                @php
+                                    $statusColor = match(strtolower($lead->status)) {
+                                        'new' => 'bg-blue-100 text-blue-700',
+                                        'contacted' => 'bg-amber-100 text-amber-700',
+                                        'qualified' => 'bg-emerald-100 text-emerald-700',
+                                        'lost' => 'bg-red-100 text-red-700',
+                                        default => 'bg-slate-100 text-slate-700'
+                                    };
+                                @endphp
+                                <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $statusColor }}">
+                                    {{ ucfirst($lead->status) }}
+                                </span>
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
+                                    <a href="{{ route('admin.leads.edit', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Edit">
+                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
+                                    </a>
+                                    
+                                    <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this lead?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        
+        @if($leads->hasPages())
+        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
             {{ $leads->links() }}
         </div>
-    @endif
+        @endif
+        @endif
+    </div>
 </div>
 @endsection

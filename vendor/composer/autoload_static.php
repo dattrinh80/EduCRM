@@ -156,6 +156,7 @@ class ComposerStaticInit2f56f47a8c74a1ef5a4beb4399c3814a
         'B' =>
         array (
             'Brick\\Math\\' => 11,
+            'Bootstrap\\' => 10,
         ),
         'A' =>
         array (
@@ -465,6 +466,10 @@ class ComposerStaticInit2f56f47a8c74a1ef5a4beb4399c3814a
         'Brick\\Math\\' =>
         array (
             0 => __DIR__ . '/..' . '/brick/math/src',
+        ),
+        'Bootstrap\\' =>
+        array (
+            0 => __DIR__ . '/../..' . '/bootstrap',
         ),
         'App\\Core\\' =>
         array (

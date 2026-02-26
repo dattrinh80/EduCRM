@@ -15,7 +15,8 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules/",
-            "App\\Core\\": "app/Core/"
+            "App\\Core\\": "app/Core/",
+            "Bootstrap\\": "bootstrap/"
         }
     },
     "scripts": {
