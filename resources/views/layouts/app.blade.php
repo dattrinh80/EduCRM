@@ -97,6 +97,14 @@
                     <i data-lucide="users" class="w-5 h-5"></i>
                     Users
                 </a>
+                <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/roles*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="shield" class="w-5 h-5"></i>
+                    Roles
+                </a>
+                <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/permissions*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="key" class="w-5 h-5"></i>
+                    Permissions
+                </a>
             </nav>
         </aside>
         

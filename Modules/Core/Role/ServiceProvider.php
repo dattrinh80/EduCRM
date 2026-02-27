@@ -15,14 +15,9 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot(): void
     {
-        if (file_exists(__DIR__ . '/routes/api.php')) {
-            $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
-        }
         if (file_exists(__DIR__ . '/routes/web.php')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         }
-
-        $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
 
         if (is_dir(__DIR__ . '/Presentation/Web/Views')) {
             $this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'role');
