@@ -7,12 +7,12 @@ namespace Modules\Core\User\Presentation\API;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Hash;
-use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
+use Modules\Core\User\Application\Queries\AuthenticateUserQuery;
+use Modules\Core\User\Application\Queries\AuthenticateUserHandler;
 
 class AuthApiController extends Controller
 {
-    public function login(Request $request): JsonResponse
+    public function login(Request $request, AuthenticateUserHandler $handler): JsonResponse
     {
         $request->validate([
             'email' => 'required|email',
@@ -20,9 +20,15 @@ class AuthApiController extends Controller
             'device_name' => 'nullable|string'
         ]);
 
-        $user = UserReadModel::where('email', $request->email)->first();
+        $query = new AuthenticateUserQuery(
+            $request->email,
+            $request->password,
+            $request->device_name
+        );
 
-        if (! $user || ! Hash::check($request->password, $user->password)) {
+        $result = $handler->handle($query);
+
+        if (!$result) {
             return response()->json([
                 'success' => false,
                 'error' => [
@@ -32,19 +38,9 @@ class AuthApiController extends Controller
             ], 401);
         }
 
-        $deviceName = $request->device_name ?? 'api_token';
-        $token = $user->createToken($deviceName)->plainTextToken;
-
         return response()->json([
             'success' => true,
-            'data' => [
-                'token' => $token,
-                'user' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                ]
-            ]
+            'data' => $result
         ]);
     }
 

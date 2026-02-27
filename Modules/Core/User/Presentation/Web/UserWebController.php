@@ -16,13 +16,18 @@ use Modules\Core\User\Application\Queries\GetUserByIdQuery;
 use Modules\Core\User\Application\Queries\GetUserByIdHandler;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedQuery;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedHandler;
-use Modules\Core\User\Infrastructure\ReadModels\RoleReadModel;
-use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
+use Modules\Core\Role\Application\Queries\GetAllRolesQuery;
+use Modules\Core\Role\Application\Queries\GetAllRolesHandler;
+use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
+use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 
 class UserWebController extends Controller
 {
-    public function index(Request $request, GetUsersPaginatedHandler $handler)
-    {
+    public function index(
+        Request $request,
+        GetUsersPaginatedHandler $handler,
+        GetAllRolesHandler $rolesHandler
+    ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
         $search = $request->query('search');
@@ -31,15 +36,17 @@ class UserWebController extends Controller
         $query = new GetUsersPaginatedQuery($perPage, $page, $search, $roleId);
         $users = $handler->handle($query);
 
-        $roles = RoleReadModel::orderBy('name')->get();
+        $roles = $rolesHandler->handle(new GetAllRolesQuery());
 
         return view('user::index', compact('users', 'roles', 'search', 'roleId'));
     }
 
-    public function create()
-    {
-        $roles = RoleReadModel::orderBy('name')->get();
-        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
+    public function create(
+        GetAllRolesHandler $rolesHandler,
+        GetActiveCentersHandler $centersHandler
+    ) {
+        $roles = $rolesHandler->handle(new GetAllRolesQuery());
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
 
         return view('user::create', compact('roles', 'centers'));
     }
@@ -68,8 +75,12 @@ class UserWebController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(string $id, GetUserByIdHandler $handler)
-    {
+    public function edit(
+        string $id,
+        GetUserByIdHandler $handler,
+        GetAllRolesHandler $rolesHandler,
+        GetActiveCentersHandler $centersHandler
+    ) {
         $query = new GetUserByIdQuery($id);
         $user = $handler->handle($query);
 
@@ -77,8 +88,8 @@ class UserWebController extends Controller
             return redirect()->route('admin.users.index')->with('error', 'User not found.');
         }
 
-        $roles = RoleReadModel::orderBy('name')->get();
-        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
+        $roles = $rolesHandler->handle(new GetAllRolesQuery());
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
 
         return view('user::edit', compact('user', 'roles', 'centers'));
     }

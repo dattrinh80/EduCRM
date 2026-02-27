@@ -6,15 +6,14 @@ namespace Modules\Core\Permission\Presentation\API;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Routing\Controller;
-use Modules\Core\Permission\Infrastructure\ReadModels\PermissionGroupReadModel;
+use Modules\Core\Permission\Application\Queries\GetPermissionGroupsQuery;
+use Modules\Core\Permission\Application\Queries\GetPermissionGroupsHandler;
 
 class PermissionApiController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(GetPermissionGroupsHandler $handler): JsonResponse
     {
-        $permissionGroups = PermissionGroupReadModel::with('permissions')
-            ->orderBy('sort_order')
-            ->get();
+        $permissionGroups = $handler->handle(new GetPermissionGroupsQuery());
 
         return response()->json([
             'success' => true,

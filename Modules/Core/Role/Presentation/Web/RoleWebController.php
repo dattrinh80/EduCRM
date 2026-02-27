@@ -16,7 +16,8 @@ use Modules\Core\Role\Application\Queries\GetRoleByIdQuery;
 use Modules\Core\Role\Application\Queries\GetRoleByIdHandler;
 use Modules\Core\Role\Application\Queries\GetRolesPaginatedQuery;
 use Modules\Core\Role\Application\Queries\GetRolesPaginatedHandler;
-use Modules\Core\Permission\Infrastructure\ReadModels\PermissionGroupReadModel;
+use Modules\Core\Permission\Application\Queries\GetPermissionGroupsQuery;
+use Modules\Core\Permission\Application\Queries\GetPermissionGroupsHandler;
 
 class RoleWebController extends Controller
 {
@@ -32,11 +33,9 @@ class RoleWebController extends Controller
         return view('role::index', compact('roles', 'search'));
     }
 
-    public function create()
+    public function create(GetPermissionGroupsHandler $permGroupsHandler)
     {
-        $permissionGroups = PermissionGroupReadModel::with('permissions')
-            ->orderBy('sort_order')
-            ->get();
+        $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
 
         return view('role::create', compact('permissionGroups'));
     }
@@ -59,8 +58,11 @@ class RoleWebController extends Controller
         return redirect()->route('admin.roles.index')->with('success', 'Role created successfully.');
     }
 
-    public function edit(string $id, GetRoleByIdHandler $handler)
-    {
+    public function edit(
+        string $id,
+        GetRoleByIdHandler $handler,
+        GetPermissionGroupsHandler $permGroupsHandler
+    ) {
         $query = new GetRoleByIdQuery($id);
         $role = $handler->handle($query);
 
@@ -68,9 +70,7 @@ class RoleWebController extends Controller
             return redirect()->route('admin.roles.index')->with('error', 'Role not found.');
         }
 
-        $permissionGroups = PermissionGroupReadModel::with('permissions')
-            ->orderBy('sort_order')
-            ->get();
+        $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
 
         $assignedPermissionIds = $role->permissions->pluck('id')->toArray();
 
