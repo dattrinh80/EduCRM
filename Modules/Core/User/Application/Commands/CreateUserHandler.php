@@ -27,8 +27,7 @@ class CreateUserHandler implements CommandHandler
             (string) Str::uuid(),
             $command->name,
             $command->email,
-            Hash::make($command->password),
-            $command->centerId
+            Hash::make($command->password)
         );
 
         $this->repository->save($user);

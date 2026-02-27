@@ -48,7 +48,6 @@ class EloquentUserRepository implements UserRepositoryInterface
         $model->name = $user->name;
         $model->email = $user->email;
         $model->password = $user->password;
-        $model->center_id = $user->centerId;
     }
 
     private function mapModelToDomain(UserReadModel $model): User
@@ -58,7 +57,6 @@ class EloquentUserRepository implements UserRepositoryInterface
             $model->name,
             $model->email,
             $model->password,
-            $model->center_id,
             $model->created_at ? new \DateTimeImmutable($model->created_at->toDateTimeString()) : null,
             $model->updated_at ? new \DateTimeImmutable($model->updated_at->toDateTimeString()) : null
         );

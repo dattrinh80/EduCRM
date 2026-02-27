@@ -32,8 +32,7 @@ class UpdateUserHandler implements CommandHandler
         $user->update(
             $command->name,
             $command->email,
-            $command->password ? Hash::make($command->password) : null,
-            $command->centerId
+            $command->password ? Hash::make($command->password) : null
         );
 
         $this->repository->update($user);
