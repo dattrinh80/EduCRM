@@ -107,12 +107,47 @@
 
 @push('scripts')
 <script>
+    // Top-down: Select All → check/uncheck everything
     function toggleAll(checkbox) {
         document.querySelectorAll('.perm-check, .group-check').forEach(el => el.checked = checkbox.checked);
     }
+
+    // Top-down: Group All → check/uncheck group permissions
     function toggleGroup(checkbox, groupId) {
         document.querySelectorAll(`.perm-${groupId}`).forEach(el => el.checked = checkbox.checked);
+        syncSelectAll();
     }
+
+    // Bottom-up: When a permission checkbox changes
+    function syncGroup(groupId) {
+        const perms = document.querySelectorAll(`.perm-${groupId}`);
+        const groupCheck = document.querySelector(`.group-check[data-group="${groupId}"]`);
+        if (groupCheck) {
+            groupCheck.checked = perms.length > 0 && [...perms].every(el => el.checked);
+        }
+        syncSelectAll();
+    }
+
+    // Sync global Select All based on all permission checkboxes
+    function syncSelectAll() {
+        const allPerms = document.querySelectorAll('.perm-check');
+        const selectAll = document.getElementById('selectAll');
+        if (selectAll) {
+            selectAll.checked = allPerms.length > 0 && [...allPerms].every(el => el.checked);
+        }
+    }
+
+    // On page load: attach listeners + sync initial state
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.perm-check').forEach(el => {
+            el.addEventListener('change', () => {
+                const cls = [...el.classList].find(c => c.startsWith('perm-') && c !== 'perm-check');
+                if (cls) syncGroup(cls.replace('perm-', ''));
+            });
+        });
+        // Sync initial state for pre-checked permissions
+        document.querySelectorAll('.group-check').forEach(gc => syncGroup(gc.dataset.group));
+    });
 </script>
 @endpush
 @endsection
