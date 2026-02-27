@@ -95,26 +95,38 @@
                 </a>
 
                 <!-- CRM -->
+                @canany(['leads.view'])
                 <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">CRM</p>
+                @can('leads.view')
                 <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/leads*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="contact" class="w-5 h-5"></i>
                     Leads
                 </a>
+                @endcan
+                @endcanany
 
                 <!-- System -->
+                @canany(['users.view', 'roles.view'])
                 <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">System</p>
+                @can('users.view')
                 <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/users*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="users" class="w-5 h-5"></i>
                     Users
                 </a>
+                @endcan
+                @can('roles.view')
                 <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/roles*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="shield" class="w-5 h-5"></i>
                     Roles
                 </a>
+                @endcan
+                @can('roles.view')
                 <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/permissions*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="key" class="w-5 h-5"></i>
                     Permissions
                 </a>
+                @endcan
+                @endcanany
             </nav>
         </aside>
         
