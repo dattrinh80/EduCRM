@@ -12,8 +12,7 @@ use Modules\Core\Center\Application\Commands\UpdateCenterCommand;
 use Modules\Core\Center\Application\Commands\UpdateCenterHandler;
 use Modules\Core\Center\Application\Commands\DeleteCenterCommand;
 use Modules\Core\Center\Application\Commands\DeleteCenterHandler;
-use Modules\Core\Center\Application\Queries\GetCenterByIdQuery;
-use Modules\Core\Center\Application\Queries\GetCenterByIdHandler;
+
 use Modules\Core\Center\Application\Queries\GetCentersPaginatedQuery;
 use Modules\Core\Center\Application\Queries\GetCentersPaginatedHandler;
 
@@ -30,10 +29,6 @@ class CenterWebController extends Controller
         return view('center::index', compact('centers'));
     }
 
-    public function create()
-    {
-        return view('center::create');
-    }
 
     public function store(Request $request, CreateCenterHandler $handler)
     {
@@ -58,17 +53,6 @@ class CenterWebController extends Controller
         return redirect()->route('admin.centers.index')->with('success', 'Tạo cơ sở mới thành công.');
     }
 
-    public function edit(string $id, GetCenterByIdHandler $handler)
-    {
-        $query = new GetCenterByIdQuery($id);
-        $center = $handler->handle($query);
-
-        if (!$center) {
-            return redirect()->route('admin.centers.index')->with('error', 'Không tìm thấy cơ sở.');
-        }
-
-        return view('center::edit', compact('center'));
-    }
 
     public function update(Request $request, string $id, UpdateCenterHandler $handler)
     {
