@@ -16,10 +16,10 @@ Route::prefix('admin/users')
     ->middleware(['web', 'auth'])
     ->name('admin.users.')
     ->group(function () {
-        Route::get('/', [UserWebController::class, 'index'])->name('index');
-        Route::get('/create', [UserWebController::class, 'create'])->name('create');
-        Route::post('/', [UserWebController::class, 'store'])->name('store');
-        Route::get('/{id}/edit', [UserWebController::class, 'edit'])->name('edit');
-        Route::put('/{id}', [UserWebController::class, 'update'])->name('update');
-        Route::delete('/{id}', [UserWebController::class, 'destroy'])->name('destroy');
+        Route::get('/', [UserWebController::class, 'index'])->name('index')->middleware('permission:users.view');
+        Route::get('/create', [UserWebController::class, 'create'])->name('create')->middleware('permission:users.create');
+        Route::post('/', [UserWebController::class, 'store'])->name('store')->middleware('permission:users.create');
+        Route::get('/{id}/edit', [UserWebController::class, 'edit'])->name('edit')->middleware('permission:users.update');
+        Route::put('/{id}', [UserWebController::class, 'update'])->name('update')->middleware('permission:users.update');
+        Route::delete('/{id}', [UserWebController::class, 'destroy'])->name('destroy')->middleware('permission:users.delete');
     });

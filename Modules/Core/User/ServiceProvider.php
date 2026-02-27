@@ -9,6 +9,9 @@ use Modules\Core\User\Application\Services\AuthorizationServiceInterface;
 use Modules\Core\User\Infrastructure\Services\DatabaseAuthorizationService;
 use Modules\Core\User\Domain\UserRepositoryInterface;
 use Modules\Core\User\Infrastructure\Persistence\EloquentUserRepository;
+use Modules\Core\User\Infrastructure\Middleware\CheckPermission;
+use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Gate;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -20,6 +23,19 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot(): void
     {
+        // Register middleware alias
+        /** @var Router $router */
+        $router = $this->app->make(Router::class);
+        $router->aliasMiddleware('permission', CheckPermission::class);
+
+        // Register Gate that checks permissions via AuthorizationService
+        // This enables Blade @can('leads.delete') directives
+        Gate::before(function ($user, string $ability) {
+            /** @var AuthorizationServiceInterface $authService */
+            $authService = app(AuthorizationServiceInterface::class);
+            return $authService->can($user->id, $ability) ?: null;
+        });
+
         // Load Web and API routes
         if (file_exists(__DIR__ . '/routes/api.php')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/api.php');

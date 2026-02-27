@@ -10,10 +10,12 @@
             <h1 class="text-2xl font-bold text-slate-800">Leads Management</h1>
             <p class="text-slate-500 mt-1">Manage and track all leads</p>
         </div>
+        @can('leads.create')
         <a href="{{ route('admin.leads.create') }}" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>New Lead</span>
         </a>
+        @endcan
     </div>
 
     @if (session('success'))
@@ -74,10 +76,12 @@
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
+                                    @can('leads.update')
                                     <a href="{{ route('admin.leads.edit', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Edit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </a>
-                                    
+                                    @endcan
+                                    @can('leads.delete')
                                     <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this lead?')">
                                         @csrf
                                         @method('DELETE')
@@ -85,6 +89,7 @@
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
