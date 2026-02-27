@@ -12,8 +12,7 @@ use Modules\Core\Role\Application\Commands\UpdateRoleCommand;
 use Modules\Core\Role\Application\Commands\UpdateRoleHandler;
 use Modules\Core\Role\Application\Commands\DeleteRoleCommand;
 use Modules\Core\Role\Application\Commands\DeleteRoleHandler;
-use Modules\Core\Role\Application\Queries\GetRoleByIdQuery;
-use Modules\Core\Role\Application\Queries\GetRoleByIdHandler;
+
 use Modules\Core\Role\Application\Queries\GetRolesPaginatedQuery;
 use Modules\Core\Role\Application\Queries\GetRolesPaginatedHandler;
 use Modules\Core\Permission\Application\Queries\GetPermissionGroupsQuery;
@@ -21,7 +20,7 @@ use Modules\Core\Permission\Application\Queries\GetPermissionGroupsHandler;
 
 class RoleWebController extends Controller
 {
-    public function index(Request $request, GetRolesPaginatedHandler $handler)
+    public function index(Request $request, GetRolesPaginatedHandler $handler, GetPermissionGroupsHandler $permGroupsHandler)
     {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
@@ -30,15 +29,12 @@ class RoleWebController extends Controller
         $query = new GetRolesPaginatedQuery($perPage, $page, $search);
         $roles = $handler->handle($query);
 
-        return view('role::index', compact('roles', 'search'));
-    }
-
-    public function create(GetPermissionGroupsHandler $permGroupsHandler)
-    {
         $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
 
-        return view('role::create', compact('permissionGroups'));
+        return view('role::index', compact('roles', 'search', 'permissionGroups'));
     }
+
+
 
     public function store(Request $request, CreateRoleHandler $handler)
     {
@@ -58,24 +54,7 @@ class RoleWebController extends Controller
         return redirect()->route('admin.roles.index')->with('success', 'Role created successfully.');
     }
 
-    public function edit(
-        string $id,
-        GetRoleByIdHandler $handler,
-        GetPermissionGroupsHandler $permGroupsHandler
-    ) {
-        $query = new GetRoleByIdQuery($id);
-        $role = $handler->handle($query);
 
-        if (!$role) {
-            return redirect()->route('admin.roles.index')->with('error', 'Role not found.');
-        }
-
-        $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
-
-        $assignedPermissionIds = $role->permissions->pluck('id')->toArray();
-
-        return view('role::edit', compact('role', 'permissionGroups', 'assignedPermissionIds'));
-    }
 
     public function update(Request $request, string $id, UpdateRoleHandler $handler)
     {

@@ -12,8 +12,7 @@ use Modules\Core\User\Application\Commands\UpdateUserCommand;
 use Modules\Core\User\Application\Commands\UpdateUserHandler;
 use Modules\Core\User\Application\Commands\DeleteUserCommand;
 use Modules\Core\User\Application\Commands\DeleteUserHandler;
-use Modules\Core\User\Application\Queries\GetUserByIdQuery;
-use Modules\Core\User\Application\Queries\GetUserByIdHandler;
+
 use Modules\Core\User\Application\Queries\GetUsersPaginatedQuery;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedHandler;
 use Modules\Core\Role\Application\Queries\GetAllRolesQuery;
@@ -26,7 +25,8 @@ class UserWebController extends Controller
     public function index(
         Request $request,
         GetUsersPaginatedHandler $handler,
-        GetAllRolesHandler $rolesHandler
+        GetAllRolesHandler $rolesHandler,
+        GetActiveCentersHandler $centersHandler
     ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
@@ -37,19 +37,12 @@ class UserWebController extends Controller
         $users = $handler->handle($query);
 
         $roles = $rolesHandler->handle(new GetAllRolesQuery());
-
-        return view('user::index', compact('users', 'roles', 'search', 'roleId'));
-    }
-
-    public function create(
-        GetAllRolesHandler $rolesHandler,
-        GetActiveCentersHandler $centersHandler
-    ) {
-        $roles = $rolesHandler->handle(new GetAllRolesQuery());
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
 
-        return view('user::create', compact('roles', 'centers'));
+        return view('user::index', compact('users', 'roles', 'centers', 'search', 'roleId'));
     }
+
+
 
     public function store(Request $request, CreateUserHandler $handler)
     {
@@ -75,24 +68,7 @@ class UserWebController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User created successfully.');
     }
 
-    public function edit(
-        string $id,
-        GetUserByIdHandler $handler,
-        GetAllRolesHandler $rolesHandler,
-        GetActiveCentersHandler $centersHandler
-    ) {
-        $query = new GetUserByIdQuery($id);
-        $user = $handler->handle($query);
 
-        if (!$user) {
-            return redirect()->route('admin.users.index')->with('error', 'User not found.');
-        }
-
-        $roles = $rolesHandler->handle(new GetAllRolesQuery());
-        $centers = $centersHandler->handle(new GetActiveCentersQuery());
-
-        return view('user::edit', compact('user', 'roles', 'centers'));
-    }
 
     public function update(Request $request, string $id, UpdateUserHandler $handler)
     {
