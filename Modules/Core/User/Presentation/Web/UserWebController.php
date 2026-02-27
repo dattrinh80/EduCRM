@@ -17,6 +17,7 @@ use Modules\Core\User\Application\Queries\GetUserByIdHandler;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedQuery;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedHandler;
 use Modules\Core\User\Infrastructure\ReadModels\RoleReadModel;
+use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
 
 class UserWebController extends Controller
 {
@@ -38,8 +39,9 @@ class UserWebController extends Controller
     public function create()
     {
         $roles = RoleReadModel::orderBy('name')->get();
+        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
 
-        return view('user::create', compact('roles'));
+        return view('user::create', compact('roles', 'centers'));
     }
 
     public function store(Request $request, CreateUserHandler $handler)
@@ -76,8 +78,9 @@ class UserWebController extends Controller
         }
 
         $roles = RoleReadModel::orderBy('name')->get();
+        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
 
-        return view('user::edit', compact('user', 'roles'));
+        return view('user::edit', compact('user', 'roles', 'centers'));
     }
 
     public function update(Request $request, string $id, UpdateUserHandler $handler)

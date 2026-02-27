@@ -110,6 +110,7 @@
 @push('scripts')
 <script>
     const availableRoles = @json($roles);
+    const availableCenters = @json($centers);
     let roleIndex = 0;
 
     function addRoleRow(existingRole = null) {
@@ -137,8 +138,11 @@
                 </select>
             </div>
             <div class="flex-1 space-y-1" id="scope-id-wrapper-${idx}" style="display: ${existingRole && existingRole.scope_type === 'CENTER' ? 'block' : 'none'}">
-                <label class="text-xs font-medium text-slate-500 uppercase tracking-wider">Center ID</label>
-                <input type="text" name="roles[${idx}][scope_id]" value="${existingRole && existingRole.scope_id ? existingRole.scope_id : ''}" placeholder="UUID of center" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
+                <label class="text-xs font-medium text-slate-500 uppercase tracking-wider">Cơ sở</label>
+                <select name="roles[${idx}][scope_id]" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500">
+                    <option value="">-- Chọn cơ sở --</option>
+                    ${availableCenters.map(c => `<option value="${c.id}" ${existingRole && existingRole.scope_id === c.id ? 'selected' : ''}>[${c.code}] ${c.name}</option>`).join('')}
+                </select>
             </div>
             <div class="flex items-end">
                 <button type="button" onclick="removeRoleRow(${idx})" class="p-2.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition" title="Remove">
@@ -167,7 +171,7 @@
         const wrapper = document.getElementById(`scope-id-wrapper-${idx}`);
         wrapper.style.display = select.value === 'CENTER' ? 'block' : 'none';
         if (select.value === 'ALL') {
-            wrapper.querySelector('input').value = '';
+            wrapper.querySelector('select').value = '';
         }
     }
 </script>
