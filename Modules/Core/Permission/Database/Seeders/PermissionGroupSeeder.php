@@ -16,9 +16,10 @@ class PermissionGroupSeeder extends Seeder
             ['name' => 'User Management', 'description' => 'Quản lý tài khoản người dùng', 'sort_order' => 1, 'prefix' => 'users'],
             ['name' => 'Role Management', 'description' => 'Quản lý vai trò và phân quyền', 'sort_order' => 2, 'prefix' => 'roles'],
             ['name' => 'Lead Management', 'description' => 'Quản lý khách hàng tiềm năng', 'sort_order' => 3, 'prefix' => 'leads'],
-            ['name' => 'Student Management', 'description' => 'Quản lý học viên', 'sort_order' => 4, 'prefix' => 'students'],
-            ['name' => 'Course Management', 'description' => 'Quản lý khoá học', 'sort_order' => 5, 'prefix' => 'courses'],
-            ['name' => 'Finance', 'description' => 'Quản lý tài chính, hoá đơn', 'sort_order' => 6, 'prefix' => 'invoices'],
+            ['name' => 'Center Management', 'description' => 'Quản lý cơ sở / chi nhánh', 'sort_order' => 4, 'prefix' => 'centers'],
+            ['name' => 'Student Management', 'description' => 'Quản lý học viên', 'sort_order' => 5, 'prefix' => 'students'],
+            ['name' => 'Course Management', 'description' => 'Quản lý khoá học', 'sort_order' => 6, 'prefix' => 'courses'],
+            ['name' => 'Finance', 'description' => 'Quản lý tài chính, hoá đơn', 'sort_order' => 7, 'prefix' => 'invoices'],
         ];
 
         foreach ($groups as $group) {
@@ -52,6 +53,10 @@ class PermissionGroupSeeder extends Seeder
             'leads.create' => 'Tạo Lead mới',
             'leads.update' => 'Chỉnh sửa Lead',
             'leads.delete' => 'Xoá Lead',
+            'centers.view' => 'Xem danh sách cơ sở',
+            'centers.create' => 'Tạo cơ sở mới',
+            'centers.update' => 'Chỉnh sửa cơ sở',
+            'centers.delete' => 'Xoá cơ sở',
             'students.view' => 'Xem danh sách học viên',
             'students.create' => 'Thêm học viên mới',
             'students.update' => 'Chỉnh sửa học viên',
