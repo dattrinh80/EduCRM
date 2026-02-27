@@ -3,7 +3,7 @@
 @section('title', 'Leads Management')
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ showCreateModal: {{ $errors->any() && !old('_method') ? 'true' : 'false' }} }">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -11,10 +11,10 @@
             <p class="text-slate-500 mt-1">Manage and track all leads</p>
         </div>
         @can('leads.create')
-        <a href="{{ route('admin.leads.create') }}" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
+        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
             <i data-lucide="plus" class="w-4 h-4"></i>
             <span>New Lead</span>
-        </a>
+        </button>
         @endcan
     </div>
 
@@ -25,10 +25,12 @@
             <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                 <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
             </div>
-            <p class="text-slate-500">No leads found</p>
-            <a href="{{ route('admin.leads.create') }}" class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
+            <p class="text-slate-500 mb-4">No leads found</p>
+            @can('leads.create')
+            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
                 <i data-lucide="plus" class="w-4 h-4"></i> Create new lead
-            </a>
+            </button>
+            @endcan
         </div>
         @else
         <div class="overflow-x-auto">
@@ -37,13 +39,14 @@
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
                         <th class="p-4 px-6">Name</th>
                         <th class="p-4 px-6">Phone</th>
+                        <th class="p-4 px-6">Center</th>
                         <th class="p-4 px-6">Status</th>
                         <th class="p-4 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($leads as $lead)
-                        <tr class="hover:bg-slate-50 transition group">
+                        <tr class="hover:bg-slate-50 transition group" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }} }">
                             <td class="p-4 px-6 whitespace-nowrap">
                                 <div class="font-medium text-slate-800">{{ $lead->name }}</div>
                             </td>
@@ -52,6 +55,19 @@
                                     <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
                                     {{ $lead->phone }}
                                 </div>
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap text-slate-600">
+                                @php
+                                    $center = $centers->firstWhere('id', $lead->center_id);
+                                @endphp
+                                @if($center)
+                                    <div class="flex items-center gap-1.5 text-sm">
+                                        <i data-lucide="building-2" class="w-4 h-4 text-slate-400"></i>
+                                        <span>[{{ $center->code }}] {{ $center->name }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-slate-400 text-sm italic">N/A</span>
+                                @endif
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
                                 @php
@@ -70,12 +86,12 @@
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
                                     @can('leads.update')
-                                    <a href="{{ route('admin.leads.edit', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Edit">
+                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition cursor-pointer" title="Edit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                    </a>
+                                    </button>
                                     @endcan
                                     @can('leads.delete')
-                                    <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ $lead->name }}')">
+                                    <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ addslashes($lead->name) }}')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
@@ -84,6 +100,123 @@
                                     </form>
                                     @endcan
                                 </div>
+                                
+                                <!-- Edit Modal -->
+                                @can('leads.update')
+                                <template x-teleport="body">
+                                    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                                        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
+                                        
+                                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
+                                             x-show="showEditModal" 
+                                             x-transition:enter="transition ease-out duration-300"
+                                             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                             x-transition:leave="transition ease-in duration-200"
+                                             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                                             
+                                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                                <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                                                    <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                                                        <i data-lucide="edit" class="w-4 h-4"></i>
+                                                    </div>
+                                                    Sửa Lead: {{ $lead->name }}
+                                                </h3>
+                                                <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                                                    <i data-lucide="x" class="w-5 h-5"></i>
+                                                </button>
+                                            </div>
+
+                                            <form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="p-6">
+                                                @csrf
+                                                @method('PUT')
+                                                <input type="hidden" name="lead_id" value="{{ $lead->id }}">
+                                                
+                                                <div class="space-y-4">
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Name <span class="text-red-500">*</span></label>
+                                                            <div class="relative">
+                                                                <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('name') : $lead->name }}">
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Phone <span class="text-red-500">*</span></label>
+                                                            <div class="relative">
+                                                                <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('phone') : $lead->phone }}">
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="space-y-1">
+                                                        <label class="text-sm font-medium text-slate-700 block">Email</label>
+                                                        <div class="relative">
+                                                            <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                            <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('email') : $lead->email }}">
+                                                        </div>
+                                                        @if(old('lead_id') == $lead->id)
+                                                            @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Status</label>
+                                                            <div class="relative">
+                                                                <i data-lucide="activity" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="status" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="new" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'new' ? 'selected' : '' }}>New</option>
+                                                                    <option value="contacted" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'contacted' ? 'selected' : '' }}>Contacted</option>
+                                                                    <option value="qualified" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'qualified' ? 'selected' : '' }}>Qualified</option>
+                                                                    <option value="lost" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'lost' ? 'selected' : '' }}>Lost</option>
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('status') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
+                                                            <div class="relative">
+                                                                <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chọn cơ sở --</option>
+                                                                    @foreach($centers as $center)
+                                                                        <option value="{{ $center->id }}" {{ (old('lead_id') == $lead->id ? old('center_id') : $lead->center_id) === $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                
+                                                <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
+                                                    <button type="button" @click="showEditModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                                                    <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                                                        <i data-lucide="save" class="w-4 h-4"></i> Cập nhật
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </template>
+                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -98,5 +231,112 @@
         @endif
         @endif
     </div>
+
+    <!-- Create Modal -->
+    @can('leads.create')
+    <template x-teleport="body">
+        <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showCreateModal = false" x-transition.opacity></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
+                 x-show="showCreateModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                 
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                            <i data-lucide="user-plus" class="w-4 h-4"></i>
+                        </div>
+                        Tạo Lead Mới
+                    </h3>
+                    <button type="button" @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('admin.leads.store') }}" method="POST" class="p-6">
+                    @csrf
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Name <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('name') : '' }}">
+                                </div>
+                                @if(!old('_method'))
+                                    @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Phone <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('phone') : '' }}">
+                                </div>
+                                @if(!old('_method'))
+                                    @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700 block">Email</label>
+                            <div class="relative">
+                                <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('email') : '' }}">
+                            </div>
+                            @if(!old('_method'))
+                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            @endif
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <option value="">-- Chọn cơ sở --</option>
+                                    @foreach($centers as $center)
+                                        <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                            </div>
+                            @if(!old('_method'))
+                                @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
+                        <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                            <i data-lucide="plus" class="w-4 h-4"></i> Tạo Lead
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    @endcan
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('alpine:init', () => {
+        window.addEventListener('refresh-icons', () => {
+            setTimeout(() => {
+                if (window.lucide) { lucide.createIcons(); }
+            }, 50);
+        });
+    });
+</script>
+@endpush
 @endsection

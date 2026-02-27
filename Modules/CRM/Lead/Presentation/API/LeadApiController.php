@@ -68,7 +68,7 @@ class LeadApiController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'nullable|uuid'
+            'center_id' => 'required|uuid|exists:centers,id'
         ]);
 
         $command = new CreateLeadCommand(
@@ -95,7 +95,7 @@ class LeadApiController extends Controller
             'phone' => 'required|string|max:50',
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'nullable|uuid'
+            'center_id' => 'required|uuid|exists:centers,id'
         ]);
 
         try {

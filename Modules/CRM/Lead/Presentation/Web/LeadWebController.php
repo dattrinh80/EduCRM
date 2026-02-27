@@ -16,10 +16,12 @@ use Modules\CRM\Lead\Application\Queries\GetLeadByIdQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadByIdHandler;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
+use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
+use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 
 class LeadWebController extends Controller
 {
-    public function index(Request $request, GetLeadsPaginatedHandler $handler)
+    public function index(Request $request, GetLeadsPaginatedHandler $handler, GetActiveCentersHandler $centersHandler)
     {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
@@ -27,12 +29,9 @@ class LeadWebController extends Controller
         $query = new GetLeadsPaginatedQuery($perPage, $page);
         $leads = $handler->handle($query);
 
-        return view('lead::index', compact('leads')); // Assuming namespace 'lead' is registered in provider
-    }
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
 
-    public function create()
-    {
-        return view('lead::create');
+        return view('lead::index', compact('leads', 'centers'));
     }
 
     public function store(Request $request, CreateLeadHandler $handler)
@@ -41,7 +40,7 @@ class LeadWebController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'nullable|uuid'
+            'center_id' => 'required|uuid|exists:centers,id'
         ]);
 
         $command = new CreateLeadCommand(
@@ -56,17 +55,7 @@ class LeadWebController extends Controller
         return redirect()->route('admin.leads.index')->with('success', 'Lead created successfully.');
     }
 
-    public function edit(string $id, GetLeadByIdHandler $handler)
-    {
-        $query = new GetLeadByIdQuery($id);
-        $lead = $handler->handle($query);
 
-        if (!$lead) {
-            return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
-        }
-
-        return view('lead::edit', compact('lead'));
-    }
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler)
     {
@@ -75,7 +64,7 @@ class LeadWebController extends Controller
             'phone' => 'required|string|max:50',
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'nullable|uuid'
+            'center_id' => 'required|uuid|exists:centers,id'
         ]);
 
         try {
