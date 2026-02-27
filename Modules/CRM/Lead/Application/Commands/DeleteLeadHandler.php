@@ -15,7 +15,7 @@ class DeleteLeadHandler implements CommandHandler
     ) {
     }
 
-    public function handle(Command $command): void
+    public function handle(Command $command): mixed
     {
         /** @var DeleteLeadCommand $command */
         
@@ -26,5 +26,7 @@ class DeleteLeadHandler implements CommandHandler
         }
 
         $this->repository->delete($command->id);
+
+        return null;
     }
 }

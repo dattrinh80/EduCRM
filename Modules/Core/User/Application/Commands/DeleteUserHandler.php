@@ -15,7 +15,7 @@ class DeleteUserHandler implements CommandHandler
     ) {
     }
 
-    public function handle(Command $command): void
+    public function handle(Command $command): mixed
     {
         /** @var DeleteUserCommand $command */
 
@@ -26,5 +26,7 @@ class DeleteUserHandler implements CommandHandler
         }
 
         $this->repository->delete($command->id);
+
+        return null;
     }
 }

@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteRoleHandler implements CommandHandler
 {
-    public function handle(Command $command): void
+    public function handle(Command $command): mixed
     {
         /** @var DeleteRoleCommand $command */
 
@@ -24,5 +24,7 @@ class DeleteRoleHandler implements CommandHandler
         DB::table('user_roles')->where('role_id', $command->id)->delete();
 
         $role->delete();
+
+        return null;
     }
 }
