@@ -17,6 +17,7 @@ use Modules\Core\User\Application\Queries\GetUserByIdHandler;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedQuery;
 use Modules\Core\User\Application\Queries\GetUsersPaginatedHandler;
 use Modules\Core\User\Infrastructure\ReadModels\RoleReadModel;
+use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
 
 class UserWebController extends Controller
 {
@@ -38,8 +39,9 @@ class UserWebController extends Controller
     public function create()
     {
         $roles = RoleReadModel::orderBy('name')->get();
+        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
 
-        return view('user::create', compact('roles'));
+        return view('user::create', compact('roles', 'centers'));
     }
 
     public function store(Request $request, CreateUserHandler $handler)
@@ -48,6 +50,7 @@ class UserWebController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
+            'center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
             'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
@@ -58,6 +61,7 @@ class UserWebController extends Controller
             $validated['name'],
             $validated['email'],
             $validated['password'],
+            $validated['center_id'] ?? null,
             $validated['roles'] ?? []
         );
 
@@ -76,8 +80,9 @@ class UserWebController extends Controller
         }
 
         $roles = RoleReadModel::orderBy('name')->get();
+        $centers = CenterReadModel::where('status', 'active')->orderBy('name')->get();
 
-        return view('user::edit', compact('user', 'roles'));
+        return view('user::edit', compact('user', 'roles', 'centers'));
     }
 
     public function update(Request $request, string $id, UpdateUserHandler $handler)
@@ -86,6 +91,7 @@ class UserWebController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
+            'center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
             'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
@@ -98,6 +104,7 @@ class UserWebController extends Controller
                 $validated['name'],
                 $validated['email'],
                 $validated['password'] ?? null,
+                $validated['center_id'] ?? null,
                 $validated['roles'] ?? []
             );
 

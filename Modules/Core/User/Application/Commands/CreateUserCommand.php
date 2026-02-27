@@ -12,6 +12,7 @@ class CreateUserCommand implements Command
         public readonly string $name,
         public readonly string $email,
         public readonly string $password,
+        public readonly ?string $centerId = null,
         /** @var array<array{role_id: string, scope_type: string, scope_id: ?string}> */
         public readonly array $roles = []
     ) {

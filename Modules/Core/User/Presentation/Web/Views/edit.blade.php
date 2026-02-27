@@ -68,7 +68,25 @@
                 </div>
             </div>
 
-            {{-- Roles Section --}}
+            {{-- Center Assignment --}}
+            <div class="space-y-1">
+                <label for="center_id" class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-slate-400 font-normal">(Tuỳ chọn - để trống nếu là quản trị toàn hệ thống)</span></label>
+                <div class="relative">
+                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="center_id" id="center_id" class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                        <option value="">-- Không thuộc cơ sở nào (HQ/Admin) --</option>
+                        @foreach($centers as $center)
+                        <option value="{{ $center->id }}" {{ old('center_id', $user->center_id) === $center->id ? 'selected' : '' }}>
+                            {{ $center->name }} ({{ $center->code }})
+                        </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
+                        <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                    </div>
+                </div>
+                @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+            </div>
             <div class="pt-6 border-t border-slate-100">
                 <div class="flex items-center justify-between mb-4">
                     <div class="space-y-1">
