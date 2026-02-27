@@ -18,13 +18,6 @@
         @endcan
     </div>
 
-    @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl flex items-center gap-3 slide-down">
-            <i data-lucide="check-circle" class="w-5 h-5"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-
     <!-- Data List -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         @if($leads->isEmpty())
@@ -82,7 +75,7 @@
                                     </a>
                                     @endcan
                                     @can('leads.delete')
-                                    <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this lead?')">
+                                    <form action="{{ route('admin.leads.destroy', $lead->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ $lead->name }}')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">

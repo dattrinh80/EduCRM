@@ -40,13 +40,23 @@
         @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
         .slide-down { animation: slideDown 0.3s ease-out; }
         [x-cloak] { display: none !important; }
-        
+
         /* Custom Scrollbar for Sidebar */
         .sidebar-menu::-webkit-scrollbar { width: 5px; }
         .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
         .sidebar-menu::-webkit-scrollbar-thumb { background: transparent; border-radius: 20px; }
         .sidebar-menu:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
         .sidebar-menu::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+
+        /* Toast */
+        @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
+        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+        .toast-leave { animation: toastOut 0.3s ease-in forwards; }
+
+        /* Confirm modal */
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-enter { animation: modalIn 0.25s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen" x-data="{ sidebarOpen: false }">
@@ -167,9 +177,105 @@
         <!-- Overlay for mobile/sidebar -->
         <div class="fixed inset-0 bg-black/50 z-30 lg:hidden" x-show="sidebarOpen" x-transition.opacity @click="sidebarOpen = false" x-cloak></div>
     </div>
-    
+
+    <!-- ═══ Confirm Dialog ═══ -->
+    <div id="confirmModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="window.__confirmCancel()"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 modal-enter">
+            <div class="flex flex-col items-center text-center">
+                <div id="confirmIcon" class="w-14 h-14 rounded-full bg-red-100 text-red-500 flex items-center justify-center mb-4">
+                    <i data-lucide="alert-triangle" class="w-7 h-7"></i>
+                </div>
+                <h3 id="confirmTitle" class="text-lg font-semibold text-slate-800 mb-1">Xác nhận</h3>
+                <p id="confirmMessage" class="text-sm text-slate-500 mb-6">Bạn có chắc chắn muốn thực hiện?</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="window.__confirmCancel()" class="flex-1 px-4 py-2.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-xl hover:bg-slate-200 transition">Huỷ bỏ</button>
+                <button id="confirmBtn" onclick="window.__confirmOk()" class="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-500 rounded-xl hover:bg-red-600 transition shadow-lg shadow-red-500/30">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ Toast Container ═══ -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[110] flex flex-col gap-3 pointer-events-none" style="max-width: 400px;"></div>
+
+    @if (session('success'))
+    <template id="flashSuccess"><span>{{ session('success') }}</span></template>
+    @endif
+    @if (session('error'))
+    <template id="flashError"><span>{{ session('error') }}</span></template>
+    @endif
+
     <script>
         lucide.createIcons();
+
+        /* ─── Toast System ─── */
+        function showToast(message, type = 'success', duration = 4000) {
+            const container = document.getElementById('toastContainer');
+            const colors = {
+                success: { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700', icon: 'check-circle', iconBg: 'bg-emerald-100 text-emerald-600' },
+                error:   { bg: 'bg-red-50 border-red-200', text: 'text-red-700', icon: 'alert-circle', iconBg: 'bg-red-100 text-red-600' },
+                warning: { bg: 'bg-amber-50 border-amber-200', text: 'text-amber-700', icon: 'alert-triangle', iconBg: 'bg-amber-100 text-amber-600' },
+                info:    { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-700', icon: 'info', iconBg: 'bg-blue-100 text-blue-600' }
+            };
+            const c = colors[type] || colors.success;
+            const el = document.createElement('div');
+            el.className = `pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border shadow-lg ${c.bg} toast-enter`;
+            el.innerHTML = `
+                <div class="w-8 h-8 rounded-lg ${c.iconBg} flex items-center justify-center flex-shrink-0"><i data-lucide="${c.icon}" class="w-4 h-4"></i></div>
+                <span class="text-sm font-medium ${c.text} flex-1">${message}</span>
+                <button class="p-1 ${c.text} opacity-50 hover:opacity-100 transition flex-shrink-0" onclick="dismissToast(this.parentElement)"><i data-lucide="x" class="w-4 h-4"></i></button>
+            `;
+            container.appendChild(el);
+            lucide.createIcons({ nodes: [el] });
+            setTimeout(() => dismissToast(el), duration);
+        }
+        function dismissToast(el) {
+            if (!el || el.dataset.dismissed) return;
+            el.dataset.dismissed = '1';
+            el.classList.remove('toast-enter');
+            el.classList.add('toast-leave');
+            setTimeout(() => el.remove(), 300);
+        }
+
+        /* ─── Confirm Dialog ─── */
+        let __confirmResolve = null;
+        window.__confirmOk = () => { document.getElementById('confirmModal').classList.add('hidden'); if (__confirmResolve) __confirmResolve(true); };
+        window.__confirmCancel = () => { document.getElementById('confirmModal').classList.add('hidden'); if (__confirmResolve) __confirmResolve(false); };
+
+        function showConfirm({ title = 'Xác nhận', message = 'Bạn có chắc chắn?', confirmText = 'Xác nhận', type = 'danger' } = {}) {
+            return new Promise((resolve) => {
+                __confirmResolve = resolve;
+                document.getElementById('confirmTitle').textContent = title;
+                document.getElementById('confirmMessage').textContent = message;
+                document.getElementById('confirmBtn').textContent = confirmText;
+                const btnColors = { danger: 'bg-red-500 hover:bg-red-600 shadow-red-500/30', warning: 'bg-amber-500 hover:bg-amber-600 shadow-amber-500/30', info: 'bg-primary-500 hover:bg-primary-600 shadow-primary-500/30' };
+                const iconColors = { danger: 'bg-red-100 text-red-500', warning: 'bg-amber-100 text-amber-500', info: 'bg-primary-100 text-primary-500' };
+                const btn = document.getElementById('confirmBtn');
+                btn.className = `flex-1 px-4 py-2.5 text-sm font-medium text-white rounded-xl transition shadow-lg ${btnColors[type] || btnColors.danger}`;
+                document.getElementById('confirmIcon').className = `w-14 h-14 rounded-full flex items-center justify-center mb-4 ${iconColors[type] || iconColors.danger}`;
+                document.getElementById('confirmModal').classList.remove('hidden');
+            });
+        }
+
+        /* Helper: attach to delete forms */
+        function confirmDelete(form, itemName = '') {
+            showConfirm({
+                title: 'Xác nhận xoá',
+                message: itemName ? `Bạn có chắc chắn muốn xoá "${itemName}"? Hành động này không thể hoàn tác.` : 'Bạn có chắc chắn muốn xoá? Hành động này không thể hoàn tác.',
+                confirmText: 'Xoá',
+                type: 'danger'
+            }).then(ok => { if (ok) form.submit(); });
+            return false;
+        }
+
+        /* Auto-show flash toasts */
+        document.addEventListener('DOMContentLoaded', () => {
+            const s = document.getElementById('flashSuccess');
+            const e = document.getElementById('flashError');
+            if (s) showToast(s.content.textContent.trim(), 'success');
+            if (e) showToast(e.content.textContent.trim(), 'error');
+        });
     </script>
     @stack('scripts')
 </body>

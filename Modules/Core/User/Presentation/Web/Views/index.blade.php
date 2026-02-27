@@ -16,20 +16,6 @@
         </a>
     </div>
 
-    @if (session('success'))
-        <div class="bg-emerald-50 text-emerald-600 border border-emerald-200 px-4 py-3 rounded-xl flex items-center gap-3 slide-down">
-            <i data-lucide="check-circle" class="w-5 h-5"></i>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if (session('error'))
-        <div class="bg-red-50 text-red-600 border border-red-200 px-4 py-3 rounded-xl flex items-center gap-3 slide-down">
-            <i data-lucide="alert-circle" class="w-5 h-5"></i>
-            {{ session('error') }}
-        </div>
-    @endif
-
     <!-- Search & Filter Bar -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
         <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -129,17 +115,20 @@
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
+                                    @can('users.update')
                                     <a href="{{ route('admin.users.edit', $user->id) }}" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Edit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </a>
-
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?')">
+                                    @endcan
+                                    @can('users.delete')
+                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ $user->name }}')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
