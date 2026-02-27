@@ -68,11 +68,11 @@
             <div class="p-4 border-b border-dark-300 flex-shrink-0">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-semibold">
-                        A
+                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium truncate">Admin User</p>
-                        <p class="text-xs text-slate-400">Administrator</p>
+                        <p class="text-sm font-medium truncate">{{ Auth::user()->name ?? 'User' }}</p>
+                        <p class="text-xs text-slate-400">{{ Auth::user()->email ?? '' }}</p>
                     </div>
                 </div>
             </div>
@@ -83,9 +83,19 @@
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                     Dashboard
                 </a>
+
+                <!-- CRM -->
+                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">CRM</p>
                 <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/leads*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="contact" class="w-5 h-5"></i>
+                    Leads
+                </a>
+
+                <!-- System -->
+                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">System</p>
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/users*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="users" class="w-5 h-5"></i>
-                    Leads Management
+                    Users
                 </a>
             </nav>
         </aside>
@@ -110,12 +120,12 @@
                     <!-- User Dropdown -->
                     <div class="relative flex items-center gap-3 cursor-pointer" x-data="{ open: false }" @click.away="open = false">
                         <div class="hidden sm:block text-right" @click="open = !open">
-                            <p class="text-sm font-medium text-slate-700">Admin</p>
-                            <p class="text-xs text-slate-500">Administrator</p>
+                            <p class="text-sm font-medium text-slate-700">{{ Auth::user()->name ?? 'User' }}</p>
+                            <p class="text-xs text-slate-500">{{ Auth::user()->email ?? '' }}</p>
                         </div>
                         
                         <div class="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-sm border border-indigo-200" @click="open = !open">
-                            A
+                            {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                         </div>
                         
                          <!-- Dropdown Menu -->
@@ -124,9 +134,12 @@
                                 <i data-lucide="user" class="w-4 h-4"></i> Profile
                             </a>
                             <div class="border-t border-slate-100 my-1"></div>
-                            <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                <i data-lucide="log-out" class="w-4 h-4"></i> Logout
-                            </a>
+                            <form action="{{ route('logout') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -150,5 +163,6 @@
     <script>
         lucide.createIcons();
     </script>
+    @stack('scripts')
 </body>
 </html>

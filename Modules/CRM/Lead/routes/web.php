@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\CRM\Lead\Presentation\Web\LeadWebController;
 
 Route::prefix('admin/leads')
-    ->middleware('web')
+    ->middleware(['web', 'auth'])
     ->name('admin.leads.')
     ->group(function () {
         Route::get('/', [LeadWebController::class, 'index'])->name('index');
