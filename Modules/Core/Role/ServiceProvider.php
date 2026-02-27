@@ -19,6 +19,10 @@ class ServiceProvider extends BaseServiceProvider
             $this->loadRoutesFrom(__DIR__ . '/routes/web.php');
         }
 
+        if (file_exists(__DIR__ . '/routes/api.php')) {
+            $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
+        }
+
         if (is_dir(__DIR__ . '/Presentation/Web/Views')) {
             $this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'role');
         }

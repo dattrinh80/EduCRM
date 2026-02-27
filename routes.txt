@@ -1,0 +1,49 @@
+﻿
+  GET|HEAD  / ................................................................ 
+  GET|HEAD  admin/leads admin.leads.index ΓÇ║ Modules\CRM\Lead\Presentation\WebΓÇª
+  POST      admin/leads admin.leads.store ΓÇ║ Modules\CRM\Lead\Presentation\WebΓÇª
+  GET|HEAD  admin/leads/create admin.leads.create ΓÇ║ Modules\CRM\Lead\PresentaΓÇª
+  PUT       admin/leads/{id} admin.leads.update ΓÇ║ Modules\CRM\Lead\PresentatiΓÇª
+  DELETE    admin/leads/{id} admin.leads.destroy ΓÇ║ Modules\CRM\Lead\PresentatΓÇª
+  GET|HEAD  admin/leads/{id}/edit admin.leads.edit ΓÇ║ Modules\CRM\Lead\PresentΓÇª
+  GET|HEAD  admin/permissions admin.permissions.index ΓÇ║ Modules\Core\PermissiΓÇª
+  GET|HEAD  admin/roles admin.roles.index ΓÇ║ Modules\Core\Role\Presentation\WeΓÇª
+  POST      admin/roles admin.roles.store ΓÇ║ Modules\Core\Role\Presentation\WeΓÇª
+  GET|HEAD  admin/roles/create admin.roles.create ΓÇ║ Modules\Core\Role\PresentΓÇª
+  PUT       admin/roles/{id} admin.roles.update ΓÇ║ Modules\Core\Role\PresentatΓÇª
+  DELETE    admin/roles/{id} admin.roles.destroy ΓÇ║ Modules\Core\Role\PresentaΓÇª
+  GET|HEAD  admin/roles/{id}/edit admin.roles.edit ΓÇ║ Modules\Core\Role\PresenΓÇª
+  GET|HEAD  admin/users admin.users.index ΓÇ║ Modules\Core\User\Presentation\WeΓÇª
+  POST      admin/users admin.users.store ΓÇ║ Modules\Core\User\Presentation\WeΓÇª
+  GET|HEAD  admin/users/create admin.users.create ΓÇ║ Modules\Core\User\PresentΓÇª
+  PUT       admin/users/{id} admin.users.update ΓÇ║ Modules\Core\User\PresentatΓÇª
+  DELETE    admin/users/{id} admin.users.destroy ΓÇ║ Modules\Core\User\PresentaΓÇª
+  GET|HEAD  admin/users/{id}/edit admin.users.edit ΓÇ║ Modules\Core\User\PresenΓÇª
+  POST      api/v1/auth/login Modules\Core\User\Presentation\API\AuthApiContrΓÇª
+  POST      api/v1/auth/logout Modules\Core\User\Presentation\API\AuthApiContΓÇª
+  GET|HEAD  api/v1/auth/me Modules\Core\User\Presentation\API\AuthApiControllΓÇª
+  GET|HEAD  api/v1/leads Modules\CRM\Lead\Presentation\API\LeadApiController@ΓÇª
+  POST      api/v1/leads Modules\CRM\Lead\Presentation\API\LeadApiController@ΓÇª
+  GET|HEAD  api/v1/leads/{id} Modules\CRM\Lead\Presentation\API\LeadApiControΓÇª
+  PUT       api/v1/leads/{id} Modules\CRM\Lead\Presentation\API\LeadApiControΓÇª
+  DELETE    api/v1/leads/{id} Modules\CRM\Lead\Presentation\API\LeadApiControΓÇª
+  GET|HEAD  api/v1/permissions Modules\Core\Permission\Presentation\API\PermiΓÇª
+  GET|HEAD  api/v1/roles Modules\Core\Role\Presentation\API\RoleApiControllerΓÇª
+  POST      api/v1/roles Modules\Core\Role\Presentation\API\RoleApiControllerΓÇª
+  GET|HEAD  api/v1/roles/{id} Modules\Core\Role\Presentation\API\RoleApiContrΓÇª
+  PUT       api/v1/roles/{id} Modules\Core\Role\Presentation\API\RoleApiContrΓÇª
+  DELETE    api/v1/roles/{id} Modules\Core\Role\Presentation\API\RoleApiContrΓÇª
+  GET|HEAD  api/v1/users Modules\Core\User\Presentation\API\UserApiControllerΓÇª
+  POST      api/v1/users Modules\Core\User\Presentation\API\UserApiControllerΓÇª
+  GET|HEAD  api/v1/users/{id} Modules\Core\User\Presentation\API\UserApiContrΓÇª
+  PUT       api/v1/users/{id} Modules\Core\User\Presentation\API\UserApiContrΓÇª
+  DELETE    api/v1/users/{id} Modules\Core\User\Presentation\API\UserApiContrΓÇª
+  GET|HEAD  login login ΓÇ║ Modules\Core\User\Presentation\Web\AuthController@sΓÇª
+  POST      login .... Modules\Core\User\Presentation\Web\AuthController@login
+  POST      logout logout ΓÇ║ Modules\Core\User\Presentation\Web\AuthControllerΓÇª
+  GET|HEAD  sanctum/csrf-cookie sanctum.csrf-cookie ΓÇ║ Laravel\Sanctum ΓÇ║ CsrfCΓÇª
+  GET|HEAD  storage/{path} ..................................... storage.local
+  GET|HEAD  up ............................................................... 
+
+                                                           Showing [45] routes
+

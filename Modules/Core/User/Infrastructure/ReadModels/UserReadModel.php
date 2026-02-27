@@ -6,9 +6,11 @@ namespace Modules\Core\User\Infrastructure\ReadModels;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Laravel\Sanctum\HasApiTokens;
 
 class UserReadModel extends Authenticatable
 {
+    use HasApiTokens;
     protected $table = 'users';
     protected $keyType = 'string';
     public $incrementing = false;
