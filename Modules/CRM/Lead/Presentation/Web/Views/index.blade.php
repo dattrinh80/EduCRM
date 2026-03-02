@@ -184,7 +184,7 @@
 
                                                     <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Nguồn <span class="text-red-500">*</span></label>
+                                                            <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
                                                             <div class="relative">
                                                                 <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                                                 <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
@@ -201,7 +201,7 @@
                                                         </div>
 
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ) <span class="text-red-500">*</span></label>
+                                                            <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ)</label>
                                                             <div class="relative">
                                                                 <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                                                 <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
@@ -361,7 +361,7 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Nguồn <span class="text-red-500">*</span></label>
+                                <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
                                 <div class="relative">
                                     <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                     <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
@@ -378,7 +378,7 @@
                             </div>
 
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ) <span class="text-red-500">*</span></label>
+                                <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ)</label>
                                 <div class="relative">
                                     <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                     <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
