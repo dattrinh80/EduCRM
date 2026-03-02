@@ -1,0 +1,38 @@
+# NGUYÊN TẮC CỐT LÕI (AI AGENT RULES)
+
+Dự án CRM (EduCRM) này xây dựng trên kiến trúc **Modular Monolith**, tuân theo chặt chẽ **Domain-Driven Design (DDD)**, mô hình **CQRS** và **Clean Architecture**. Mọi AI Assistant (Cursor, Windsurf, v.v...) khi vào dự án này tham gia vào phát triển module mới, bắt buộc phải đọc và tuân theo quy trình chuẩn sau đây. Cần phân định rõ các tầng Layers, nghiêm cấm trộn lẫn logic Eloquent vào tầng Domain.
+
+## CÁC BƯỚC THỰC HIỆN TẠO MODULE / TÍNH NĂNG MỚI
+
+Khi bạn được yêu cầu phát triển một module mới (Ví dụ `Task`), hãy code theo thứ tự từ trong lõi đi ra ngoài:
+
+1. **Tạo Database Migration**:
+   - Khởi tạo file migration đặt tại `Modules/TênModule/Database/Migrations/`. Chạy file sau khi tạo.
+
+2. **Dựng Domain Layer (Entity & Repository Contract)**:
+   - Dựng class Object Entity trong `Modules/TênModule/Domain/TênThựcThể.php`.
+   - Dựng File Giao ước Interface cho Database trong `Modules/TênModule/Domain/TênThựcThểRepositoryInterface.php`.
+
+3. **Dựng Infrastructure Layer (Eloquent Persist & Read Model)**:
+   - Dựng File `TênThựcThểReadModel.php` (Là Eloquent Model chuẩn dùng để query đọc dữ liệu tốc độ cao) nằm ở `Modules/TênModule/Infrastructure/ReadModels/`.
+   - Dựng File Repository thực tế `EloquentTênThựcThểRepository.php` (Đóng gói hàm create/update/delete vào db thật bằng readmodel entity) ở `Modules/TênModule/Infrastructure/Persistence/`. Nó phải `implements TênThựcThểRepositoryInterface`.
+
+4. **Khai báo Application Layer (C-Q-R-S)**:
+   - Lệnh thay đổi dữ liệu (Command & Handler): Để ở `Modules/TênModule/Application/Commands/`. Handler bắt buộc khởi tạo object mới truyền vào hàm repository Save.
+   - Thao tác lấy dữ liệu (Query & Handler): Khai báo bên `Modules/TênModule/Application/Queries/`. Query cho phép dùng ReadModel Eloquent trả Array để view nhanh nhất.
+
+5. **Phân Quyền Hệ Thống**:
+   - Xác định quyền tạo sẵn trong hệ thống (view-tênmodule, create-tênmodule...). Phải đảm bảo các controller sử dụng middleware check quyền đầy đủ mới cấp quyền qua. 
+   - Đảm bảo seed dữ liệu quyền đó vào hệ thống ở `Modules/Core/Permission`.
+
+6. **Dựng Presentation Layer (BẮT BUỘC CÓ CẢ API & Views Web)**:
+   - **Mục tiêu**: Bất kỳ module/tính năng mới nào cũng phải được triển khai đầy đủ cả giao diện Web (UI) và API JSON (nhằm phục vụ cho quá trình xây dựng chức năng trên Mobile app trong tương lai).
+   - Dựng các Controllers cho nền tảng Web ở `Modules/TênModule/Presentation/Web/` và render ra giao diện Blade tại thư mục `Views`.
+   - Dựng các API Controllers cho di động ở `Modules/TênModule/Presentation/API/` và trả về các cấu trúc chuẩn API Resources JSON.
+   - **Controller CẤM chứa logic nghiệp vụ thuần tuý**. Hai Controller (Web/API) tuy khác nhau cách trả dữ liệu ra ngoài nhưng nội dung bên trong chỉ làm một nhiệm vụ: Bắt HTTP request params -> sinh ra một object `Command`/`Query` -> Truyền nó vào cái Service/Handler tương ứng từ Application -> Trả kết quả về Views/JSON API.
+
+7. **Trỏ Route & Inject Dependency trong Service Provider**:
+   - Trỏ list Route ở file trong thư mục `routes/web.php`.
+   - Khởi tạo file `Modules/TênModule/ServiceProvider.php`. Bắt buộc chèn dependency `$this->app->bind(DomainRepositoryInterface::class, EloquentRepository::class);` thì các Service mới chạy được.
+
+Hãy trân trọng và tuân thủ tuyệt đối quy định cấu trúc tổ chức mã này cho mọi commit của bạn trên source. Tuyên ngôn bất kỳ việc vi phạm cấu trúc để viết Controllers "Fat" (trộn lẫn logic query, gửi mail...) là **KHÔNG THỂ CHẤP NHẬN**.
