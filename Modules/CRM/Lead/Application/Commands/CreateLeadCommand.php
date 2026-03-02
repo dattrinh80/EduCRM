@@ -12,7 +12,12 @@ class CreateLeadCommand implements Command
         public readonly string $name,
         public readonly string $phone,
         public readonly ?string $email = null,
-        public readonly ?string $centerId = null
+        public readonly ?string $centerId = null,
+        public readonly ?string $dob = null,
+        public readonly ?string $sourceId = null,
+        public readonly ?string $campaignId = null,
+        public readonly ?string $interestTypeId = null,
+        public readonly ?string $assignedTo = null
     ) {
     }
 }

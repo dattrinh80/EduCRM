@@ -18,11 +18,21 @@ use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
+use Modules\CRM\Source\Application\Queries\GetSourcesQuery;
+use Modules\CRM\Source\Application\Queries\GetSourcesHandler;
+use Modules\CRM\InterestType\Application\Queries\GetInterestTypesQuery;
+use Modules\CRM\InterestType\Application\Queries\GetInterestTypesHandler;
+use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
 
 class LeadWebController extends Controller
 {
-    public function index(Request $request, GetLeadsPaginatedHandler $handler, GetActiveCentersHandler $centersHandler)
-    {
+    public function index(
+        Request $request, 
+        GetLeadsPaginatedHandler $handler, 
+        GetActiveCentersHandler $centersHandler,
+        GetSourcesHandler $sourcesHandler,
+        GetInterestTypesHandler $interestTypesHandler
+    ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
 
@@ -30,8 +40,11 @@ class LeadWebController extends Controller
         $leads = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $sources = $sourcesHandler->handle(new GetSourcesQuery(null, true));
+        $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
+        $users = UserReadModel::all(); // Assuming we use Eloquent read model directly for simplicity, or we should use a GetUsersQuery if available. For sales reps.
 
-        return view('lead::index', compact('leads', 'centers'));
+        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'users'));
     }
 
     public function store(Request $request, CreateLeadHandler $handler)
@@ -40,14 +53,24 @@ class LeadWebController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id'
+            'center_id' => 'required|uuid|exists:centers,id',
+            'dob' => 'nullable|date',
+            'source_id' => 'nullable|uuid|exists:sources,id',
+            'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
+            'assigned_to' => 'nullable|uuid|exists:users,id',
+            'campaign_id' => 'nullable|uuid' // Campaign not implemented yet
         ]);
 
         $command = new CreateLeadCommand(
             $validated['name'],
             $validated['phone'],
             $validated['email'] ?? null,
-            $validated['center_id'] ?? null
+            $validated['center_id'] ?? null,
+            $validated['dob'] ?? null,
+            $validated['source_id'] ?? null,
+            $validated['campaign_id'] ?? null,
+            $validated['interest_type_id'] ?? null,
+            $validated['assigned_to'] ?? null
         );
 
         $handler->handle($command);
@@ -64,7 +87,12 @@ class LeadWebController extends Controller
             'phone' => 'required|string|max:50',
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id'
+            'center_id' => 'required|uuid|exists:centers,id',
+            'dob' => 'nullable|date',
+            'source_id' => 'nullable|uuid|exists:sources,id',
+            'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
+            'assigned_to' => 'nullable|uuid|exists:users,id',
+            'campaign_id' => 'nullable|uuid'
         ]);
 
         try {
@@ -74,7 +102,12 @@ class LeadWebController extends Controller
                 $validated['phone'],
                 $validated['status'],
                 $validated['email'] ?? null,
-                $validated['center_id'] ?? null
+                $validated['center_id'] ?? null,
+                $validated['dob'] ?? null,
+                $validated['source_id'] ?? null,
+                $validated['campaign_id'] ?? null,
+                $validated['interest_type_id'] ?? null,
+                $validated['assigned_to'] ?? null
             );
 
             $handler->handle($command);

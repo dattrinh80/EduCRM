@@ -20,8 +20,28 @@ class LeadReadModel extends Model
         'phone',
         'email',
         'status',
-        'center_id'
+        'center_id',
+        'dob',
+        'source_id',
+        'campaign_id',
+        'interest_type_id',
+        'assigned_to'
     ];
+
+    public function source()
+    {
+        return $this->belongsTo(\Modules\CRM\Source\Infrastructure\ReadModels\SourceReadModel::class, 'source_id');
+    }
+
+    public function interestType()
+    {
+        return $this->belongsTo(\Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel::class, 'interest_type_id');
+    }
+
+    public function assignTo()
+    {
+        return $this->belongsTo(\Modules\Core\User\Infrastructure\ReadModels\UserReadModel::class, 'assigned_to');
+    }
 
     protected $casts = [
         'created_at' => 'datetime',

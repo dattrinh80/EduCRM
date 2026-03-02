@@ -68,14 +68,24 @@ class LeadApiController extends Controller
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id'
+            'center_id' => 'required|uuid|exists:centers,id',
+            'dob' => 'nullable|date',
+            'source_id' => 'nullable|uuid|exists:sources,id',
+            'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
+            'assigned_to' => 'nullable|uuid|exists:users,id',
+            'campaign_id' => 'nullable|uuid'
         ]);
 
         $command = new CreateLeadCommand(
             $validated['name'],
             $validated['phone'],
             $validated['email'] ?? null,
-            $validated['center_id'] ?? null
+            $validated['center_id'] ?? null,
+            $validated['dob'] ?? null,
+            $validated['source_id'] ?? null,
+            $validated['campaign_id'] ?? null,
+            $validated['interest_type_id'] ?? null,
+            $validated['assigned_to'] ?? null
         );
 
         $lead = $handler->handle($command);
@@ -95,7 +105,12 @@ class LeadApiController extends Controller
             'phone' => 'required|string|max:50',
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id'
+            'center_id' => 'required|uuid|exists:centers,id',
+            'dob' => 'nullable|date',
+            'source_id' => 'nullable|uuid|exists:sources,id',
+            'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
+            'assigned_to' => 'nullable|uuid|exists:users,id',
+            'campaign_id' => 'nullable|uuid'
         ]);
 
         try {
@@ -105,7 +120,12 @@ class LeadApiController extends Controller
                 $validated['phone'],
                 $validated['status'],
                 $validated['email'] ?? null,
-                $validated['center_id'] ?? null
+                $validated['center_id'] ?? null,
+                $validated['dob'] ?? null,
+                $validated['source_id'] ?? null,
+                $validated['campaign_id'] ?? null,
+                $validated['interest_type_id'] ?? null,
+                $validated['assigned_to'] ?? null
             );
 
             $handler->handle($command);

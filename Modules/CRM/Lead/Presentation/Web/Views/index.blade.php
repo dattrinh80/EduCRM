@@ -158,32 +158,81 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="space-y-1">
-                                                        <label class="text-sm font-medium text-slate-700 block">Email</label>
-                                                        <div class="relative">
-                                                            <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                            <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('email') : $lead->email }}">
-                                                        </div>
-                                                        @if(old('lead_id') == $lead->id)
-                                                            @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                        @endif
-                                                    </div>
-                                                    
                                                     <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Status</label>
+                                                            <label class="text-sm font-medium text-slate-700 block">Email</label>
                                                             <div class="relative">
-                                                                <i data-lucide="activity" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="status" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="new" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'new' ? 'selected' : '' }}>New</option>
-                                                                    <option value="contacted" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'contacted' ? 'selected' : '' }}>Contacted</option>
-                                                                    <option value="qualified" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'qualified' ? 'selected' : '' }}>Qualified</option>
-                                                                    <option value="lost" {{ (old('lead_id') == $lead->id ? old('status') : $lead->status) === 'lost' ? 'selected' : '' }}>Lost</option>
+                                                                <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('email') : $lead->email }}">
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Ngày sinh</label>
+                                                            <div class="relative">
+                                                                <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('dob') : ($lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('Y-m-d') : '') }}">
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('dob') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Nguồn <span class="text-red-500">*</span></label>
+                                                            <div class="relative">
+                                                                <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chọn Nguồn --</option>
+                                                                    @foreach($sources as $source)
+                                                                        <option value="{{ $source->id }}" {{ (old('lead_id') == $lead->id ? old('source_id') : $lead->source_id) === $source->id ? 'selected' : '' }}>{{ $source->name }}</option>
+                                                                    @endforeach
                                                                 </select>
                                                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                                             </div>
                                                             @if(old('lead_id') == $lead->id)
-                                                                @error('status') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                                @error('source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ) <span class="text-red-500">*</span></label>
+                                                            <div class="relative">
+                                                                <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chọn Nhu cầu --</option>
+                                                                    @foreach($interestTypes as $interest)
+                                                                        <option value="{{ $interest->id }}" {{ (old('lead_id') == $lead->id ? old('interest_type_id') : $lead->interest_type_id) === $interest->id ? 'selected' : '' }}>{{ $interest->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('interest_type_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
+                                                            <div class="relative">
+                                                                <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chưa giao --</option>
+                                                                    @foreach($users as $user)
+                                                                        <option value="{{ $user->id }}" {{ (old('lead_id') == $lead->id ? old('assigned_to') : $lead->assigned_to) === $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                                             @endif
                                                         </div>
 
@@ -286,32 +335,100 @@
                             </div>
                         </div>
 
-                        <div class="space-y-1">
-                            <label class="text-sm font-medium text-slate-700 block">Email</label>
-                            <div class="relative">
-                                <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('email') : '' }}">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Email</label>
+                                <div class="relative">
+                                    <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('email') : '' }}">
+                                </div>
+                                @if(!old('_method'))
+                                    @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
                             </div>
-                            @if(!old('_method'))
-                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            @endif
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Ngày sinh</label>
+                                <div class="relative">
+                                    <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('dob') : '' }}">
+                                </div>
+                                @if(!old('_method'))
+                                    @error('dob') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
                         </div>
-                        
-                        <div class="space-y-1">
-                            <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                    <option value="">-- Chọn cơ sở --</option>
-                                    @foreach($centers as $center)
-                                        <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                    @endforeach
-                                </select>
-                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Nguồn <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Chọn Nguồn --</option>
+                                        @foreach($sources as $source)
+                                            <option value="{{ $source->id }}" {{ (!old('_method') && old('source_id') === $source->id) ? 'selected' : '' }}>{{ $source->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                                @if(!old('_method'))
+                                    @error('source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
                             </div>
-                            @if(!old('_method'))
-                                @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                            @endif
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ) <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Chọn Nhu cầu --</option>
+                                        @foreach($interestTypes as $interest)
+                                            <option value="{{ $interest->id }}" {{ (!old('_method') && old('interest_type_id') === $interest->id) ? 'selected' : '' }}>{{ $interest->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                                @if(!old('_method'))
+                                    @error('interest_type_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Chọn cơ sở --</option>
+                                        @foreach($centers as $center)
+                                            <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                                @if(!old('_method'))
+                                    @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
+                                <div class="relative">
+                                    <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Chưa giao --</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ (!old('_method') && old('assigned_to') === $user->id) ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                                @if(!old('_method'))
+                                    @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
                         </div>
                     </div>
                     

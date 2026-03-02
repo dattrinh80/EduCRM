@@ -50,6 +50,11 @@ class EloquentLeadRepository implements LeadRepositoryInterface
         $model->email = $lead->email;
         $model->status = $lead->status;
         $model->center_id = $lead->centerId;
+        $model->dob = $lead->dob;
+        $model->source_id = $lead->sourceId;
+        $model->campaign_id = $lead->campaignId;
+        $model->interest_type_id = $lead->interestTypeId;
+        $model->assigned_to = $lead->assignedTo;
         
         // Eloquent will handle created_at / updated_at internally
     }
@@ -63,6 +68,11 @@ class EloquentLeadRepository implements LeadRepositoryInterface
             $model->email,
             $model->status,
             $model->center_id,
+            $model->dob,
+            $model->source_id,
+            $model->campaign_id,
+            $model->interest_type_id,
+            $model->assigned_to,
             $model->created_at ? new \DateTimeImmutable($model->created_at->toDateTimeString()) : null,
             $model->updated_at ? new \DateTimeImmutable($model->updated_at->toDateTimeString()) : null
         );

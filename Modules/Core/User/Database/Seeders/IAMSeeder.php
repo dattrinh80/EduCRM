@@ -32,12 +32,18 @@ class IAMSeeder extends Seeder
             'roles.view', 'roles.create', 'roles.update', 'roles.delete',
             // Leads
             'leads.view', 'leads.create', 'leads.update', 'leads.delete',
+            // Centers
+            'centers.view', 'centers.create', 'centers.update', 'centers.delete',
             // Students
             'students.view', 'students.create', 'students.update', 'students.delete',
             // Courses
             'courses.view', 'courses.create', 'courses.update', 'courses.delete',
             // Finance
             'invoices.view', 'invoices.create', 'invoices.update', 'invoices.delete',
+            // Sources
+            'sources.view', 'sources.create', 'sources.update', 'sources.delete',
+            // Interest Types
+            'interest_types.view', 'interest_types.create', 'interest_types.update', 'interest_types.delete',
         ];
 
         $permissionIds = [];

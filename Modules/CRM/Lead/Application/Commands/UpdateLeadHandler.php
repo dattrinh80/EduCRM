@@ -31,7 +31,12 @@ class UpdateLeadHandler implements CommandHandler
             $command->phone,
             $command->email,
             $command->status,
-            $command->centerId
+            $command->centerId,
+            $command->dob,
+            $command->sourceId,
+            $command->campaignId,
+            $command->interestTypeId,
+            $command->assignedTo
         );
 
         $this->repository->update($lead);

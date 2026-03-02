@@ -15,6 +15,11 @@ class Lead extends Entity
         public ?string $email,
         public string $status,
         public ?string $centerId,
+        public ?string $dob = null,
+        public ?string $sourceId = null,
+        public ?string $campaignId = null,
+        public ?string $interestTypeId = null,
+        public ?string $assignedTo = null,
         public ?\DateTimeImmutable $createdAt = null,
         public ?\DateTimeImmutable $updatedAt = null
     ) {
@@ -26,7 +31,12 @@ class Lead extends Entity
         string $name,
         string $phone,
         ?string $email,
-        ?string $centerId
+        ?string $centerId,
+        ?string $dob = null,
+        ?string $sourceId = null,
+        ?string $campaignId = null,
+        ?string $interestTypeId = null,
+        ?string $assignedTo = null
     ): self {
         return new self(
             $id,
@@ -35,6 +45,11 @@ class Lead extends Entity
             $email,
             'new',
             $centerId,
+            $dob,
+            $sourceId,
+            $campaignId,
+            $interestTypeId,
+            $assignedTo,
             new \DateTimeImmutable(),
             new \DateTimeImmutable()
         );
@@ -45,13 +60,23 @@ class Lead extends Entity
         string $phone,
         ?string $email,
         string $status,
-        ?string $centerId
+        ?string $centerId,
+        ?string $dob = null,
+        ?string $sourceId = null,
+        ?string $campaignId = null,
+        ?string $interestTypeId = null,
+        ?string $assignedTo = null
     ): void {
         $this->name = $name;
         $this->phone = $phone;
         $this->email = $email;
         $this->status = $status;
         $this->centerId = $centerId;
+        $this->dob = $dob;
+        $this->sourceId = $sourceId;
+        $this->campaignId = $campaignId;
+        $this->interestTypeId = $interestTypeId;
+        $this->assignedTo = $assignedTo;
         $this->updatedAt = new \DateTimeImmutable();
     }
 }

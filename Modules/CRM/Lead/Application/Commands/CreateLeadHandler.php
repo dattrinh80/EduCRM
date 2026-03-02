@@ -26,7 +26,12 @@ class CreateLeadHandler implements CommandHandler
             $command->name,
             $command->phone,
             $command->email,
-            $command->centerId
+            $command->centerId,
+            $command->dob,
+            $command->sourceId,
+            $command->campaignId,
+            $command->interestTypeId,
+            $command->assignedTo
         );
 
         $this->repository->save($lead);
