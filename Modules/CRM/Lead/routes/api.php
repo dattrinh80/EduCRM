@@ -2,6 +2,13 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\CRM\Lead\Presentation\API\LeadApiController;
+use Modules\CRM\Lead\Presentation\API\LeadWebhookController;
+
+Route::prefix('api/v1/leads')
+    ->middleware(['api'])
+    ->group(function () {
+        Route::post('/webhook', [LeadWebhookController::class, 'receive']);
+    });
 
 Route::prefix('api/v1/leads')
     ->middleware(['api', 'auth:sanctum'])

@@ -26,9 +26,10 @@
     22 => 'Illuminate\\View\\ViewServiceProvider',
     23 => 'Laravel\\Sanctum\\SanctumServiceProvider',
     24 => 'Laravel\\Tinker\\TinkerServiceProvider',
-    25 => 'Carbon\\Laravel\\ServiceProvider',
-    26 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    27 => 'Bootstrap\\ModuleServiceProvider',
+    25 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    26 => 'Carbon\\Laravel\\ServiceProvider',
+    27 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    28 => 'Bootstrap\\ModuleServiceProvider',
   ),
   'eager' => 
   array (
@@ -43,9 +44,10 @@
     8 => 'Illuminate\\Session\\SessionServiceProvider',
     9 => 'Illuminate\\View\\ViewServiceProvider',
     10 => 'Laravel\\Sanctum\\SanctumServiceProvider',
-    11 => 'Carbon\\Laravel\\ServiceProvider',
-    12 => 'Termwind\\Laravel\\TermwindServiceProvider',
-    13 => 'Bootstrap\\ModuleServiceProvider',
+    11 => 'Maatwebsite\\Excel\\ExcelServiceProvider',
+    12 => 'Carbon\\Laravel\\ServiceProvider',
+    13 => 'Termwind\\Laravel\\TermwindServiceProvider',
+    14 => 'Bootstrap\\ModuleServiceProvider',
   ),
   'deferred' => 
   array (

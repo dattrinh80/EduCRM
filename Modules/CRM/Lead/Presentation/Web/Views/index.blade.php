@@ -3,7 +3,7 @@
 @section('title', 'Leads Management')
 
 @section('content')
-<div class="space-y-6" x-data="{ showCreateModal: {{ $errors->any() && !old('_method') ? 'true' : 'false' }} }">
+<div class="space-y-6" x-data="{ showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }} }">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -11,10 +11,16 @@
             <p class="text-slate-500 mt-1">Manage and track all leads</p>
         </div>
         @can('leads.create')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>New Lead</span>
-        </button>
+        <div class="flex gap-2">
+            <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-slate-100 text-slate-700 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200 font-medium whitespace-nowrap">
+                <i data-lucide="file-down" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Import Excel</span>
+            </button>
+            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 whitespace-nowrap font-medium">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>New Lead</span>
+            </button>
+        </div>
         @endcan
     </div>
 
@@ -479,6 +485,67 @@
                         <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
                         <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
                             <i data-lucide="plus" class="w-4 h-4"></i> Tạo Lead
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    @endcan
+
+    @can('leads.create')
+    <!-- Import Modal -->
+    <template x-teleport="body">
+        <div x-show="showImportModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showImportModal = false" x-transition.opacity></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden text-left" 
+                 x-show="showImportModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                 
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                            <i data-lucide="file-down" class="w-4 h-4"></i>
+                        </div>
+                        Import Leads từ Excel
+                    </h3>
+                    <button @click="showImportModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('admin.leads.import') }}" method="POST" class="p-6" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="import" value="1">
+                    <div class="space-y-4">
+                        <div class="p-4 bg-primary-50 rounded-xl text-primary-800 text-sm flex gap-3 items-start border border-primary-100">
+                            <i data-lucide="info" class="w-5 h-5 mt-0.5 shrink-0 text-primary-600"></i>
+                            <div>
+                                <p class="font-semibold mb-1">Hướng dẫn Import:</p>
+                                <ul class="list-disc pl-4 space-y-1 text-primary-700/90 text-[13px]">
+                                    <li>Cột bắt buộc: <code class="bg-white/60 px-1 rounded font-mono">name</code>, <code class="bg-white/60 px-1 rounded font-mono">phone</code>, <code class="bg-white/60 px-1 rounded font-mono">center_code</code>.</li>
+                                    <li>Cột tùy chọn: <code class="bg-white/60 px-1 rounded font-mono">email</code>, <code class="bg-white/60 px-1 rounded font-mono">dob</code>, <code class="bg-white/60 px-1 rounded font-mono">source_code</code>, <code class="bg-white/60 px-1 rounded font-mono">campaign_code</code>, <code class="bg-white/60 px-1 rounded font-mono">interest_type_code</code>.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700 block mt-4">File Excel (.xlsx, .xls, .csv)</label>
+                            <input type="file" name="file" required accept=".xlsx,.xls,.csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 transition-all border border-slate-200 rounded-xl cursor-pointer">
+                            @error('file') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
+                        <button type="button" @click="showImportModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                            <i data-lucide="upload" class="w-4 h-4"></i> Import Dữ liệu
                         </button>
                     </div>
                 </form>

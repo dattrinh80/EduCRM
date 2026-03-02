@@ -25,6 +25,8 @@ use Modules\CRM\InterestType\Application\Queries\GetInterestTypesHandler;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsQuery;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsHandler;
 use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
+use Maatwebsite\Excel\Facades\Excel;
+use Modules\CRM\Lead\Application\Imports\LeadsImport;
 
 class LeadWebController extends Controller
 {
@@ -82,7 +84,19 @@ class LeadWebController extends Controller
         return redirect()->route('admin.leads.index')->with('success', 'Lead created successfully.');
     }
 
+    public function import(Request $request, CreateLeadHandler $handler)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls,csv|max:5120'
+        ]);
 
+        try {
+            Excel::import(new LeadsImport($handler), $request->file('file'));
+            return redirect()->route('admin.leads.index')->with('success', 'Leads imported successfully.');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.leads.index')->with('error', 'Error importing leads: ' . $e->getMessage());
+        }
+    }
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler)
     {
