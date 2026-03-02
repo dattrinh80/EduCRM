@@ -14,7 +14,7 @@ class EloquentInterestTypeRepository implements InterestTypeRepositoryInterface
     public function save(InterestType $interestType): void
     {
         InterestTypeReadModel::updateOrCreate(
-            ['id' => $interestType->id],
+            ['id' => $interestType->getId()],
             [
                 'name' => $interestType->name,
                 'description' => $interestType->description,
@@ -38,7 +38,7 @@ class EloquentInterestTypeRepository implements InterestTypeRepositoryInterface
 
     public function delete(InterestType $interestType): void
     {
-        InterestTypeReadModel::destroy($interestType->id);
+        InterestTypeReadModel::destroy($interestType->getId());
     }
 
     private function toDomain(InterestTypeReadModel $model): InterestType

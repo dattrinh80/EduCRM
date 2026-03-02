@@ -66,7 +66,7 @@ class SourceApiController extends Controller
                 $id,
                 $validated['name'],
                 $validated['code'],
-                $validated['is_active']
+                (bool) $validated['is_active']
             );
 
             $handler->handle($command);

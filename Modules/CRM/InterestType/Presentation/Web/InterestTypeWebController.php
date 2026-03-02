@@ -57,7 +57,7 @@ class InterestTypeWebController extends Controller
                 $id,
                 $validated['name'],
                 $validated['description'] ?? null,
-                $validated['is_active']
+                (bool) $validated['is_active']
             );
 
             $handler->handle($command);

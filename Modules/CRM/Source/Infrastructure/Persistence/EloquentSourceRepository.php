@@ -14,7 +14,7 @@ class EloquentSourceRepository implements SourceRepositoryInterface
     public function save(Source $source): void
     {
         SourceReadModel::updateOrCreate(
-            ['id' => $source->id],
+            ['id' => $source->getId()],
             [
                 'name' => $source->name,
                 'code' => $source->code,
@@ -49,7 +49,7 @@ class EloquentSourceRepository implements SourceRepositoryInterface
 
     public function delete(Source $source): void
     {
-        SourceReadModel::destroy($source->id);
+        SourceReadModel::destroy($source->getId());
     }
 
     private function toDomain(SourceReadModel $model): Source
