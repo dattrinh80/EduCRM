@@ -106,7 +106,7 @@
                 @endcanany
 
                 <!-- Management -->
-                @canany(['centers.view', 'sources.view', 'interest_types.view'])
+                @canany(['centers.view', 'sources.view', 'interest_types.view', 'campaigns.view'])
                 <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Quản lý</p>
                 @can('centers.view')
                 <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/centers*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
@@ -124,6 +124,12 @@
                 <a href="{{ route('admin.interest-types.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/interest-types*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="list-todo" class="w-5 h-5"></i>
                     Dịch vụ (Nhu cầu)
+                </a>
+                @endcan
+                @can('campaigns.view')
+                <a href="{{ route('admin.campaigns.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/campaigns*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="megaphone" class="w-5 h-5"></i>
+                    Chiến dịch Marketing
                 </a>
                 @endcan
                 @endcanany

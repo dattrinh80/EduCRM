@@ -71,9 +71,9 @@ class LeadApiController extends Controller
             'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
+            'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-            'campaign_id' => 'nullable|uuid'
         ]);
 
         $command = new CreateLeadCommand(
@@ -108,9 +108,9 @@ class LeadApiController extends Controller
             'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
+            'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-            'campaign_id' => 'nullable|uuid'
         ]);
 
         try {

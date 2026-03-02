@@ -22,6 +22,8 @@ use Modules\CRM\Source\Application\Queries\GetSourcesQuery;
 use Modules\CRM\Source\Application\Queries\GetSourcesHandler;
 use Modules\CRM\InterestType\Application\Queries\GetInterestTypesQuery;
 use Modules\CRM\InterestType\Application\Queries\GetInterestTypesHandler;
+use Modules\CRM\Campaign\Application\Queries\GetCampaignsQuery;
+use Modules\CRM\Campaign\Application\Queries\GetCampaignsHandler;
 use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
 
 class LeadWebController extends Controller
@@ -31,7 +33,8 @@ class LeadWebController extends Controller
         GetLeadsPaginatedHandler $handler, 
         GetActiveCentersHandler $centersHandler,
         GetSourcesHandler $sourcesHandler,
-        GetInterestTypesHandler $interestTypesHandler
+        GetInterestTypesHandler $interestTypesHandler,
+        GetCampaignsHandler $campaignsHandler
     ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
@@ -42,9 +45,10 @@ class LeadWebController extends Controller
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
         $sources = $sourcesHandler->handle(new GetSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
+        $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = UserReadModel::all(); // Assuming we use Eloquent read model directly for simplicity, or we should use a GetUsersQuery if available. For sales reps.
 
-        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'users'));
+        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users'));
     }
 
     public function store(Request $request, CreateLeadHandler $handler)
@@ -56,9 +60,9 @@ class LeadWebController extends Controller
             'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
+            'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-            'campaign_id' => 'nullable|uuid' // Campaign not implemented yet
         ]);
 
         $command = new CreateLeadCommand(
@@ -90,9 +94,9 @@ class LeadWebController extends Controller
             'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
+            'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-            'campaign_id' => 'nullable|uuid'
         ]);
 
         try {

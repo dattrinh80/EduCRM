@@ -252,6 +252,28 @@
                                                                 @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                                             @endif
                                                         </div>
+                                                        
+                                                    </div>
+                                                    
+                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Chiến dịch</label>
+                                                            <div class="relative">
+                                                                <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chọn chiến dịch --</option>
+                                                                    @foreach($campaigns as $campaign)
+                                                                        <option value="{{ $campaign->id }}" {{ (old('lead_id') == $lead->id ? old('campaign_id') : $lead->campaign_id) === $campaign->id ? 'selected' : '' }}>{{ $campaign->name }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('campaign_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
+                                                        </div>
+                                                        
+                                                        <div></div>
                                                     </div>
                                                 </div>
                                                 
@@ -429,6 +451,27 @@
                                     @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 @endif
                             </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Chiến dịch</label>
+                                <div class="relative">
+                                    <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Chọn chiến dịch --</option>
+                                        @foreach($campaigns as $campaign)
+                                            <option value="{{ $campaign->id }}" {{ (!old('_method') && old('campaign_id') === $campaign->id) ? 'selected' : '' }}>{{ $campaign->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                                @if(!old('_method'))
+                                    @error('campaign_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                @endif
+                            </div>
+                            
+                            <div></div>
                         </div>
                     </div>
                     

@@ -9,7 +9,7 @@
     - Model: `id` (uuid), `name`, `description`, `is_active`
     - Cấu trúc thư mục: `Modules/CRM/InterestType`
     - Chức năng: CRUD (Web UI + API JSON)
-- [ ] **Cập nhật Module `Campaign`**: Đảm bảo lưu lịch sử chiến dịch trả về lead
+- [x] **Cập nhật Module `Campaign`**: Đảm bảo lưu lịch sử chiến dịch trả về lead
     - Đảm bảo có CRUD cơ bản nếu chưa có.
 
 ## Giai đoạn 2: Bổ sung cấu trúc dữ liệu Module `Lead`
