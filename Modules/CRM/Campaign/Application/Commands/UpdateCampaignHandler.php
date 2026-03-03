@@ -19,6 +19,7 @@ class UpdateCampaignHandler
             $command->code,
             $command->channel,
             $command->budget,
+            $command->centerId,
             $command->startDate,
             $command->endDate,
             $command->isActive

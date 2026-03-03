@@ -8,6 +8,7 @@ class CreateCampaignCommand
         public readonly ?string $code = null,
         public readonly ?string $channel = null,
         public readonly ?float $budget = null,
+        public readonly ?string $centerId = null,
         public readonly ?\DateTimeImmutable $startDate = null,
         public readonly ?\DateTimeImmutable $endDate = null
     ) {}

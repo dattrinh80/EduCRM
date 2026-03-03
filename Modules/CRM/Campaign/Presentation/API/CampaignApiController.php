@@ -34,14 +34,27 @@ class CampaignApiController extends Controller
 
     public function store(Request $request, CreateCampaignHandler $handler): JsonResponse
     {
-        $validated = $request->validate([
+        $isSuperAdmin = false;
+        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+
+        $rules = [
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:100|unique:campaigns,code',
             'channel' => 'nullable|string|max:100',
             'budget' => 'nullable|numeric|min:0',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-        ]);
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['center_id'] = 'required|uuid|exists:centers,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $centerId = $isSuperAdmin
+            ? ($validated['center_id'] ?? null)
+            : (session('current_center_id') ?? app('center_id'));
 
         try {
             $command = new CreateCampaignCommand(
@@ -49,6 +62,7 @@ class CampaignApiController extends Controller
                 $validated['code'] ?? null,
                 $validated['channel'] ?? null,
                 $validated['budget'] ? (float)$validated['budget'] : null,
+                $centerId,
                 $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
                 $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null
             );
@@ -70,7 +84,10 @@ class CampaignApiController extends Controller
 
     public function update(Request $request, string $id, UpdateCampaignHandler $handler): JsonResponse
     {
-        $validated = $request->validate([
+        $isSuperAdmin = false;
+        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+
+        $rules = [
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:100|unique:campaigns,code,' . $id,
             'channel' => 'nullable|string|max:100',
@@ -78,7 +95,17 @@ class CampaignApiController extends Controller
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'is_active' => 'required|boolean'
-        ]);
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['center_id'] = 'required|uuid|exists:centers,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $centerId = $isSuperAdmin
+            ? ($validated['center_id'] ?? null)
+            : (session('current_center_id') ?? app('center_id'));
 
         try {
             $command = new UpdateCampaignCommand(
@@ -87,6 +114,7 @@ class CampaignApiController extends Controller
                 $validated['code'] ?? null,
                 $validated['channel'] ?? null,
                 $validated['budget'] ? (float)$validated['budget'] : null,
+                $centerId,
                 $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
                 $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null,
                 (bool) $validated['is_active']

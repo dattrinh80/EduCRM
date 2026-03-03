@@ -11,6 +11,7 @@ class Campaign extends Entity
     public ?string $code;
     public ?string $channel;
     public ?float $budget;
+    public ?string $centerId;
     public ?\DateTimeImmutable $startDate;
     public ?\DateTimeImmutable $endDate;
     public bool $isActive;
@@ -23,6 +24,7 @@ class Campaign extends Entity
         ?string $code,
         ?string $channel,
         ?float $budget,
+        ?string $centerId,
         ?\DateTimeImmutable $startDate,
         ?\DateTimeImmutable $endDate,
         bool $isActive,
@@ -36,6 +38,7 @@ class Campaign extends Entity
         $this->code = $code;
         $this->channel = $channel;
         $this->budget = $budget;
+        $this->centerId = $centerId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->isActive = $isActive;
@@ -46,6 +49,7 @@ class Campaign extends Entity
         ?string $code,
         ?string $channel,
         ?float $budget,
+        ?string $centerId,
         ?\DateTimeImmutable $startDate,
         ?\DateTimeImmutable $endDate
     ): self {
@@ -55,6 +59,7 @@ class Campaign extends Entity
             $code,
             $channel,
             $budget,
+            $centerId,
             $startDate,
             $endDate,
             true,
@@ -68,6 +73,7 @@ class Campaign extends Entity
         ?string $code,
         ?string $channel,
         ?float $budget,
+        ?string $centerId,
         ?\DateTimeImmutable $startDate,
         ?\DateTimeImmutable $endDate,
         bool $isActive
@@ -76,6 +82,7 @@ class Campaign extends Entity
         $this->code = $code;
         $this->channel = $channel;
         $this->budget = $budget;
+        $this->centerId = $centerId;
         $this->startDate = $startDate;
         $this->endDate = $endDate;
         $this->isActive = $isActive;

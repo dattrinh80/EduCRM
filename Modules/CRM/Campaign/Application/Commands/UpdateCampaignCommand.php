@@ -9,6 +9,7 @@ class UpdateCampaignCommand
         public readonly ?string $code,
         public readonly ?string $channel,
         public readonly ?float $budget,
+        public readonly ?string $centerId,
         public readonly ?\DateTimeImmutable $startDate,
         public readonly ?\DateTimeImmutable $endDate,
         public readonly bool $isActive

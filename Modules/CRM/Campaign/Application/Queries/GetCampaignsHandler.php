@@ -9,8 +9,10 @@ class GetCampaignsHandler
     {
         $dbQuery = CampaignReadModel::query();
         if ($query->search) {
-            $dbQuery->where("name", "like", "%" . $query->search . "%")
-                     ->orWhere("code", "like", "%" . $query->search . "%");
+            $dbQuery->where(function ($q) use ($query) {
+                $q->where("name", "like", "%" . $query->search . "%")
+                  ->orWhere("code", "like", "%" . $query->search . "%");
+            });
         }
         if ($query->isActive !== null) {
             $dbQuery->where("is_active", $query->isActive);

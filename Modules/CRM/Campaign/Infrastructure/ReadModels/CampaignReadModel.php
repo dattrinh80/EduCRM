@@ -5,10 +5,11 @@ namespace Modules\CRM\Campaign\Infrastructure\ReadModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Modules\Core\Persistence\Traits\BelongsToCenter;
 
 class CampaignReadModel extends Model
 {
-    use HasUuids;
+    use HasUuids, BelongsToCenter;
 
     protected $table = 'campaigns';
     public $incrementing = false;
@@ -20,6 +21,7 @@ class CampaignReadModel extends Model
         'code',
         'channel',
         'budget',
+        'center_id',
         'start_date',
         'end_date',
         'is_active',
