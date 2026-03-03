@@ -40,19 +40,43 @@
         </div>
         @else
         <div class="overflow-x-auto">
+            <!-- Bulk Action Header -->
+            <div x-show="selectedItems.length > 0" x-cloak class="bg-primary-50 px-6 py-3 border-b border-primary-100 flex items-center justify-between transition-all">
+                <div class="text-sm font-medium text-primary-800">
+                    <span x-text="selectedItems.length"></span> lead(s) selected
+                </div>
+                <div class="flex items-center gap-2">
+                    @can('leads.update')
+                    <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
+                        <i data-lucide="merge" class="w-4 h-4"></i> Merge
+                    </button>
+                    <button type="button" @click="showAssignModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
+                        <i data-lucide="user-check" class="w-4 h-4"></i> Assign Selected
+                    </button>
+                    @endcan
+                </div>
+            </div>
+
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
+                        <th class="p-4 px-6 w-10">
+                            <input type="checkbox" :checked="isAllSelected" @change="toggleAll" class="rounded border-slate-300 text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer">
+                        </th>
                         <th class="p-4 px-6">Name</th>
                         <th class="p-4 px-6">Phone</th>
                         <th class="p-4 px-6">Center</th>
+                        <th class="p-4 px-6">Assigned To</th>
                         <th class="p-4 px-6">Status</th>
                         <th class="p-4 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($leads as $lead)
-                        <tr class="hover:bg-slate-50 transition group" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }} }">
+                        <tr class="hover:bg-slate-50 transition group" :class="{ 'bg-primary-50/30': selectedItems.includes('{{ $lead->id }}') }" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }} }">
+                            <td class="p-4 px-6 whitespace-nowrap">
+                                <input type="checkbox" value="{{ $lead->id }}" x-model="selectedItems" class="rounded border-slate-300 text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer">
+                            </td>
                             <td class="p-4 px-6 whitespace-nowrap">
                                 <div class="font-medium text-slate-800">{{ $lead->name }}</div>
                             </td>
@@ -73,6 +97,21 @@
                                     </div>
                                 @else
                                     <span class="text-slate-400 text-sm italic">N/A</span>
+                                @endif
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap">
+                                @php
+                                    $assignedUser = $lead->assigned_to ? $users->firstWhere('id', $lead->assigned_to) : null;
+                                @endphp
+                                @if($assignedUser)
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-600 uppercase border border-slate-200">
+                                            {{ substr($assignedUser->name, 0, 1) }}
+                                        </div>
+                                        <span class="text-sm font-medium text-slate-700">{{ $assignedUser->name }}</span>
+                                    </div>
+                                @else
+                                    <span class="text-slate-400 text-sm italic">Unassigned</span>
                                 @endif
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
@@ -588,14 +627,170 @@
         </div>
     </template>
     @endcan
+
+    @can('leads.update')
+    <!-- Bulk Assign Modal -->
+    <template x-teleport="body">
+        <div x-show="showAssignModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAssignModal = false" x-transition.opacity></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden text-left" 
+                 x-show="showAssignModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                 
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="user-check" class="w-4 h-4"></i>
+                        </div>
+                        Assign Leads
+                    </h3>
+                    <button @click="showAssignModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('admin.leads.assign') }}" method="POST" class="p-6">
+                    @csrf
+                    <input type="hidden" name="assign" value="1">
+                    <template x-for="id in selectedItems" :key="id">
+                        <input type="hidden" name="lead_ids[]" :value="id">
+                    </template>
+                    
+                    <div class="space-y-4">
+                        <p class="text-sm text-slate-600">You are about to assign <span class="font-bold text-primary-600" x-text="selectedItems.length"></span> lead(s) to a user.</p>
+                        
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700 block">Select User / Sales</label>
+                            <div class="relative">
+                                <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <option value="">-- Unassign (Trống) --</option>
+                                    @foreach($users as $user)
+                                        <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end relative">
+                        <button type="button" @click="showAssignModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Cancel</button>
+                        <button type="submit" class="px-6 py-2.5 bg-emerald-500 text-white rounded-xl hover:bg-emerald-600 transition shadow-lg shadow-emerald-500/30 flex items-center gap-2 font-medium">
+                            <i data-lucide="check" class="w-4 h-4"></i> Confirm Assign
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    @endcan
+
+    @can('leads.update')
+    <!-- Bulk Merge Modal -->
+    <template x-teleport="body">
+        <div x-show="showMergeModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showMergeModal = false" x-transition.opacity></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden text-left" 
+                 x-show="showMergeModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                 
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center">
+                            <i data-lucide="merge" class="w-4 h-4"></i>
+                        </div>
+                        Merge Leads
+                    </h3>
+                    <button @click="showMergeModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('admin.leads.merge') }}" method="POST" class="p-6">
+                    @csrf
+                    <input type="hidden" name="merge" value="1">
+                    <template x-for="id in selectedItems" :key="id">
+                        <input type="hidden" name="slave_lead_ids[]" :value="id">
+                    </template>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-orange-50 text-orange-800 rounded-xl text-sm border border-orange-100 font-medium leading-relaxed">
+                            <i data-lucide="alert-triangle" class="w-5 h-5 inline-block -mt-1 mr-1 text-orange-500"></i>
+                            Gộp <span class="font-bold text-orange-700" x-text="selectedItems.length"></span> liên hệ đã chọn lại với nhau. Các liên hệ không được chọn làm Primary sẽ chuyển sang trạng thái "Merged".
+                        </div>
+                        
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-slate-700 block mt-4">Chọn Lead Chính (Primary)</label>
+                            <div class="relative">
+                                <i data-lucide="star" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="master_lead_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <template x-for="lead in selectedLeads" :key="lead.id">
+                                        <option :value="lead.id" x-text="`${lead.name} (${lead.phone})`"></option>
+                                    </template>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end relative">
+                        <button type="button" @click="showMergeModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                        <button type="submit" class="px-6 py-2.5 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition shadow-lg shadow-orange-500/30 flex items-center gap-2 font-medium">
+                            <i data-lucide="check" class="w-4 h-4"></i> Xác nhận Gộp
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    @endcan
 </div>
 
 @push('scripts')
 <script>
+    window.allLeads = {!! json_encode($leads->map(fn($l) => ['id' => $l->id, 'name' => $l->name, 'phone' => $l->phone])) !!};
     document.addEventListener('alpine:init', () => {
         Alpine.data('leadManagementStore', () => ({
-            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, 
+            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') && !old('assign') && !old('merge') ? 'true' : 'false' }}, 
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
+            showAssignModal: {{ $errors->any() && old('assign') ? 'true' : 'false' }},
+            showMergeModal: {{ $errors->any() && old('merge') ? 'true' : 'false' }},
+            
+            selectedItems: [],
+            availableIds: [{!! $leads->pluck('id')->map(fn($id) => "'{$id}'")->join(',') !!}],
+
+            get isAllSelected() {
+                return this.selectedItems.length === this.availableIds.length && this.availableIds.length > 0;
+            },
+
+            toggleAll() {
+                if (this.isAllSelected) {
+                    this.selectedItems = [];
+                } else {
+                    this.selectedItems = [...this.availableIds];
+                }
+            },
+
+            get selectedLeads() {
+                // Get full lead details for selected IDs using data injected to window or traversing dom. 
+                // For simplicity, we just use the IDs here to form the option list.
+                // In a real app we might want the names too, but we can just use the DOM elements or a global leads array.
+                return window.allLeads.filter(l => this.selectedItems.includes(l.id));
+            },
+
             isImporting: false,
             importProgress: 0,
             importLogs: '',

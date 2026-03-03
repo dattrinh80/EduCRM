@@ -30,10 +30,11 @@
 - [x] **Tạo Lead Manual**: Đã cover ở GĐ 2.
 - [x] **Tự động tạo lead (API/Webhook)**: Xây dựng endpoint nhận JSON từ FB/Website => Tự động map ID => Create Lead.
 - [x] **Import Lead Excel**: Cài package excel, tạo Command Import và màn hình Import UI.
-- [ ] **Assign Lead**:
-    - Auto Assign (Logic Rule engine cho lệnh tạo Lead mới).
-    - Manual Assign (Lệnh giao Lead riêng lẻ hoặc hàng loạt).
-- [ ] **Merge Duplicate Leads**: Logic gộp Lead trùng SĐT/Email. Thay đổi trạng thái sang "Merged".
+- [x] **Assign Lead**:
+    - Thêm tính năng chọn hàng loạt, hiển thị Assign To trên bảng.
+    - Modal Bulk Assign.
+    - Cập nhật Handler AssignLeadCommandHandler.
+- [x] **Merge Duplicate Leads**: Logic gộp Lead trùng SĐT/Email. Thay đổi trạng thái sang "Merged". Thêm Bulk Merge Modal.
 
 ---
 *Tiến trình sẽ được tracking trực tiếp tại file này bằng dấu check `[x]` sau mỗi đầu mục hoàn tất.*

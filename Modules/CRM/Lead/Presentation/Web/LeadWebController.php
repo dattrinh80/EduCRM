@@ -226,4 +226,44 @@ class LeadWebController extends Controller
 
         return redirect()->route('admin.leads.index')->with('success', 'Lead deleted successfully.');
     }
+
+    public function assign(Request $request, \Modules\CRM\Lead\Application\Commands\AssignLeadHandler $handler)
+    {
+        $request->validate([
+            'lead_ids' => 'required|array',
+            'lead_ids.*' => 'required|uuid',
+            'assigned_to' => 'nullable|uuid'
+        ]);
+
+        $command = new \Modules\CRM\Lead\Application\Commands\AssignLeadCommand(
+            $request->input('lead_ids'),
+            $request->input('assigned_to')
+        );
+
+        $handler->handle($command);
+
+        return redirect()->back()->with('success', count($request->input('lead_ids')) . ' leads assigned successfully.');
+    }
+
+    public function merge(Request $request, \Modules\CRM\Lead\Application\Commands\MergeLeadsHandler $handler)
+    {
+        $request->validate([
+            'master_lead_id' => 'required|uuid',
+            'slave_lead_ids' => 'required|array',
+            'slave_lead_ids.*' => 'required|uuid'
+        ]);
+
+        $command = new \Modules\CRM\Lead\Application\Commands\MergeLeadsCommand(
+            $request->input('master_lead_id'),
+            $request->input('slave_lead_ids')
+        );
+
+        try {
+            $handler->handle($command);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+
+        return redirect()->back()->with('success', count($request->input('slave_lead_ids')) . ' leads merged successfully.');
+    }
 }

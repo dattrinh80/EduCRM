@@ -79,4 +79,9 @@ class Lead extends Entity
         $this->assignedTo = $assignedTo;
         $this->updatedAt = new \DateTimeImmutable();
     }
+
+    public function assignTo(?string $userId): void {
+        $this->assignedTo = $userId;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 }
