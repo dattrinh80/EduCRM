@@ -27,6 +27,7 @@ use Modules\CRM\Campaign\Application\Queries\GetCampaignsHandler;
 use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\CRM\Lead\Application\Imports\LeadsImport;
+use Modules\CRM\Lead\Application\Exports\LeadsTemplateExport;
 
 class LeadWebController extends Controller
 {
@@ -96,6 +97,11 @@ class LeadWebController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('admin.leads.index')->with('error', 'Error importing leads: ' . $e->getMessage());
         }
+    }
+
+    public function downloadTemplate()
+    {
+        return Excel::download(new LeadsTemplateExport(), 'leads_import_template.xlsx');
     }
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler)
