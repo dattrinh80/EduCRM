@@ -206,6 +206,20 @@
                                                                     <input type="password" name="password_confirmation" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition">
                                                                 </div>
                                                             </div>
+                                                            <div class="space-y-1 col-span-2">
+                                                                <label class="text-sm font-medium text-slate-700 block">Cơ sở mặc định</label>
+                                                                <div class="relative">
+                                                                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                    <select name="default_center_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                        <option value="">-- Không gán cơ sở mặc định --</option>
+                                                                        @foreach($centers as $c)
+                                                                            <option value="{{ $c->id }}" {{ (old('user_id') == $user->id ? old('default_center_id') : $user->default_center_id) === $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                                </div>
+                                                                @if(old('user_id') == $user->id) @error('default_center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror @endif
+                                                            </div>
                                                         </div>
 
                                                         <!-- Roles -->
@@ -351,6 +365,20 @@
                                         <i data-lucide="lock" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                         <input type="password" name="password_confirmation" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition">
                                     </div>
+                                </div>
+                                <div class="space-y-1 col-span-2">
+                                    <label class="text-sm font-medium text-slate-700 block">Cơ sở mặc định</label>
+                                    <div class="relative">
+                                        <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                        <select name="default_center_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                            <option value="">-- Không gán cơ sở mặc định --</option>
+                                            @foreach($centers as $c)
+                                                <option value="{{ $c->id }}" {{ (!old('_method') && old('default_center_id') === $c->id) ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                                            @endforeach
+                                        </select>
+                                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                    </div>
+                                    @if(!old('_method')) @error('default_center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror @endif
                                 </div>
                             </div>
 

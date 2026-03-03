@@ -11,7 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->web(append: [
+            \Modules\Core\Http\Middleware\CenterContextMiddleware::class,
+        ]);
+        
+        $middleware->api(append: [
+            \Modules\Core\Http\Middleware\CenterContextMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

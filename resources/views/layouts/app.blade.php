@@ -173,6 +173,61 @@
                 <div class="flex items-center gap-4">
                     <span class="hidden sm:inline text-sm text-slate-500">{{ now()->format('l, d/m/Y') }}</span>
                     
+                    <!-- Center Context Indicator & Switcher -->
+                    @auth
+                    @php
+                        $isSuperAdmin = false;
+                        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+                        $currentCenterId = session('current_center_id');
+                        $allCenters = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::where('status', 'active')->get();
+                        $currentCenter = $currentCenterId ? $allCenters->firstWhere('id', $currentCenterId) : null;
+                    @endphp
+                    <div class="relative" x-data="{ openCenter: false }" @click.away="openCenter = false">
+                        <button @click="openCenter = !openCenter" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border transition text-sm font-medium {{ $isSuperAdmin && !$currentCenter ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : ($currentCenter ? 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100' : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100') }}">
+                            <i data-lucide="building-2" class="w-4 h-4"></i>
+                            @if($isSuperAdmin && !$currentCenter)
+                                <span class="hidden sm:inline">Tất cả Cơ sở</span>
+                                <span class="sm:hidden">All</span>
+                            @elseif($currentCenter)
+                                <span class="hidden sm:inline">[{{ $currentCenter->code }}] {{ $currentCenter->name }}</span>
+                                <span class="sm:hidden">{{ $currentCenter->code }}</span>
+                            @else
+                                <span class="hidden sm:inline">Chưa chọn Cơ sở</span>
+                                <span class="sm:hidden">N/A</span>
+                            @endif
+                            <i data-lucide="chevron-down" class="w-3 h-3 opacity-60"></i>
+                        </button>
+
+                        <!-- Center Dropdown -->
+                        <div x-show="openCenter" x-transition x-cloak class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-xl py-1.5 border border-slate-100 z-50">
+                            <div class="px-3 py-2 text-[10px] uppercase tracking-wider text-slate-400 font-bold">Chuyển Cơ sở</div>
+                            @if($isSuperAdmin)
+                            <form action="{{ route('auth.switch-center') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="center_id" value="">
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 flex items-center gap-2 transition {{ !$currentCenterId ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-700' }}">
+                                    <i data-lucide="globe" class="w-4 h-4"></i> Tất cả Cơ sở (Super Admin)
+                                </button>
+                            </form>
+                            <div class="border-t border-slate-100 my-1"></div>
+                            @endif
+                            @foreach($allCenters as $c)
+                            <form action="{{ route('auth.switch-center') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="center_id" value="{{ $c->id }}">
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-primary-50 flex items-center gap-2 transition {{ $currentCenterId === $c->id ? 'text-primary-600 font-semibold bg-primary-50' : 'text-slate-700' }}">
+                                    <i data-lucide="building-2" class="w-4 h-4 {{ $currentCenterId === $c->id ? 'text-primary-500' : 'text-slate-400' }}"></i>
+                                    [{{ $c->code }}] {{ $c->name }}
+                                    @if($currentCenterId === $c->id)
+                                    <i data-lucide="check" class="w-4 h-4 ml-auto text-primary-500"></i>
+                                    @endif
+                                </button>
+                            </form>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endauth
+
                      <!-- Separator -->
                      <div class="h-8 w-px bg-slate-200 mx-2"></div>
 

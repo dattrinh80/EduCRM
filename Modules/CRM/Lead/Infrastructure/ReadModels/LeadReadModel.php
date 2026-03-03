@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace Modules\CRM\Lead\Infrastructure\ReadModels;
 
 use Illuminate\Database\Eloquent\Model;
+use Modules\Core\Persistence\Traits\BelongsToCenter;
 
 class LeadReadModel extends Model
 {
+    use BelongsToCenter;
+
     protected $table = 'leads';
 
     // Disabling incrementing since we use UUID

@@ -64,23 +64,35 @@ class LeadApiController extends Controller
 
     public function store(Request $request, CreateLeadHandler $handler): JsonResponse
     {
-        $validated = $request->validate([
+        $isSuperAdmin = false;
+        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+
+        $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-        ]);
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['center_id'] = 'required|uuid|exists:centers,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $centerId = $isSuperAdmin
+            ? ($validated['center_id'] ?? null)
+            : (session('current_center_id') ?? app('center_id'));
 
         $command = new CreateLeadCommand(
             $validated['name'],
             $validated['phone'],
             $validated['email'] ?? null,
-            $validated['center_id'] ?? null,
+            $centerId,
             $validated['dob'] ?? null,
             $validated['source_id'] ?? null,
             $validated['campaign_id'] ?? null,
@@ -100,18 +112,30 @@ class LeadApiController extends Controller
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler): JsonResponse
     {
-        $validated = $request->validate([
+        $isSuperAdmin = false;
+        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+
+        $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
-            'center_id' => 'required|uuid|exists:centers,id',
             'dob' => 'nullable|date',
             'source_id' => 'nullable|uuid|exists:sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
-        ]);
+        ];
+
+        if ($isSuperAdmin) {
+            $rules['center_id'] = 'required|uuid|exists:centers,id';
+        }
+
+        $validated = $request->validate($rules);
+
+        $centerId = $isSuperAdmin
+            ? ($validated['center_id'] ?? null)
+            : (session('current_center_id') ?? app('center_id'));
 
         try {
             $command = new UpdateLeadCommand(
@@ -120,7 +144,7 @@ class LeadApiController extends Controller
                 $validated['phone'],
                 $validated['status'],
                 $validated['email'] ?? null,
-                $validated['center_id'] ?? null,
+                $centerId,
                 $validated['dob'] ?? null,
                 $validated['source_id'] ?? null,
                 $validated['campaign_id'] ?? null,

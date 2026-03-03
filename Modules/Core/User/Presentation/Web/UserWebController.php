@@ -50,6 +50,7 @@ class UserWebController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:6|confirmed',
+            'default_center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
             'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
@@ -60,6 +61,7 @@ class UserWebController extends Controller
             $validated['name'],
             $validated['email'],
             $validated['password'],
+            $validated['default_center_id'] ?? null,
             $validated['roles'] ?? []
         );
 
@@ -76,6 +78,7 @@ class UserWebController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
+            'default_center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
             'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
@@ -88,6 +91,7 @@ class UserWebController extends Controller
                 $validated['name'],
                 $validated['email'],
                 $validated['password'] ?? null,
+                $validated['default_center_id'] ?? null,
                 $validated['roles'] ?? []
             );
 

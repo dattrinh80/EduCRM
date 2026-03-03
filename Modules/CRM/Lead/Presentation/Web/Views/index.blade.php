@@ -263,7 +263,7 @@
                                                         </div>
                                                     </div>
 
-                                                    <div class="grid grid-cols-2 gap-4">
+                                                        <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
                                                             <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
                                                             <div class="relative">
@@ -281,6 +281,7 @@
                                                             @endif
                                                         </div>
 
+                                                        @if($isSuperAdmin)
                                                         <div class="space-y-1">
                                                             <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
                                                             <div class="relative">
@@ -297,8 +298,8 @@
                                                                 @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                                             @endif
                                                         </div>
-                                                        
-                                                    </div>
+                                                        @endif
+                                                        </div>
                                                     
                                                     <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
@@ -463,6 +464,7 @@
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
+                            @if($isSuperAdmin)
                             <div class="space-y-1">
                                 <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
                                 <div class="relative">
@@ -479,6 +481,7 @@
                                     @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 @endif
                             </div>
+                            @endif
 
                             <div class="space-y-1">
                                 <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>

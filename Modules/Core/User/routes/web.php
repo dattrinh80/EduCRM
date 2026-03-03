@@ -9,6 +9,11 @@ Route::middleware('web')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    
+    // Center switching (authenticated users only)
+    Route::post('/auth/switch-center', [AuthController::class, 'switchCenter'])
+        ->middleware('auth')
+        ->name('auth.switch-center');
 });
 
 // Protected Admin Routes

@@ -28,6 +28,11 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            
+            $user = Auth::user();
+            if ($user->default_center_id) {
+                session(['current_center_id' => $user->default_center_id]);
+            }
 
             return redirect()->intended(route('admin.users.index'));
         }
@@ -45,5 +50,22 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('login');
+    }
+
+    public function switchCenter(Request $request)
+    {
+        $centerId = $request->input('center_id');
+
+        if (empty($centerId)) {
+            // Clear center context — only super admins should reach this
+            session()->forget('current_center_id');
+        } else {
+            $request->validate([
+                'center_id' => 'required|uuid|exists:centers,id'
+            ]);
+            session(['current_center_id' => $centerId]);
+        }
+
+        return redirect()->back();
     }
 }

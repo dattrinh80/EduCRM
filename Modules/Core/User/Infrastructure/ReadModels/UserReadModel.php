@@ -22,4 +22,16 @@ class UserReadModel extends Authenticatable
     {
         return $this->hasMany(UserRoleReadModel::class, 'user_id', 'id');
     }
+
+    /**
+     * Check if this user has the given role name.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        return $this->userRoles()
+            ->whereHas('role', function ($q) use ($roleName) {
+                $q->where('name', $roleName);
+            })
+            ->exists();
+    }
 }

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SourceReadModel extends Model
 {
+
     protected $table = 'sources';
     public $incrementing = false;
     protected $keyType = 'string';
