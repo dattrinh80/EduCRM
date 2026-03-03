@@ -85,18 +85,91 @@ class LeadWebController extends Controller
         return redirect()->route('admin.leads.index')->with('success', 'Lead created successfully.');
     }
 
-    public function import(Request $request, CreateLeadHandler $handler)
+    public function import(Request $request)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:5120'
         ]);
 
         try {
-            Excel::import(new LeadsImport($handler), $request->file('file'));
-            return redirect()->route('admin.leads.index')->with('success', 'Leads imported successfully.');
+            $array = Excel::toArray(new class implements \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow {
+                public function array(array $array) {}
+            }, $request->file('file'));
+            
+            $rows = $array[0] ?? []; 
+            if (empty($rows)) {
+                return response()->json(['error' => 'File rỗng hoặc không có dữ liệu (Kiểm tra lại Sheet 1).'], 400);
+            }
+            
+            $importId = (string) \Illuminate\Support\Str::uuid();
+            \Illuminate\Support\Facades\Cache::put('lead_import_' . $importId, $rows, now()->addHours(1));
+            
+            return response()->json([
+                'import_id' => $importId,
+                'total' => count($rows)
+            ]);
         } catch (\Exception $e) {
-            return redirect()->route('admin.leads.index')->with('error', 'Error importing leads: ' . $e->getMessage());
+            return response()->json(['error' => 'Lỗi đọc file Excel: ' . $e->getMessage()], 400);
         }
+    }
+
+    public function importProcess(Request $request, \Modules\CRM\Lead\Application\Commands\ImportLeadHandler $handler)
+    {
+        $importId = $request->input('import_id');
+        $offset = (int) $request->input('offset', 0);
+        $limit = (int) $request->input('limit', 10);
+        
+        $rows = \Illuminate\Support\Facades\Cache::get('lead_import_' . $importId);
+        if (!$rows) {
+            return response()->json(['error' => 'Tiến trình đã hết hạn hoặc không tìm thấy, vui lòng upload lại file.'], 400);
+        }
+        
+        $total = count($rows);
+        $chunk = array_slice($rows, $offset, $limit);
+        
+        $successCount = 0;
+        $errorCount = 0;
+        $logs = [];
+        
+        foreach ($chunk as $index => $row) {
+            $currentRow = $offset + $index + 2; // +1 header, +1 for 0-based to 1-based indexing
+            
+            try {
+                $normalizedRow = [];
+                foreach ($row as $k => $v) {
+                    $normalizedRow[strtolower(trim((string)$k))] = is_string($v) ? trim($v) : $v;
+                }
+                
+                if (empty($normalizedRow['center_code'])) {
+                    throw new \Exception("Thiếu cột bắt buộc (center_code)");
+                }
+                
+                $command = new \Modules\CRM\Lead\Application\Commands\ImportLeadCommand(
+                    (string)($normalizedRow['name'] ?? ''),
+                    (string)($normalizedRow['phone'] ?? ''),
+                    empty($normalizedRow['email']) ? null : (string)$normalizedRow['email'],
+                    empty($normalizedRow['center_code']) ? null : (string)$normalizedRow['center_code'],
+                    empty($normalizedRow['dob']) ? null : (string)$normalizedRow['dob'],
+                    empty($normalizedRow['source_code']) ? null : (string)$normalizedRow['source_code'],
+                    empty($normalizedRow['campaign_code']) ? null : (string)$normalizedRow['campaign_code'],
+                    empty($normalizedRow['interest_type_code']) ? null : (string)$normalizedRow['interest_type_code']
+                );
+                
+                $handler->handle($command);
+                $successCount++;
+            } catch (\Exception $e) {
+                $errorCount++;
+                $logs[] = "Dòng [{$currentRow}]: " . $e->getMessage();
+            }
+        }
+        
+        return response()->json([
+            'success_count' => $successCount,
+            'error_count'   => $errorCount,
+            'logs'          => $logs,
+            'next_offset'   => $offset + $limit,
+            'is_finished'   => ($offset + $limit >= $total)
+        ]);
     }
 
     public function downloadTemplate()

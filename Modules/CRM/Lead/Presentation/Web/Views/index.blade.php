@@ -3,7 +3,7 @@
 @section('title', 'Leads Management')
 
 @section('content')
-<div class="space-y-6" x-data="{ showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }} }">
+<div class="space-y-6" x-data="leadManagementStore()">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -520,10 +520,11 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.leads.import') }}" method="POST" class="p-6" enctype="multipart/form-data">
+                <form action="{{ route('admin.leads.import') }}" method="POST" class="p-6" enctype="multipart/form-data" @submit.prevent="submitImport">
                     @csrf
                     <input type="hidden" name="import" value="1">
-                    <div class="space-y-4">
+                    
+                    <div x-show="!isImporting && importProgress !== 100" class="space-y-4">
                         <div class="p-4 bg-primary-50 rounded-xl text-primary-800 text-sm flex gap-3 items-start border border-primary-100">
                             <i data-lucide="info" class="w-5 h-5 mt-0.5 shrink-0 text-primary-600"></i>
                             <div>
@@ -541,14 +542,44 @@
 
                         <div class="space-y-1">
                             <label class="text-sm font-medium text-slate-700 block mt-4">File Excel (.xlsx, .xls, .csv)</label>
-                            <input type="file" name="file" required accept=".xlsx,.xls,.csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 transition-all border border-slate-200 rounded-xl cursor-pointer">
+                            <input type="file" x-ref="importFile" name="file" required accept=".xlsx,.xls,.csv" class="w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100 transition-all border border-slate-200 rounded-xl cursor-pointer">
                             @error('file') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                         </div>
                     </div>
+
+                    <!-- Progress Section -->
+                    <div x-show="isImporting || importProgress === 100" x-cloak class="space-y-4 mt-2">
+                         <div class="flex items-center justify-between text-sm font-medium text-slate-700 mb-1">
+                             <span>Tiến trình Import</span>
+                             <span x-text="importProgress + '%'" class="text-primary-600 font-bold"></span>
+                         </div>
+                         <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                              <div class="bg-primary-500 h-2.5 rounded-full transition-all duration-300 ease-out" :style="`width: ${importProgress}%`"></div>
+                         </div>
+                         
+                         <div class="grid grid-cols-2 gap-4 mt-3">
+                             <div class="p-3 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100 flex justify-between items-center">
+                                 <div class="font-medium text-sm">Thành công</div>
+                                 <div class="text-lg font-bold" x-text="successCount">0</div>
+                             </div>
+                             <div class="p-3 bg-red-50 text-red-700 rounded-xl border border-red-100 flex justify-between items-center">
+                                 <div class="font-medium text-sm">Lỗi</div>
+                                 <div class="text-lg font-bold" x-text="errorCount">0</div>
+                             </div>
+                         </div>
+                         
+                         <div class="space-y-1 mt-4">
+                             <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-wider">Chi tiết thực thi</label>
+                             <textarea x-ref="logbox" readonly class="w-full p-3 bg-slate-800 text-slate-300 font-mono text-xs rounded-xl h-40 resize-none focus:outline-none" :value="importLogs"></textarea>
+                         </div>
+                    </div>
                     
-                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
-                        <button type="button" @click="showImportModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end relative">
+                        <div x-show="isImporting" class="absolute inset-0 bg-white/60 backdrop-blur-[1px] z-10 rounded"></div>
+                        <button type="button" @click="showImportModal = false; if(importProgress === 100) window.location.reload();" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                            <span x-text="importProgress === 100 ? 'Đóng' : 'Hủy'"></span>
+                        </button>
+                        <button type="submit" x-show="importProgress !== 100" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
                             <i data-lucide="upload" class="w-4 h-4"></i> Import Dữ liệu
                         </button>
                     </div>
@@ -562,6 +593,106 @@
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
+        Alpine.data('leadManagementStore', () => ({
+            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, 
+            showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
+            isImporting: false,
+            importProgress: 0,
+            importLogs: '',
+            successCount: 0,
+            errorCount: 0,
+            
+            submitImport(e) {
+                const form = e.target;
+                const fileInput = this.$refs.importFile;
+                if(!fileInput.files.length) return;
+                
+                const formData = new FormData(form);
+                
+                this.isImporting = true;
+                this.importProgress = 0;
+                this.importLogs = "Đang tải file lên máy chủ...\n";
+                this.successCount = 0;
+                this.errorCount = 0;
+                
+                fetch(form.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'Accept': 'application/json' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) {
+                        this.importLogs += "Lỗi khởi tạo: " + data.error + "\n";
+                        this.isImporting = false;
+                        return;
+                    }
+                    
+                    const importId = data.import_id;
+                    const total = data.total;
+                    this.importLogs += "Kết quả phân tích: " + total + " dòng.\nBắt đầu xử lý import dữ liệu...\n";
+                    
+                    if (total === 0) {
+                         this.importLogs += "File Excel rỗng hoặc không có dữ liệu để import.\n";
+                         this.isImporting = false;
+                         return;
+                    }
+                    
+                    this.processChunk(importId, 0, total);
+                })
+                .catch(err => {
+                    this.importLogs += "Lỗi kết nối upload: " + err + "\n";
+                    this.isImporting = false;
+                });
+            },
+            
+            processChunk(importId, offset, total) {
+                fetch('{{ route("admin.leads.import.process") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({ import_id: importId, offset: offset, limit: 20 })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if(data.error) {
+                         this.importLogs += "Lỗi trong quá trình import: " + data.error + "\n";
+                         this.isImporting = false;
+                         return;
+                    }
+                    
+                    this.successCount += data.success_count;
+                    this.errorCount += data.error_count;
+                    
+                    if(data.logs.length > 0) {
+                        this.importLogs += data.logs.join("\n") + "\n";
+                    }
+                    
+                    const logbox = this.$refs.logbox;
+                    if(logbox) logbox.scrollTop = logbox.scrollHeight;
+                    
+                    let nextOffset = Math.min(offset + 20, total);
+                    this.importProgress = Math.round((nextOffset / total) * 100);
+                    
+                    if(!data.is_finished) {
+                        this.processChunk(importId, data.next_offset, total);
+                    } else {
+                        this.importProgress = 100;
+                        this.isImporting = false;
+                        this.importLogs += "\n==============\nHOÀN TẤT IMPORT!\nThành công: " + this.successCount + " phiếu\nLỗi: " + this.errorCount + " phiếu\n";
+                        if(logbox) logbox.scrollTop = logbox.scrollHeight;
+                    }
+                })
+                .catch(err => {
+                    this.importLogs += "Lỗi hệ thống khi xử lý: " + err + "\n";
+                    this.isImporting = false;
+                });
+            }
+        }));
+
         window.addEventListener('refresh-icons', () => {
             setTimeout(() => {
                 if (window.lucide) { lucide.createIcons(); }

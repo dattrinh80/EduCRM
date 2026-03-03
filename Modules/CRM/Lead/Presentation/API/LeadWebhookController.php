@@ -7,16 +7,12 @@ namespace Modules\CRM\Lead\Presentation\API;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\JsonResponse;
-use Modules\CRM\Lead\Application\Commands\CreateLeadCommand;
-use Modules\CRM\Lead\Application\Commands\CreateLeadHandler;
-use Modules\CRM\Source\Infrastructure\ReadModels\SourceReadModel;
-use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
-use Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
-use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
+use Modules\CRM\Lead\Application\Commands\ImportLeadCommand;
+use Modules\CRM\Lead\Application\Commands\ImportLeadHandler;
 
 class LeadWebhookController extends Controller
 {
-    public function receive(Request $request, CreateLeadHandler $handler): JsonResponse
+    public function receive(Request $request, ImportLeadHandler $handler): JsonResponse
     {
         // Simple token based authentication for webhook
         $token = $request->header('X-Webhook-Token') ?? $request->query('token');
@@ -37,44 +33,15 @@ class LeadWebhookController extends Controller
             'interest_type_code' => 'nullable|string',
         ]);
 
-        // Auto Map Codes to UUIDs
-        $centerId = null;
-        if (!empty($validated['center_code'])) {
-            $center = CenterReadModel::where('code', $validated['center_code'])->first();
-            if (!$center) {
-                return response()->json(['error' => 'Center code not found'], 400);
-            }
-            $centerId = $center->id;
-        }
-
-        $sourceId = null;
-        if (!empty($validated['source_code'])) {
-            $source = SourceReadModel::where('code', $validated['source_code'])->first();
-            if ($source) $sourceId = $source->id;
-        }
-
-        $campaignId = null;
-        if (!empty($validated['campaign_code'])) {
-            $campaign = CampaignReadModel::where('code', $validated['campaign_code'])->first();
-            if ($campaign) $campaignId = $campaign->id;
-        }
-
-        $interestTypeId = null;
-        if (!empty($validated['interest_type_code'])) {
-            $interestType = InterestTypeReadModel::where('code', $validated['interest_type_code'])->first();
-            if ($interestType) $interestTypeId = $interestType->id;
-        }
-
-        $command = new CreateLeadCommand(
+        $command = new ImportLeadCommand(
             $validated['name'],
             $validated['phone'],
             $validated['email'] ?? null,
-            $centerId,
+            $validated['center_code'],
             $validated['dob'] ?? null,
-            $sourceId,
-            $campaignId,
-            $interestTypeId,
-            null // Webhooks don't usually assign specific users initially, rely on auto-assign later or keep unassigned
+            $validated['source_code'] ?? null,
+            $validated['campaign_code'] ?? null,
+            $validated['interest_type_code'] ?? null
         );
 
         try {
