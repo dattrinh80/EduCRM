@@ -24,10 +24,11 @@ use Modules\CRM\InterestType\Application\Queries\GetInterestTypesQuery;
 use Modules\CRM\InterestType\Application\Queries\GetInterestTypesHandler;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsQuery;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsHandler;
-use Modules\Core\User\Infrastructure\ReadModels\UserReadModel;
-use Maatwebsite\Excel\Facades\Excel;
+use Modules\Core\User\Application\Queries\GetAllUsersQuery;
+use Modules\Core\User\Application\Queries\GetAllUsersHandler;
+use Modules\CRM\Lead\Application\Queries\DownloadLeadTemplateQuery;
+use Modules\CRM\Lead\Application\Queries\DownloadLeadTemplateHandler;
 use Modules\CRM\Lead\Application\Imports\LeadsImport;
-use Modules\CRM\Lead\Application\Exports\LeadsTemplateExport;
 
 class LeadWebController extends Controller
 {
@@ -37,7 +38,8 @@ class LeadWebController extends Controller
         GetActiveCentersHandler $centersHandler,
         GetSourcesHandler $sourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
-        GetCampaignsHandler $campaignsHandler
+        GetCampaignsHandler $campaignsHandler,
+        GetAllUsersHandler $usersHandler
     ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
@@ -49,7 +51,7 @@ class LeadWebController extends Controller
         $sources = $sourcesHandler->handle(new GetSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
-        $users = UserReadModel::all();
+        $users = $usersHandler->handle(new GetAllUsersQuery());
 
         $isSuperAdmin = false;
         try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
@@ -189,9 +191,9 @@ class LeadWebController extends Controller
         ]);
     }
 
-    public function downloadTemplate()
+    public function downloadTemplate(DownloadLeadTemplateHandler $handler)
     {
-        return Excel::download(new LeadsTemplateExport(), 'leads_import_template.xlsx');
+        return $handler->handle(new DownloadLeadTemplateQuery());
     }
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler)
