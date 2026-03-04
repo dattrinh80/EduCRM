@@ -17,6 +17,10 @@ class DeleteRoleHandler implements CommandHandler
 
         $role = RoleReadModel::findOrFail($command->id);
 
+        if ($role->is_system_role) {
+            throw new \Exception('Safeguard Error: Root Governance Role (is_system_role) cannot be deleted.');
+        }
+
         // Detach all permissions first
         $role->permissions()->detach();
 

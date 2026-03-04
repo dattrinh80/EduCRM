@@ -15,6 +15,11 @@ class UpdateRoleHandler implements CommandHandler
         /** @var UpdateRoleCommand $command */
 
         $role = RoleReadModel::findOrFail($command->id);
+        
+        if ($role->is_system_role || $role->name === 'SYSTEM_OWNER') {
+            throw new \Exception('Safeguard Error: Root Governance Role (is_system_role) permissions cannot be modified.');
+        }
+        
         $role->update(['name' => $command->name]);
         $role->permissions()->sync($command->permissionIds);
 

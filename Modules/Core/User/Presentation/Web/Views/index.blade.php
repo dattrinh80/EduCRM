@@ -236,7 +236,13 @@
                                                                             <select x-model="role.role_id" :name="'roles['+index+'][role_id]'" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700">
                                                                                 <option value="">-- Chọn Role --</option>
                                                                                 @foreach($roles as $r)
-                                                                                    <option value="{{ $r->id }}">{{ $r->name }}</option>
+                                                                                    @php
+                                                                                        $canManageSystemOwner = app(\Modules\Core\User\Application\Services\AuthorizationServiceInterface::class)->hasPermission(auth()->id() ?? '', 'MANAGE_SYSTEM_OWNER', 'SYSTEM');
+                                                                                    @endphp
+                                                                                    <option value="{{ $r->id }}"
+                                                                                        x-show="'{{ $r->name }}' !== 'SYSTEM_OWNER' || {{ $canManageSystemOwner ? 'true' : 'false' }} || role.role_id === '{{ $r->id }}'"
+                                                                                        :disabled="'{{ $r->name }}' === 'SYSTEM_OWNER' && !{{ $canManageSystemOwner ? 'true' : 'false' }} && role.role_id !== '{{ $r->id }}'"
+                                                                                    >{{ $r->name }}</option>
                                                                                 @endforeach
                                                                             </select>
                                                                         </div>
@@ -396,7 +402,13 @@
                                                 <select x-model="role.role_id" :name="'roles['+index+'][role_id]'" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700">
                                                     <option value="">-- Chọn Role --</option>
                                                     @foreach($roles as $r)
-                                                        <option value="{{ $r->id }}">{{ $r->name }}</option>
+                                                        @php
+                                                            $canManageSystemOwner = app(\Modules\Core\User\Application\Services\AuthorizationServiceInterface::class)->hasPermission(auth()->id() ?? '', 'MANAGE_SYSTEM_OWNER', 'SYSTEM');
+                                                        @endphp
+                                                        <option value="{{ $r->id }}"
+                                                            x-show="'{{ $r->name }}' !== 'SYSTEM_OWNER' || {{ $canManageSystemOwner ? 'true' : 'false' }} || role.role_id === '{{ $r->id }}'"
+                                                            :disabled="'{{ $r->name }}' === 'SYSTEM_OWNER' && !{{ $canManageSystemOwner ? 'true' : 'false' }} && role.role_id !== '{{ $r->id }}'"
+                                                        >{{ $r->name }}</option>
                                                     @endforeach
                                                 </select>
                                             </div>

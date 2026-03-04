@@ -22,13 +22,6 @@ class CenterContextMiddleware
             return $next($request);
         }
 
-        // Determine raw Super Admin role
-        $isSuperAdminRole = false;
-        if (method_exists($user, 'hasRole')) {
-            $isSuperAdminRole = $user->hasRole('Super Admin');
-        }
-        $isSuperAdminRole = $isSuperAdminRole || $user->email === 'admin@admin.com' || $user->email === 'admin@educrm.vn' || $user->email === 'admin@eim.vn';
-
         // Fetch scopes
         $hasGlobalScope = false;
         $allowedCenterIds = [];
@@ -37,8 +30,6 @@ class CenterContextMiddleware
             $hasGlobalScope = $authService->hasGlobalScope($user->id);
             $allowedCenterIds = $authService->getAllowedCenterIds($user->id);
         } catch (\Exception $e) {}
-
-        $hasGlobalScope = $hasGlobalScope || $isSuperAdminRole;
 
         // Resolve current center_id: session takes priority
         $centerId = session('current_center_id');

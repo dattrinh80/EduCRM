@@ -92,24 +92,29 @@
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
-                                    @can('roles.update')
-                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Sửa">
-                                        <i data-lucide="edit-2" class="w-4 h-4"></i>
-                                    </button>
-                                    @endcan
-                                    @can('roles.delete')
-                                    <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ addslashes($role->name) }}')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xoá">
-                                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                    @if(!$role->is_system_role)
+                                        @can('roles.update')
+                                        <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Sửa">
+                                            <i data-lucide="edit-2" class="w-4 h-4"></i>
                                         </button>
-                                    </form>
-                                    @endcan
+                                        @endcan
+                                        @can('roles.delete')
+                                        <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ addslashes($role->name) }}')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Xoá">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                        @endcan
+                                    @else
+                                        <span class="text-xs text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">System Role</span>
+                                    @endif
                                 </div>
 
                                 <!-- Edit Modal -->
-                                @can('roles.update')
+                                @if(!$role->is_system_role)
+                                    @can('roles.update')
                                 <template x-teleport="body">
                                     <div x-show="showEditModal" style="display: none;" class="fixed inset-0 z-[100] flex items-center justify-center p-4">
                                         <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
@@ -223,7 +228,8 @@
                                         </div>
                                     </div>
                                 </template>
-                                @endcan
+                                    @endcan
+                                @endif
                             </td>
                         </tr>
                     @endforeach

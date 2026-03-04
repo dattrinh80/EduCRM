@@ -11,11 +11,6 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
 {
     public function can(string $userId, string $permission): bool
     {
-        // 1. Root admin bypass: Always has full access
-        $userEmail = DB::table('users')->where('id', $userId)->value('email');
-        if (in_array($userEmail, ['admin@admin.com', 'admin@educrm.vn', 'admin@eim.vn'])) {
-            return true;
-        }
 
         // 2. Determine current UI context
         $isGlobalContext = false;
@@ -46,6 +41,17 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
         return $query->exists();
     }
 
+    public function hasPermission(string $userId, string $permission, string $scopeLevel = 'SYSTEM'): bool
+    {
+        return DB::table('user_roles')
+            ->join('role_permissions', 'user_roles.role_id', '=', 'role_permissions.role_id')
+            ->join('permissions', 'role_permissions.permission_id', '=', 'permissions.id')
+            ->where('user_roles.user_id', $userId)
+            ->where('permissions.name', $permission)
+            ->where('user_roles.scope_type', $scopeLevel)
+            ->exists();
+    }
+
     public function hasGlobalScope(string $userId): bool
     {
         return DB::table('user_roles')
@@ -57,12 +63,6 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
     public function getAllowedCenterIds(string $userId): array
     {
         $scopes = [];
-        
-        $userEmail = DB::table('users')->where('id', $userId)->value('email');
-        if (in_array($userEmail, ['admin@admin.com', 'admin@educrm.vn', 'admin@eim.vn'])) {
-            $allCenterIds = DB::table('centers')->where('status', 'active')->pluck('id')->toArray();
-            return array_unique(array_merge(['SYSTEM'], $allCenterIds));
-        }
 
         if ($this->hasGlobalScope($userId)) {
             $scopes[] = 'SYSTEM';
