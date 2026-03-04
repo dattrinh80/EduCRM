@@ -15,19 +15,19 @@ trait BelongsToCenter
     {
         static::addGlobalScope('center', function (Builder $builder) {
             try {
-                $isSuperAdmin = app('is_super_admin');
+                $isGlobalScope = app('is_global_scope');
             } catch (\Exception $e) {
-                $isSuperAdmin = false;
+                $isGlobalScope = false;
             }
 
-            // Only filter by center if the user is NOT a super admin
-            if (!$isSuperAdmin) {
+            // Only filter by center if the user does NOT have global scope
+            if (!$isGlobalScope) {
                 try {
                     $centerId = app('center_id');
                     if ($centerId) {
                         $builder->where(in_array('center_id', static::$guardableColumns ?? []) ? 'center_id' : $builder->getModel()->getTable() . '.center_id', $centerId);
                     } else {
-                        // If centerId is null, and user is not super admin, they shouldn't see anything.
+                        // If centerId is null, and user is not global scope, they shouldn't see anything.
                         $builder->whereRaw('1 = 0');
                     }
                 } catch (\Exception $e) {

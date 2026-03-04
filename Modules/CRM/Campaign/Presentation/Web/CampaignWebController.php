@@ -28,16 +28,16 @@ class CampaignWebController extends Controller
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
 
-        $isSuperAdmin = false;
-        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
-        return view('campaign::index', compact('campaigns', 'search', 'centers', 'isSuperAdmin'));
+        return view('campaign::index', compact('campaigns', 'search', 'centers', 'isGlobalScope'));
     }
 
     public function store(Request $request, CreateCampaignHandler $handler)
     {
-        $isSuperAdmin = false;
-        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -48,13 +48,13 @@ class CampaignWebController extends Controller
             'end_date' => 'nullable|date|after_or_equal:start_date',
         ];
 
-        if ($isSuperAdmin) {
+        if ($isGlobalScope) {
             $rules['center_id'] = 'required|uuid|exists:centers,id';
         }
 
         $validated = $request->validate($rules);
 
-        $centerId = $isSuperAdmin
+        $centerId = $isGlobalScope
             ? ($validated['center_id'] ?? null)
             : (session('current_center_id') ?? app('center_id'));
 
@@ -79,8 +79,8 @@ class CampaignWebController extends Controller
 
     public function update(Request $request, string $id, UpdateCampaignHandler $handler)
     {
-        $isSuperAdmin = false;
-        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -92,13 +92,13 @@ class CampaignWebController extends Controller
             'is_active' => 'required|boolean'
         ];
 
-        if ($isSuperAdmin) {
+        if ($isGlobalScope) {
             $rules['center_id'] = 'required|uuid|exists:centers,id';
         }
 
         $validated = $request->validate($rules);
 
-        $centerId = $isSuperAdmin
+        $centerId = $isGlobalScope
             ? ($validated['center_id'] ?? null)
             : (session('current_center_id') ?? app('center_id'));
 

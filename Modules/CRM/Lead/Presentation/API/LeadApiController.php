@@ -64,8 +64,8 @@ class LeadApiController extends Controller
 
     public function store(Request $request, CreateLeadHandler $handler): JsonResponse
     {
-        $isSuperAdmin = false;
-        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -78,13 +78,13 @@ class LeadApiController extends Controller
             'assigned_to' => 'nullable|uuid|exists:users,id',
         ];
 
-        if ($isSuperAdmin) {
+        if ($isGlobalScope) {
             $rules['center_id'] = 'required|uuid|exists:centers,id';
         }
 
         $validated = $request->validate($rules);
 
-        $centerId = $isSuperAdmin
+        $centerId = $isGlobalScope
             ? ($validated['center_id'] ?? null)
             : (session('current_center_id') ?? app('center_id'));
 
@@ -112,8 +112,8 @@ class LeadApiController extends Controller
 
     public function update(Request $request, string $id, UpdateLeadHandler $handler): JsonResponse
     {
-        $isSuperAdmin = false;
-        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         $rules = [
             'name' => 'required|string|max:255',
@@ -127,13 +127,13 @@ class LeadApiController extends Controller
             'assigned_to' => 'nullable|uuid|exists:users,id',
         ];
 
-        if ($isSuperAdmin) {
+        if ($isGlobalScope) {
             $rules['center_id'] = 'required|uuid|exists:centers,id';
         }
 
         $validated = $request->validate($rules);
 
-        $centerId = $isSuperAdmin
+        $centerId = $isGlobalScope
             ? ($validated['center_id'] ?? null)
             : (session('current_center_id') ?? app('center_id'));
 

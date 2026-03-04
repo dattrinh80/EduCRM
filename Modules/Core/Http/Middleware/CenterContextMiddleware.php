@@ -49,7 +49,7 @@ class CenterContextMiddleware
         // A user acts globally ONLY if they have global scope AND haven't selected a specific center
         $isActingGlobally = $hasGlobalScope && empty($centerId);
         
-        app()->instance('is_super_admin', $isActingGlobally);
+        app()->instance('is_global_scope', $isActingGlobally);
 
         if (!$centerId && !$isActingGlobally) {
             app()->instance('center_id', null);
