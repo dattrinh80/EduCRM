@@ -93,10 +93,10 @@
                                             <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
 
                                             @php
-                                                $scopeColor = $userRole->scope_type === 'ALL'
+                                                $scopeColor = $userRole->scope_type === 'SYSTEM'
                                                     ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
                                                     : 'bg-amber-50 text-amber-700 border-amber-100';
-                                                $scopeLabel = $userRole->scope_type === 'ALL' ? 'Toàn quyền (Tất cả cơ sở)' : 'Cơ sở';
+                                                $scopeLabel = $userRole->scope_type === 'SYSTEM' ? 'Toàn quyền Hệ thống' : 'Cơ sở';
                                             @endphp
                                             
                                             <div class="flex items-center gap-1.5">
@@ -223,7 +223,7 @@
                                                         <div>
                                                             <div class="flex items-center justify-between xl mb-3">
                                                                 <label class="text-base font-semibold text-slate-800">Phân quyền (Roles) & Phạm vi (Scopes)</label>
-                                                                <button type="button" @click="assignedRoles.push({role_id: '', scope_type: 'ALL', scope_id: ''}); $nextTick(() => { if (window.lucide) { lucide.createIcons(); } });" class="px-3 py-1.5 bg-primary-50 text-primary-600 rounded-lg font-medium text-sm hover:bg-primary-100 transition flex items-center gap-1.5">
+                                                                <button type="button" @click="assignedRoles.push({role_id: '', scope_type: 'SYSTEM', scope_id: ''}); $nextTick(() => { if (window.lucide) { lucide.createIcons(); } });" class="px-3 py-1.5 bg-primary-50 text-primary-600 rounded-lg font-medium text-sm hover:bg-primary-100 transition flex items-center gap-1.5">
                                                                     <i data-lucide="plus" class="w-4 h-4"></i> Thêm quyền
                                                                 </button>
                                                             </div>
@@ -242,8 +242,8 @@
                                                                         </div>
                                                                         <div class="w-full sm:w-40 space-y-1 shrink-0">
                                                                             <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Phạm vi (Scope)</label>
-                                                                            <select x-model="role.scope_type" :name="'roles['+index+'][scope_type]'" @change="if(role.scope_type === 'ALL') role.scope_id = ''" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700 font-medium">
-                                                                                <option value="ALL">Toàn quyền (ALL)</option>
+                                                                            <select x-model="role.scope_type" :name="'roles['+index+'][scope_type]'" @change="if(role.scope_type === 'SYSTEM') role.scope_id = ''" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700 font-medium">
+                                                                                <option value="SYSTEM">Toàn quyền (SYSTEM)</option>
                                                                                 <option value="CENTER">Theo Cơ sở (CENTER)</option>
                                                                             </select>
                                                                         </div>
@@ -383,7 +383,7 @@
                             <div>
                                 <div class="flex items-center justify-between xl mb-3">
                                     <label class="text-base font-semibold text-slate-800">Phân quyền (Roles) & Phạm vi (Scopes)</label>
-                                    <button type="button" @click="assignedRoles.push({role_id: '', scope_type: 'ALL', scope_id: ''}); $nextTick(() => { if (window.lucide) { lucide.createIcons(); } });" class="px-3 py-1.5 bg-primary-50 text-primary-600 rounded-lg font-medium text-sm hover:bg-primary-100 transition flex items-center gap-1.5">
+                                    <button type="button" @click="assignedRoles.push({role_id: '', scope_type: 'SYSTEM', scope_id: ''}); $nextTick(() => { if (window.lucide) { lucide.createIcons(); } });" class="px-3 py-1.5 bg-primary-50 text-primary-600 rounded-lg font-medium text-sm hover:bg-primary-100 transition flex items-center gap-1.5">
                                         <i data-lucide="plus" class="w-4 h-4"></i> Thêm quyền
                                     </button>
                                 </div>
@@ -402,8 +402,8 @@
                                             </div>
                                             <div class="w-full sm:w-40 space-y-1 shrink-0">
                                                 <label class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Phạm vi (Scope)</label>
-                                                <select x-model="role.scope_type" :name="'roles['+index+'][scope_type]'" @change="if(role.scope_type === 'ALL') role.scope_id = ''" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700 font-medium">
-                                                    <option value="ALL">Toàn quyền (ALL)</option>
+                                                <select x-model="role.scope_type" :name="'roles['+index+'][scope_type]'" @change="if(role.scope_type === 'SYSTEM') role.scope_id = ''" required class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 bg-white text-slate-700 font-medium">
+                                                    <option value="SYSTEM">Toàn quyền (SYSTEM)</option>
                                                     <option value="CENTER">Theo Cơ sở (CENTER)</option>
                                                 </select>
                                             </div>

@@ -103,7 +103,7 @@ class IAMSeeder extends Seeder
             'id' => (string) Str::uuid(),
             'user_id' => $adminUserId,
             'role_id' => $adminRoleId,
-            'scope_type' => 'ALL',
+            'scope_type' => 'SYSTEM',
             'scope_id' => null,
         ]);
     }

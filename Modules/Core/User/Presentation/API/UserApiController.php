@@ -71,7 +71,7 @@ class UserApiController extends Controller
             'password' => 'required|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
-            'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
+            'roles.*.scope_type' => 'required|string|in:SYSTEM,REGION,CENTER',
             'roles.*.scope_id' => 'nullable|uuid',
         ]);
 
@@ -98,7 +98,7 @@ class UserApiController extends Controller
             'password' => 'nullable|string|min:6|confirmed',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
-            'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
+            'roles.*.scope_type' => 'required|string|in:SYSTEM,REGION,CENTER',
             'roles.*.scope_id' => 'nullable|uuid',
         ]);
 

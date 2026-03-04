@@ -53,7 +53,7 @@ class UserWebController extends Controller
             'default_center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
-            'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
+            'roles.*.scope_type' => 'required|string|in:SYSTEM,REGION,CENTER',
             'roles.*.scope_id' => 'nullable|uuid',
         ]);
 
@@ -81,7 +81,7 @@ class UserWebController extends Controller
             'default_center_id' => 'nullable|uuid|exists:centers,id',
             'roles' => 'nullable|array',
             'roles.*.role_id' => 'required|uuid|exists:roles,id',
-            'roles.*.scope_type' => 'required|string|in:ALL,CENTER',
+            'roles.*.scope_type' => 'required|string|in:SYSTEM,REGION,CENTER',
             'roles.*.scope_id' => 'nullable|uuid',
         ]);
 

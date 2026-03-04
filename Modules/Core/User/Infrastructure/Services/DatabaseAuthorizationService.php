@@ -33,7 +33,7 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
 
         if ($isGlobalContext) {
             // UI Context: System -> Activate ONLY Global Scopes
-            $query->where('user_roles.scope_type', 'ALL');
+            $query->where('user_roles.scope_type', 'SYSTEM');
         } elseif ($currentCenterId) {
             // UI Context: Center -> Activate ONLY Center Scopes (Do NOT inherit global)
             $query->where('user_roles.scope_type', 'CENTER')
@@ -50,7 +50,7 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
     {
         return DB::table('user_roles')
             ->where('user_id', $userId)
-            ->where('scope_type', 'ALL')
+            ->where('scope_type', 'SYSTEM')
             ->exists();
     }
 
@@ -61,11 +61,11 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
         $userEmail = DB::table('users')->where('id', $userId)->value('email');
         if (in_array($userEmail, ['admin@admin.com', 'admin@educrm.vn', 'admin@eim.vn'])) {
             $allCenterIds = DB::table('centers')->where('status', 'active')->pluck('id')->toArray();
-            return array_unique(array_merge(['ALL'], $allCenterIds));
+            return array_unique(array_merge(['SYSTEM'], $allCenterIds));
         }
 
         if ($this->hasGlobalScope($userId)) {
-            $scopes[] = 'ALL';
+            $scopes[] = 'SYSTEM';
         }
 
         $centerScopes = DB::table('user_roles')
