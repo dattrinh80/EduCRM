@@ -176,18 +176,36 @@
                     <!-- Center Context Indicator & Switcher -->
                     @auth
                     @php
-                        $isSuperAdmin = false;
-                        try { $isSuperAdmin = app('is_super_admin'); } catch (\Exception $e) {}
+                        $isSuperAdminRole = false;
+                        try { $isSuperAdminRole = app('is_super_admin'); } catch (\Exception $e) {}
+                        
+                        $hasGlobalScope = false;
+                        try { $hasGlobalScope = app('has_global_scope'); } catch (\Exception $e) {}
+                        
+                        $allowedCenterIds = [];
+                        try { $allowedCenterIds = app('allowed_center_ids'); } catch (\Exception $e) {}
+
                         $currentCenterId = session('current_center_id');
                         $allCenters = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::where('status', 'active')->get();
-                        $currentCenter = $currentCenterId ? $allCenters->firstWhere('id', $currentCenterId) : null;
+                        
+                        // Filter available centers for the dropdown
+                        // Roots always see all centers in their switcher
+                        if (in_array(Auth::user()->email ?? '', ['admin@admin.com', 'admin@educrm.vn', 'admin@eim.vn'])) {
+                             $availableCenters = $allCenters;
+                        } else {
+                             $availableCenters = $allCenters->whereIn('id', $allowedCenterIds);
+                        }
+
+                        $currentCenter = $currentCenterId ? $availableCenters->firstWhere('id', $currentCenterId) : null;
                     @endphp
+                    
+                    @if($hasGlobalScope || $availableCenters->count() > 1)
                     <div class="relative" x-data="{ openCenter: false }" @click.away="openCenter = false">
-                        <button @click="openCenter = !openCenter" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border transition text-sm font-medium {{ $isSuperAdmin && !$currentCenter ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : ($currentCenter ? 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100' : 'bg-amber-50 border-amber-200 text-amber-700 hover:bg-amber-100') }}">
-                            <i data-lucide="building-2" class="w-4 h-4"></i>
-                            @if($isSuperAdmin && !$currentCenter)
-                                <span class="hidden sm:inline">Tất cả Cơ sở</span>
-                                <span class="sm:hidden">All</span>
+                        <button @click="openCenter = !openCenter" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border transition text-sm font-medium {{ ($hasGlobalScope && !$currentCenter) ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100' }}">
+                            <i data-lucide="{{ ($hasGlobalScope && !$currentCenter) ? 'globe' : 'building-2' }}" class="w-4 h-4"></i>
+                            @if($hasGlobalScope && !$currentCenter)
+                                <span class="hidden sm:inline">Hệ thống (Toàn bộ cơ sở)</span>
+                                <span class="sm:hidden">ALL</span>
                             @elseif($currentCenter)
                                 <span class="hidden sm:inline">[{{ $currentCenter->code }}] {{ $currentCenter->name }}</span>
                                 <span class="sm:hidden">{{ $currentCenter->code }}</span>
@@ -200,18 +218,22 @@
 
                         <!-- Center Dropdown -->
                         <div x-show="openCenter" x-transition x-cloak class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-xl py-1.5 border border-slate-100 z-50">
-                            <div class="px-3 py-2 text-[10px] uppercase tracking-wider text-slate-400 font-bold">Chuyển Cơ sở</div>
-                            @if($isSuperAdmin)
+                            <div class="px-3 py-2 text-[10px] uppercase tracking-wider text-slate-400 font-bold">Chuyển Scope / Cơ sở</div>
+                            @if($hasGlobalScope)
                             <form action="{{ route('auth.switch-center') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="center_id" value="">
                                 <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 flex items-center gap-2 transition {{ !$currentCenterId ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-700' }}">
-                                    <i data-lucide="globe" class="w-4 h-4"></i> Tất cả Cơ sở (Super Admin)
+                                    <i data-lucide="globe" class="w-4 h-4 {{ !$currentCenterId ? 'text-emerald-500' : 'text-slate-400' }}"></i> 
+                                    Hệ thống (Toàn bộ cơ sở)
+                                    @if(!$currentCenterId)
+                                    <i data-lucide="check" class="w-4 h-4 ml-auto text-emerald-500"></i>
+                                    @endif
                                 </button>
                             </form>
                             <div class="border-t border-slate-100 my-1"></div>
                             @endif
-                            @foreach($allCenters as $c)
+                            @foreach($availableCenters as $c)
                             <form action="{{ route('auth.switch-center') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="center_id" value="{{ $c->id }}">
@@ -226,6 +248,16 @@
                             @endforeach
                         </div>
                     </div>
+                    @else
+                        <!-- Switcher is hidden if exactly 1 center and no global scope -->
+                        @if($currentCenter)
+                        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-primary-50 border-primary-200 text-primary-700 select-none text-sm font-medium">
+                            <i data-lucide="building-2" class="w-4 h-4"></i>
+                            <span class="hidden sm:inline">[{{ $currentCenter->code }}] {{ $currentCenter->name }}</span>
+                            <span class="sm:hidden">{{ $currentCenter->code }}</span>
+                        </div>
+                        @endif
+                    @endif
                     @endauth
 
                      <!-- Separator -->
