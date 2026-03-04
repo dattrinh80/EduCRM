@@ -97,7 +97,8 @@ class UserWebController extends Controller
 
             $handler->handle($command);
         } catch (\Exception $e) {
-            return redirect()->route('admin.users.index')->with('error', 'User not found.');
+            $msg = $e->getMessage() === 'User not found' ? 'User not found.' : $e->getMessage();
+            return redirect()->route('admin.users.index')->with('error', $msg);
         }
 
         return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
@@ -109,7 +110,8 @@ class UserWebController extends Controller
             $command = new DeleteUserCommand($id);
             $handler->handle($command);
         } catch (\Exception $e) {
-            return redirect()->route('admin.users.index')->with('error', 'User not found.');
+            $msg = $e->getMessage() === 'User not found' ? 'User not found.' : $e->getMessage();
+            return redirect()->route('admin.users.index')->with('error', $msg);
         }
 
         return redirect()->route('admin.users.index')->with('success', 'User deleted successfully.');
