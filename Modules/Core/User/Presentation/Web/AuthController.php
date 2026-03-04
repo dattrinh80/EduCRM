@@ -71,11 +71,13 @@ class AuthController extends Controller
         if (empty($centerId)) {
             // Clear center context — only super admins should reach this
             session()->forget('current_center_id');
+            session(['active_scope_level' => 'SYSTEM', 'active_scope_id' => null]);
         } else {
             $request->validate([
                 'center_id' => 'required|uuid|exists:centers,id'
             ]);
             session(['current_center_id' => $centerId]);
+            session(['active_scope_level' => 'CENTER', 'active_scope_id' => $centerId]);
         }
 
         return redirect()->back();

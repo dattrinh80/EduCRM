@@ -28,8 +28,20 @@ class CheckPermission
             abort(403, 'Unauthorized');
         }
 
-        if (!$this->authService->can($user->id, $permission)) {
-            abort(403, 'Bạn không có quyền thực hiện hành động này.');
+        $activeScopeLevel = session('active_scope_level', 'SYSTEM');
+        $activeScopeId = session('active_scope_id');
+
+        $hasAccess = $this->authService->hasPermission($user->id, $permission, $activeScopeLevel, $activeScopeId);
+
+        if (!$hasAccess) {
+            if ($request->expectsJson() || $request->ajax()) {
+                abort(403, 'Bạn không có quyền thực hiện hành động này trong phạm vi (scope) hiện tại.');
+            }
+            
+            // Redirect based on active scope level
+            $fallbackRoute = 'admin.dashboard'; // default valid scope for system
+            
+            return redirect()->route($fallbackRoute)->with('error', 'Bạn đã chuyển phạm vi hoạt động. Một số chức năng không còn khả dụng.');
         }
 
         return $next($request);

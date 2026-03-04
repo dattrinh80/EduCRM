@@ -11,45 +11,36 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
 {
     public function can(string $userId, string $permission): bool
     {
+        $activeScopeLevel = session('active_scope_level', 'SYSTEM');
+        $activeScopeId = session('active_scope_id');
 
-        // 2. Determine current UI context
-        $isGlobalContext = false;
-        try { $isGlobalContext = app('is_super_admin'); } catch (\Exception $e) {}
+        // Fallback for API or commands that might set context manually via app instance
+        if (!$activeScopeId) {
+            try { $activeScopeId = app('center_id'); } catch (\Exception $e) {}
+        }
+        
+        if ($activeScopeId && $activeScopeLevel === 'SYSTEM') {
+             // Safe guard, if SYSTEM but somehow there is a local ID (shouldn't happen but defensive)
+            $activeScopeId = null;
+        }
 
-        $currentCenterId = null;
-        try { $currentCenterId = app('center_id'); } catch (\Exception $e) {}
+        return $this->hasPermission($userId, $permission, $activeScopeLevel, $activeScopeId);
+    }
 
-        // 3. Evaluate permissions based strictly on the current context scale
+    public function hasPermission(string $userId, string $permission, string $scopeLevel = 'SYSTEM', ?string $scopeId = null): bool
+    {
         $query = DB::table('user_roles')
             ->join('role_permissions', 'user_roles.role_id', '=', 'role_permissions.role_id')
             ->join('permissions', 'role_permissions.permission_id', '=', 'permissions.id')
             ->where('user_roles.user_id', $userId)
-            ->where('permissions.name', $permission);
+            ->where('permissions.name', $permission)
+            ->where('user_roles.scope_type', $scopeLevel);
 
-        if ($isGlobalContext) {
-            // UI Context: System -> Activate ONLY Global Scopes
-            $query->where('user_roles.scope_type', 'SYSTEM');
-        } elseif ($currentCenterId) {
-            // UI Context: Center -> Activate ONLY Center Scopes (Do NOT inherit global)
-            $query->where('user_roles.scope_type', 'CENTER')
-                  ->where('user_roles.scope_id', $currentCenterId);
-        } else {
-            // Unknown or incomplete context -> Deny
-            return false;
+        if ($scopeLevel !== 'SYSTEM' && $scopeId !== null) {
+            $query->where('user_roles.scope_id', $scopeId);
         }
 
         return $query->exists();
-    }
-
-    public function hasPermission(string $userId, string $permission, string $scopeLevel = 'SYSTEM'): bool
-    {
-        return DB::table('user_roles')
-            ->join('role_permissions', 'user_roles.role_id', '=', 'role_permissions.role_id')
-            ->join('permissions', 'role_permissions.permission_id', '=', 'permissions.id')
-            ->where('user_roles.user_id', $userId)
-            ->where('permissions.name', $permission)
-            ->where('user_roles.scope_type', $scopeLevel)
-            ->exists();
     }
 
     public function hasGlobalScope(string $userId): bool
