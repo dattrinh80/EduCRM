@@ -43,6 +43,16 @@ class CenterContextMiddleware
             }
             if ($centerId) {
                 session(['current_center_id' => $centerId]);
+                session(['active_scope_level' => 'CENTER', 'active_scope_id' => $centerId]);
+            }
+        }
+        
+        // Sync active scope variables if they somehow went missing but centerId didn't
+        if (!session()->has('active_scope_level')) {
+            if (empty($centerId) && $hasGlobalScope) {
+                 session(['active_scope_level' => 'SYSTEM', 'active_scope_id' => null]);
+            } elseif ($centerId) {
+                 session(['active_scope_level' => 'CENTER', 'active_scope_id' => $centerId]);
             }
         }
 

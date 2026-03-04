@@ -30,8 +30,17 @@ class AuthController extends Controller
             $request->session()->regenerate();
             
             $user = Auth::user();
-            if ($user->default_center_id) {
+            
+            $authService = app(\Modules\Core\User\Application\Services\AuthorizationServiceInterface::class);
+            $hasGlobalScope = $authService->hasGlobalScope($user->id);
+
+            if ($hasGlobalScope) {
+                // Global scope takes precedence on fresh login
+                session(['active_scope_level' => 'SYSTEM', 'active_scope_id' => null]);
+                session()->forget('current_center_id');
+            } elseif ($user->default_center_id) {
                 session(['current_center_id' => $user->default_center_id]);
+                session(['active_scope_level' => 'CENTER', 'active_scope_id' => $user->default_center_id]);
             }
 
             // Audit Log: Login using SYSTEM_OWNER
