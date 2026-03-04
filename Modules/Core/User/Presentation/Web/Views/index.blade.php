@@ -64,8 +64,7 @@
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
                         <th class="p-4 px-6">Tên / Email</th>
-                        <th class="p-4 px-6">Vai trò (Roles)</th>
-                        <th class="p-4 px-6">Phạm vi truy cập</th>
+                        <th class="p-4 px-6">Vai trò (Roles) & Phạm vi (Scopes)</th>
                         <th class="p-4 px-6 text-right">Thao tác</th>
                     </tr>
                 </thead>
@@ -84,38 +83,36 @@
                                 </div>
                             </td>
                             <td class="p-4 px-6">
-                                <div class="flex flex-wrap gap-1.5">
+                                <div class="flex flex-col gap-2">
                                     @forelse ($user->userRoles as $userRole)
-                                        <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 border border-indigo-100 text-indigo-700">
-                                            {{ $userRole->role->name ?? 'N/A' }}
-                                        </span>
-                                    @empty
-                                        <span class="text-xs text-slate-400 italic">Chưa cấp quyền</span>
-                                    @endforelse
-                                </div>
-                            </td>
-                            <td class="p-4 px-6">
-                                <div class="flex flex-col gap-1.5">
-                                    @forelse ($user->userRoles as $userRole)
-                                        @php
-                                            $scopeColor = $userRole->scope_type === 'ALL'
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
-                                                : 'bg-amber-50 text-amber-700 border-amber-100';
-                                            $scopeLabel = $userRole->scope_type === 'ALL' ? 'Toàn quyền (Tất cả cơ sở)' : 'Cơ sở';
-                                        @endphp
                                         <div class="flex items-center gap-2">
-                                            <span class="px-2 py-0.5 rounded text-[11px] font-semibold border {{ $scopeColor }}">
-                                                {{ $scopeLabel }}
+                                            <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 border border-indigo-100 text-indigo-700 shrink-0">
+                                                {{ $userRole->role->name ?? 'N/A' }}
                                             </span>
-                                            @if($userRole->scope_type === 'CENTER')
-                                                @php $c = $centers->firstWhere('id', $userRole->scope_id); @endphp
-                                                <span class="text-xs text-slate-600 font-medium">
-                                                    {{ $c ? '['.$c->code.'] '.$c->name : 'N/A' }}
+                                            
+                                            <i data-lucide="arrow-right" class="w-3 h-3 text-slate-300 shrink-0"></i>
+
+                                            @php
+                                                $scopeColor = $userRole->scope_type === 'ALL'
+                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                                    : 'bg-amber-50 text-amber-700 border-amber-100';
+                                                $scopeLabel = $userRole->scope_type === 'ALL' ? 'Toàn quyền (Tất cả cơ sở)' : 'Cơ sở';
+                                            @endphp
+                                            
+                                            <div class="flex items-center gap-1.5">
+                                                <span class="px-2 py-0.5 rounded text-[11px] font-semibold border {{ $scopeColor }} shrink-0">
+                                                    {{ $scopeLabel }}
                                                 </span>
-                                            @endif
+                                                @if($userRole->scope_type === 'CENTER')
+                                                    @php $c = $centers->firstWhere('id', $userRole->scope_id); @endphp
+                                                    <span class="text-xs text-slate-600 font-medium truncate">
+                                                        {{ $c ? '['.$c->code.'] '.$c->name : 'N/A' }}
+                                                    </span>
+                                                @endif
+                                            </div>
                                         </div>
                                     @empty
-                                        <span class="text-xs text-slate-400 italic">—</span>
+                                        <span class="text-xs text-slate-400 italic">Chưa cấp quyền</span>
                                     @endforelse
                                 </div>
                             </td>
