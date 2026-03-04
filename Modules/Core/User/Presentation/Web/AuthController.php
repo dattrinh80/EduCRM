@@ -13,7 +13,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('admin.users.index');
+            return redirect()->route('admin.dashboard');
         }
 
         return view('user::auth.login');
@@ -34,7 +34,7 @@ class AuthController extends Controller
                 session(['current_center_id' => $user->default_center_id]);
             }
 
-            return redirect()->intended(route('admin.users.index'));
+            return redirect()->intended(route('admin.dashboard'));
         }
 
         return back()->withErrors([

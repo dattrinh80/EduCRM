@@ -89,7 +89,7 @@
             
             <!-- Navigation -->
             <nav class="p-4 space-y-1 flex-1 overflow-y-auto sidebar-menu">
-                <a href="{{ url('/admin/dashboard') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-slate-300 hover:text-white rounded-lg hover:bg-dark-200 transition-colors">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/dashboard') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
                     Dashboard
                 </a>
