@@ -31,6 +31,8 @@ use Modules\CRM\Lead\Application\Queries\DownloadLeadTemplateHandler;
 use Modules\CRM\Lead\Application\Imports\LeadsImport;
 use Maatwebsite\Excel\Facades\Excel;
 use Modules\CRM\Lead\Application\Exports\LeadsExport;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\DB;
 
 class LeadWebController extends Controller
 {
@@ -88,6 +90,21 @@ class LeadWebController extends Controller
             
             $page++;
         } while ($paginator->hasMorePages());
+
+        $format = $request->query('format', 'excel');
+
+        if ($format === 'pdf') {
+            $centers = DB::table('centers')->pluck('name', 'id')->toArray();
+            $users = DB::table('users')->pluck('name', 'id')->toArray();
+            
+            $pdf = Pdf::loadView('lead::exports.pdf', [
+                'leads' => $allLeads,
+                'centers' => $centers,
+                'users' => $users
+            ])->setPaper('a4', 'landscape');
+            
+            return $pdf->download('leads.pdf');
+        }
 
         return Excel::download(new LeadsExport($allLeads), 'leads.xlsx');
     }

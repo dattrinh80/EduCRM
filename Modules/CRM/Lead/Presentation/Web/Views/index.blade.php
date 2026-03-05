@@ -12,10 +12,30 @@
         </div>
         <div class="flex gap-2">
             @can('leads.export')
-            <a href="{{ route('admin.leads.export', request()->query()) }}" class="px-4 py-2 bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-lg hover:bg-emerald-100 transition flex items-center gap-2 border border-emerald-200 font-medium whitespace-nowrap">
-                <i data-lucide="sheet" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Export Excel</span>
-            </a>
+            <div x-data="{ open: false }" class="relative">
+                <button type="button" @click="open = !open" @click.away="open = false" class="px-4 py-2 bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-lg hover:bg-emerald-100 transition flex items-center gap-2 border border-emerald-200 font-medium whitespace-nowrap">
+                    <i data-lucide="download" class="w-4 h-4"></i>
+                    <span class="hidden sm:inline">Export Leads</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                </button>
+                <div x-show="open" x-cloak 
+                     x-transition:enter="transition ease-out duration-100"
+                     x-transition:enter-start="transform opacity-0 scale-95"
+                     x-transition:enter-end="transform opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="transform opacity-100 scale-100"
+                     x-transition:leave-end="transform opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-50">
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">
+                        <i data-lucide="sheet" class="w-4 h-4"></i>
+                        Export to Excel
+                    </a>
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">
+                        <i data-lucide="file-text" class="w-4 h-4"></i>
+                        Export to PDF
+                    </a>
+                </div>
+            </div>
             @endcan
             @can('leads.create')
             <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-slate-100 text-slate-700 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200 font-medium whitespace-nowrap">
