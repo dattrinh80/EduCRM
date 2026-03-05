@@ -20,5 +20,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (\Illuminate\Session\TokenMismatchException $e, \Illuminate\Http\Request $request) {
+            return redirect()->back()
+                ->withInput($request->except('password', '_token'))
+                ->withErrors(['error' => 'Phiên đăng nhập đã hết hạn. Vui lòng thử lại.']);
+        });
     })->create();
