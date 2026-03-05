@@ -10,4 +10,5 @@ interface AuthorizationServiceInterface
     public function hasPermission(string $userId, string $permission, string $scopeLevel = 'SYSTEM', ?string $scopeId = null): bool;
     public function hasGlobalScope(string $userId): bool;
     public function getAllowedCenterIds(string $userId): array;
+    public function isSystemOwner(string $userId): bool;
 }

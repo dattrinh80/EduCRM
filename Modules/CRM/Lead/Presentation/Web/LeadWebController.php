@@ -97,10 +97,10 @@ class LeadWebController extends Controller
 
         $format = $request->query('format', 'excel');
 
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $users = $usersHandler->handle(new GetAllUsersQuery());
+
         if ($format === 'pdf') {
-            $centers = $centersHandler->handle(new GetActiveCentersQuery());
-            $users = $usersHandler->handle(new GetAllUsersQuery());
-            
             $pdf = Pdf::loadView('lead::exports.pdf', [
                 'leads' => $allLeads,
                 'centers' => $centers,
@@ -110,7 +110,7 @@ class LeadWebController extends Controller
             return $pdf->download('leads.pdf');
         }
 
-        return Excel::download(new LeadsExport($allLeads), 'leads.xlsx');
+        return Excel::download(new LeadsExport($allLeads, $centers, $users), 'leads.xlsx');
     }
 
     public function store(Request $request, CreateLeadHandler $handler)

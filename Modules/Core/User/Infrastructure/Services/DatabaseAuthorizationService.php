@@ -68,4 +68,17 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
 
         return array_unique(array_merge($scopes, $centerScopes));
     }
+
+    public function isSystemOwner(string $userId): bool
+    {
+        $systemOwnerRole = DB::table('roles')->where('name', 'SYSTEM_OWNER')->value('id');
+        if (!$systemOwnerRole) {
+            return false;
+        }
+
+        return DB::table('user_roles')
+            ->where('user_id', $userId)
+            ->where('role_id', $systemOwnerRole)
+            ->exists();
+    }
 }

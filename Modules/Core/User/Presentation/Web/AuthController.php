@@ -7,6 +7,8 @@ namespace Modules\Core\User\Presentation\Web;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Auth;
+use Modules\Core\User\Application\Commands\LogSystemOwnerLoginCommand;
+use Modules\Core\User\Application\Commands\LogSystemOwnerLoginHandler;
 
 class AuthController extends Controller
 {
@@ -44,15 +46,9 @@ class AuthController extends Controller
             }
 
             // Audit Log: Login using SYSTEM_OWNER
-            $systemOwnerRole = \Illuminate\Support\Facades\DB::table('roles')->where('name', 'SYSTEM_OWNER')->value('id');
-            if ($systemOwnerRole) {
-                $hasSystemOwner = \Illuminate\Support\Facades\DB::table('user_roles')
-                    ->where('user_id', $user->id)
-                    ->where('role_id', $systemOwnerRole)
-                    ->exists();
-                if ($hasSystemOwner) {
-                    \Modules\Core\User\Infrastructure\Services\SystemAuditLogger::log('LOGIN_SYSTEM_OWNER', $user->id, $user->id);
-                }
+            if ($authService->isSystemOwner($user->id)) {
+                $logHandler = app(LogSystemOwnerLoginHandler::class);
+                $logHandler->handle(new LogSystemOwnerLoginCommand($user->id, $user->id));
             }
 
             return redirect()->intended(route('admin.dashboard'));

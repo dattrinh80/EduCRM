@@ -22,10 +22,13 @@ class LeadsExport implements FromCollection, WithHeadings, WithMapping, WithEven
 
     private int $rowNumber = 0;
 
-    public function __construct(private Collection $leads)
-    {
-        $this->centers = DB::table('centers')->pluck('name', 'id')->toArray();
-        $this->users = DB::table('users')->pluck('name', 'id')->toArray();
+    public function __construct(
+        private Collection $leads,
+        array $centers,
+        array $users
+    ) {
+        $this->centers = $centers;
+        $this->users = $users;
     }
 
     public function collection()
