@@ -45,14 +45,23 @@ class LeadWebController extends Controller
         GetCampaignsHandler $campaignsHandler,
         GetAllUsersHandler $usersHandler
     ) {
-        $perPage = (int) $request->query('per_page', 15);
+        $defaultPerPage = config('crm.pagination.default_per_page', 20);
+        $perPageOptions = config('crm.pagination.per_page_options', [20, 50, 100, 500, 1000]);
+
+        $perPage = (int) $request->query('per_page', $defaultPerPage);
+        if (!in_array($perPage, $perPageOptions)) {
+            $perPage = $defaultPerPage;
+        }
+
         $page = (int) $request->query('page', 1);
         $search = $request->query('search');
         $phone = $request->query('phone');
         $centerId = $request->query('center_id');
         $status = $request->query('status');
+        $sortBy = $request->query('sort_by');
+        $sortDir = $request->query('sort_dir', 'desc');
 
-        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status);
+        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status, $sortBy, $sortDir);
         $leads = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
@@ -64,7 +73,11 @@ class LeadWebController extends Controller
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
-        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users', 'isGlobalScope', 'search', 'phone', 'centerId', 'status'));
+        return view('lead::index', compact(
+            'leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users',
+            'isGlobalScope', 'search', 'phone', 'centerId', 'status',
+            'sortBy', 'sortDir', 'perPage', 'perPageOptions'
+        ));
     }
 
     public function export(

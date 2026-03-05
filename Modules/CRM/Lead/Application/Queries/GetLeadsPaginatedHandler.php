@@ -32,8 +32,16 @@ class GetLeadsPaginatedHandler implements QueryHandler
             $builder->where('status', $query->status);
         }
 
+        // Apply sorting: validate column against whitelist, fallback to latest()
+        $sortableColumns = config('crm.lead.sortable_columns', ['name', 'phone', 'email', 'status', 'created_at', 'updated_at']);
+        if (!empty($query->sortBy) && in_array($query->sortBy, $sortableColumns, true)) {
+            $direction = in_array($query->sortDirection, ['asc', 'desc'], true) ? $query->sortDirection : 'desc';
+            $builder->orderBy($query->sortBy, $direction);
+        } else {
+            $builder->latest();
+        }
+
         return $builder
-            ->latest()
             ->paginate($query->perPage, ['*'], 'page', $query->page);
     }
 }
