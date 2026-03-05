@@ -33,6 +33,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Modules\CRM\Lead\Application\Exports\LeadsExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
+use App\Core\Helpers\PaginationHelper;
 
 class LeadWebController extends Controller
 {
@@ -45,21 +46,16 @@ class LeadWebController extends Controller
         GetCampaignsHandler $campaignsHandler,
         GetAllUsersHandler $usersHandler
     ) {
-        $defaultPerPage = config('crm.pagination.default_per_page', 20);
-        $perPageOptions = config('crm.pagination.per_page_options', [20, 50, 100, 500, 1000]);
-
-        $perPage = (int) $request->query('per_page', $defaultPerPage);
-        if (!in_array($perPage, $perPageOptions)) {
-            $perPage = $defaultPerPage;
-        }
-
+        $perPage = PaginationHelper::resolvePerPage((int) $request->query('per_page'));
         $page = (int) $request->query('page', 1);
+
         $search = $request->query('search');
         $phone = $request->query('phone');
         $centerId = $request->query('center_id');
         $status = $request->query('status');
+        
         $sortBy = $request->query('sort_by');
-        $sortDir = $request->query('sort_dir', 'desc');
+        $sortDir = PaginationHelper::resolveSortDirection($request->query('sort_dir'));
 
         $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status, $sortBy, $sortDir);
         $leads = $handler->handle($query);
@@ -76,7 +72,7 @@ class LeadWebController extends Controller
         return view('lead::index', compact(
             'leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users',
             'isGlobalScope', 'search', 'phone', 'centerId', 'status',
-            'sortBy', 'sortDir', 'perPage', 'perPageOptions'
+            'sortBy', 'sortDir', 'perPage'
         ));
     }
 

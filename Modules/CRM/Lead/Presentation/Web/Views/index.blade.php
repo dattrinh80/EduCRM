@@ -478,22 +478,7 @@
             </table>
         </div>
         
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <span class="text-sm text-slate-500 whitespace-nowrap">Hiển thị</span>
-                <select id="per_page_selector" onchange="window.location.href=this.value" class="pl-3 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none cursor-pointer font-medium text-slate-700">
-                    @foreach($perPageOptions as $option)
-                        <option value="{{ route('admin.leads.index', array_merge(request()->query(), ['per_page' => $option, 'page' => 1])) }}" {{ $perPage == $option ? 'selected' : '' }}>{{ $option }}</option>
-                    @endforeach
-                </select>
-                <span class="text-sm text-slate-500 whitespace-nowrap">bản ghi / trang</span>
-            </div>
-            @if($leads->hasPages())
-            <div>
-                {{ $leads->appends(request()->query())->links() }}
-            </div>
-            @endif
-        </div>
+        @include('partials.pagination', ['paginator' => $leads])
         @endif
     </div>
 

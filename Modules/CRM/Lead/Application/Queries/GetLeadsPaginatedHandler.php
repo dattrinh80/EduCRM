@@ -34,9 +34,11 @@ class GetLeadsPaginatedHandler implements QueryHandler
 
         // Apply sorting: validate column against whitelist, fallback to latest()
         $sortableColumns = config('crm.lead.sortable_columns', ['name', 'phone', 'email', 'status', 'created_at', 'updated_at']);
-        if (!empty($query->sortBy) && in_array($query->sortBy, $sortableColumns, true)) {
-            $direction = in_array($query->sortDirection, ['asc', 'desc'], true) ? $query->sortDirection : 'desc';
-            $builder->orderBy($query->sortBy, $direction);
+        $validSortColumn = \App\Core\Helpers\PaginationHelper::resolveSortColumn($query->sortBy, $sortableColumns);
+        
+        if ($validSortColumn) {
+            $direction = \App\Core\Helpers\PaginationHelper::resolveSortDirection($query->sortDirection);
+            $builder->orderBy($validSortColumn, $direction);
         } else {
             $builder->latest();
         }
