@@ -67,8 +67,12 @@ class LeadWebController extends Controller
         return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users', 'isGlobalScope', 'search', 'phone', 'centerId', 'status'));
     }
 
-    public function export(Request $request, GetLeadsPaginatedHandler $handler)
-    {
+    public function export(
+        Request $request, 
+        GetLeadsPaginatedHandler $handler,
+        GetActiveCentersHandler $centersHandler,
+        GetAllUsersHandler $usersHandler
+    ) {
         $search = $request->query('search');
         $phone = $request->query('phone');
         $centerId = $request->query('center_id');
@@ -94,8 +98,8 @@ class LeadWebController extends Controller
         $format = $request->query('format', 'excel');
 
         if ($format === 'pdf') {
-            $centers = DB::table('centers')->pluck('name', 'id')->toArray();
-            $users = DB::table('users')->pluck('name', 'id')->toArray();
+            $centers = $centersHandler->handle(new GetActiveCentersQuery());
+            $users = $usersHandler->handle(new GetAllUsersQuery());
             
             $pdf = Pdf::loadView('lead::exports.pdf', [
                 'leads' => $allLeads,
