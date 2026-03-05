@@ -24,12 +24,12 @@
                 <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                 <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Tìm kiếm tên role..." class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition bg-white text-slate-700">
             </div>
-            <button type="submit" class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition flex items-center justify-center gap-2 text-sm font-medium">
-                <i data-lucide="filter" class="w-4 h-4"></i> Lọc
+            <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
+                <i data-lucide="filter" class="w-4 h-4"></i> Filter
             </button>
             @if (!empty($search))
-                <a href="{{ route('admin.roles.index') }}" class="px-5 py-2.5 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition flex items-center gap-2 text-sm font-medium">
-                    <i data-lucide="x" class="w-4 h-4"></i> Xoá lọc
+                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
+                    <i data-lucide="x" class="w-4 h-4"></i> Clear
                 </a>
             @endif
         </form>

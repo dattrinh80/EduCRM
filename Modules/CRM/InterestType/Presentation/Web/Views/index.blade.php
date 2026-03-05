@@ -33,11 +33,23 @@
             @endcan
         </div>
         @else
-        <!-- Search bar -->
+        <!-- Filter Bar -->
         <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-            <form action="{{ route('admin.interest-types.index') }}" method="GET" class="relative max-w-sm">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Tìm kiếm tên dịch vụ..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
+            <form action="{{ route('admin.interest-types.index') }}" method="GET" class="flex items-center gap-3">
+                <div class="relative flex-1 max-w-sm">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="search" value="{{ $search }}" placeholder="Tìm kiếm tên dịch vụ..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 transition outline-none bg-white">
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
+                        <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                    </button>
+                    @if(!empty($search))
+                    <a href="{{ route('admin.interest-types.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
+                        <i data-lucide="x" class="w-4 h-4"></i> Clear
+                    </a>
+                    @endif
+                </div>
             </form>
         </div>
 

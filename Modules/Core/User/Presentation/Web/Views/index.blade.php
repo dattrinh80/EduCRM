@@ -31,14 +31,12 @@
                     <option value="{{ $role->id }}" {{ ($roleId ?? '') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
                 @endforeach
             </select>
-            <button type="submit" class="px-5 py-2.5 bg-slate-100 text-slate-700 rounded-xl hover:bg-slate-200 transition flex items-center justify-center gap-2 text-sm font-medium">
-                <i data-lucide="filter" class="w-4 h-4"></i>
-                <span>Lọc</span>
+            <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
+                <i data-lucide="filter" class="w-4 h-4"></i> Filter
             </button>
             @if (!empty($search) || !empty($roleId))
-                <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 text-slate-500 hover:text-slate-700 rounded-xl hover:bg-slate-50 transition flex items-center justify-center gap-2 text-sm font-medium">
-                    <i data-lucide="x" class="w-4 h-4"></i>
-                    <span>Xoá lọc</span>
+                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
+                    <i data-lucide="x" class="w-4 h-4"></i> Clear
                 </a>
             @endif
         </form>
