@@ -84,4 +84,29 @@ class Lead extends Entity
         $this->assignedTo = $userId;
         $this->updatedAt = new \DateTimeImmutable();
     }
+
+    public function setSource(?string $sourceId): void {
+        $this->sourceId = $sourceId;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function setInterestType(?string $interestTypeId): void {
+        $this->interestTypeId = $interestTypeId;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function setCenter(?string $centerId): void {
+        $this->centerId = $centerId;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function setCampaign(?string $campaignId): void {
+        $this->campaignId = $campaignId;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function setStatus(string $status): void {
+        $this->status = $status;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
 }

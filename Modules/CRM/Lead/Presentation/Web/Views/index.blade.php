@@ -134,6 +134,9 @@
                 </div>
                 <div class="flex items-center gap-2">
                     @can('leads.update')
+                    <button type="button" @click="showMassEditModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
+                        <i data-lucide="edit-3" class="w-4 h-4"></i> Mass Edit
+                    </button>
                     <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
                         <i data-lucide="merge" class="w-4 h-4"></i> Merge
                     </button>
@@ -893,6 +896,156 @@
         </div>
     </template>
     @endcan
+
+    @can('leads.update')
+    <!-- Bulk Edit Modal -->
+    <template x-teleport="body">
+        <div x-show="showMassEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showMassEditModal = false" x-transition.opacity></div>
+            
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
+                 x-show="showMassEditModal" 
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                 
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                        </div>
+                        Mass Edit Leads
+                    </h3>
+                    <button @click="showMassEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <form action="{{ route('admin.leads.bulk-update') }}" method="POST" class="p-6">
+                    @csrf
+                    <input type="hidden" name="bulk_update" value="1">
+                    <template x-for="id in selectedItems" :key="id">
+                        <input type="hidden" name="lead_ids[]" :value="id">
+                    </template>
+                    
+                    <div class="space-y-4">
+                        <div class="p-3 bg-primary-50 text-primary-800 rounded-xl text-sm border border-primary-100 font-medium leading-relaxed">
+                            <i data-lucide="info" class="w-5 h-5 inline-block -mt-1 mr-1 text-primary-500"></i>
+                            Cập nhật <span class="font-bold text-primary-700" x-text="selectedItems.length"></span> liên hệ đã chọn. Chỉ những trường được chọn giá trị mới được cập nhật.
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
+                                <div class="relative">
+                                    <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        <option value="null">-- Trống --</option>
+                                        @foreach($sources as $source)
+                                            <option value="{{ $source->id }}">{{ $source->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ)</label>
+                                <div class="relative">
+                                    <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        <option value="null">-- Trống --</option>
+                                        @foreach($interestTypes as $interest)
+                                            <option value="{{ $interest->id }}">{{ $interest->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            @if($isGlobalScope)
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Cơ sở</label>
+                                <div class="relative">
+                                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="center_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        @foreach($centers as $center)
+                                            <option value="{{ $center->id }}">[{{ $center->code }}] {{ $center->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+                            @endif
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
+                                <div class="relative">
+                                    <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        <option value="null">-- Chưa giao --</option>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->email }})</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Chiến dịch</label>
+                                <div class="relative">
+                                    <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        <option value="null">-- Trống --</option>
+                                        @foreach($campaigns as $campaign)
+                                            <option value="{{ $campaign->id }}">{{ $campaign->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block">Status</label>
+                                <div class="relative">
+                                    <i data-lucide="tag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <select name="status" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                        <option value="">-- Giữ nguyên --</option>
+                                        <option value="New">New</option>
+                                        <option value="Contacted">Contacted</option>
+                                        <option value="Qualified">Qualified</option>
+                                        <option value="Lost">Lost</option>
+                                    </select>
+                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end relative">
+                        <button type="button" @click="showMassEditModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                            <i data-lucide="check" class="w-4 h-4"></i> Xác nhận Cập nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
+    @endcan
 </div>
 
 @push('scripts')
@@ -900,10 +1053,11 @@
     window.allLeads = {!! json_encode($leads->map(fn($l) => ['id' => $l->id, 'name' => $l->name, 'phone' => $l->phone])) !!};
     document.addEventListener('alpine:init', () => {
         Alpine.data('leadManagementStore', () => ({
-            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') && !old('assign') && !old('merge') ? 'true' : 'false' }}, 
+            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') && !old('assign') && !old('merge') && !old('bulk_update') ? 'true' : 'false' }}, 
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
             showAssignModal: {{ $errors->any() && old('assign') ? 'true' : 'false' }},
             showMergeModal: {{ $errors->any() && old('merge') ? 'true' : 'false' }},
+            showMassEditModal: {{ $errors->any() && old('bulk_update') ? 'true' : 'false' }},
             
             selectedItems: [],
             availableIds: [{!! $leads->pluck('id')->map(fn($id) => "'{$id}'")->join(',') !!}],

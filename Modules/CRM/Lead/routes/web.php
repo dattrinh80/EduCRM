@@ -14,6 +14,7 @@ Route::prefix('admin/leads')
         Route::post('/import/process', [LeadWebController::class, 'importProcess'])->name('import.process')->middleware('permission:leads.create');
         Route::get('/template', [LeadWebController::class, 'downloadTemplate'])->name('template')->middleware('permission:leads.create');
         Route::post('/assign', [LeadWebController::class, 'assign'])->name('assign')->middleware('permission:leads.update');
+        Route::post('/bulk-update', [LeadWebController::class, 'bulkUpdate'])->name('bulk-update')->middleware('permission:leads.update');
         Route::post('/merge', [LeadWebController::class, 'merge'])->name('merge')->middleware('permission:leads.update');
         Route::get('/{id}/edit', [LeadWebController::class, 'edit'])->name('edit')->middleware('permission:leads.update');
         Route::put('/{id}', [LeadWebController::class, 'update'])->name('update')->middleware('permission:leads.update');

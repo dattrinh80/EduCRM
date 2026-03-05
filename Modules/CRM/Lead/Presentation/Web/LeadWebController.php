@@ -34,6 +34,8 @@ use Modules\CRM\Lead\Application\Exports\LeadsExport;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\DB;
 use App\Core\Helpers\PaginationHelper;
+use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsCommand;
+use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsHandler;
 
 class LeadWebController extends Controller
 {
@@ -359,5 +361,37 @@ class LeadWebController extends Controller
         }
 
         return redirect()->back()->with('success', count($request->input('slave_lead_ids')) . ' leads merged successfully.');
+    }
+
+    public function bulkUpdate(Request $request, BulkUpdateLeadsHandler $handler)
+    {
+        $request->validate([
+            'lead_ids' => 'required|array',
+            'lead_ids.*' => 'required|uuid',
+            'source_id' => 'nullable',
+            'interest_type_id' => 'nullable',
+            'center_id' => 'nullable',
+            'assigned_to' => 'nullable',
+            'campaign_id' => 'nullable',
+            'status' => 'nullable|string',
+        ]);
+
+        $leadIds = $request->input('lead_ids');
+        
+        // We only update fields that are provided in the request as non-empty strings
+        // Empty string means "Keep original"
+        $command = new BulkUpdateLeadsCommand(
+            $leadIds,
+            $request->input('source_id') !== '' ? $request->input('source_id') : null,
+            $request->input('interest_type_id') !== '' ? $request->input('interest_type_id') : null,
+            $request->input('center_id') !== '' ? $request->input('center_id') : null,
+            $request->input('assigned_to') !== '' ? $request->input('assigned_to') : null,
+            $request->input('campaign_id') !== '' ? $request->input('campaign_id') : null,
+            $request->input('status') !== '' ? $request->input('status') : null,
+        );
+
+        $handler->handle($command);
+
+        return redirect()->back()->with('success', count($leadIds) . ' leads updated successfully.');
     }
 }
