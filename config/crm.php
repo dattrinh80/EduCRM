@@ -33,4 +33,8 @@ return [
         'sortable_columns' => ['name', 'phone', 'email', 'status', 'created_at', 'updated_at'],
     ],
 
+    'campaign' => [
+        'sortable_columns' => ['name', 'code', 'channel', 'budget', 'start_date', 'end_date', 'is_active', 'created_at'],
+    ],
+
 ];

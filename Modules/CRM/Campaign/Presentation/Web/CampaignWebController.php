@@ -16,14 +16,19 @@ use Modules\CRM\Campaign\Application\Queries\GetCampaignsQuery;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsHandler;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
+use App\Core\Helpers\PaginationHelper;
 
 class CampaignWebController extends Controller
 {
     public function index(Request $request, GetCampaignsHandler $handler, GetActiveCentersHandler $centersHandler)
     {
+        $perPage = PaginationHelper::resolvePerPage((int) $request->query('per_page'));
+        $page = (int) $request->query('page', 1);
         $search = $request->query('search');
+        $sortBy = $request->query('sort_by');
+        $sortDir = PaginationHelper::resolveSortDirection($request->query('sort_dir'));
         
-        $query = new GetCampaignsQuery($search);
+        $query = new GetCampaignsQuery($search, null, $perPage, $page, $sortBy, $sortDir);
         $campaigns = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
@@ -31,7 +36,10 @@ class CampaignWebController extends Controller
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
-        return view('campaign::index', compact('campaigns', 'search', 'centers', 'isGlobalScope'));
+        return view('campaign::index', compact(
+            'campaigns', 'search', 'centers', 'isGlobalScope',
+            'sortBy', 'sortDir', 'perPage'
+        ));
     }
 
     public function store(Request $request, CreateCampaignHandler $handler)

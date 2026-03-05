@@ -45,13 +45,83 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 border-b border-slate-100 text-xs uppercase text-slate-500 font-semibold tracking-wider">
-                        <th class="p-4 px-6">Chiến dịch</th>
-                        <th class="p-4 px-6">Cơ sở</th>
-                        <th class="p-4 px-6">Kênh (Channel)</th>
-                        <th class="p-4 px-6">Ngân sách</th>
-                        <th class="p-4 px-6">Thời gian</th>
-                        <th class="p-4 px-6">Trạng thái</th>
-                        <th class="p-4 px-6 text-right">Thao tác</th>
+                        <th class="p-4 px-6">
+                            <a href="{{ route('admin.campaigns.index', array_merge(request()->query(), ['sort_by' => 'name', 'sort_dir' => ($sortBy === 'name' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
+                               class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
+                                Chiến dịch
+                                @if($sortBy === 'name')
+                                    @if($sortDir === 'asc')
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                    @endif
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="p-4 px-6 text-slate-500">Cơ sở</th>
+                        <th class="p-4 px-6">
+                            <a href="{{ route('admin.campaigns.index', array_merge(request()->query(), ['sort_by' => 'channel', 'sort_dir' => ($sortBy === 'channel' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
+                               class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
+                                Kênh (Channel)
+                                @if($sortBy === 'channel')
+                                    @if($sortDir === 'asc')
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                    @endif
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="p-4 px-6">
+                            <a href="{{ route('admin.campaigns.index', array_merge(request()->query(), ['sort_by' => 'budget', 'sort_dir' => ($sortBy === 'budget' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
+                               class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
+                                Ngân sách
+                                @if($sortBy === 'budget')
+                                    @if($sortDir === 'asc')
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                    @endif
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="p-4 px-6">
+                            <a href="{{ route('admin.campaigns.index', array_merge(request()->query(), ['sort_by' => 'start_date', 'sort_dir' => ($sortBy === 'start_date' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
+                               class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
+                                Thời gian
+                                @if($sortBy === 'start_date')
+                                    @if($sortDir === 'asc')
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                    @endif
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="p-4 px-6">
+                            <a href="{{ route('admin.campaigns.index', array_merge(request()->query(), ['sort_by' => 'is_active', 'sort_dir' => ($sortBy === 'is_active' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
+                               class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
+                                Trạng thái
+                                @if($sortBy === 'is_active')
+                                    @if($sortDir === 'asc')
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                    @else
+                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                    @endif
+                                @else
+                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                @endif
+                            </a>
+                        </th>
+                        <th class="p-4 px-6 text-right text-slate-500">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -277,11 +347,7 @@
                 </tbody>
             </table>
         </div>
-        @if($campaigns->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
-            {{ $campaigns->links() }}
-        </div>
-        @endif
+        @include('partials.pagination', ['paginator' => $campaigns])
         @endif
     </div>
 
