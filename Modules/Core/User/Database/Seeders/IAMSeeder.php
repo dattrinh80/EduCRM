@@ -31,7 +31,7 @@ class IAMSeeder extends Seeder
             // Roles
             'roles.view', 'roles.create', 'roles.update', 'roles.delete',
             // Leads
-            'leads.view', 'leads.create', 'leads.update', 'leads.delete',
+            'leads.view', 'leads.create', 'leads.update', 'leads.delete', 'leads.export',
             // Centers
             'centers.view', 'centers.create', 'centers.update', 'centers.delete',
             // Students
@@ -64,9 +64,9 @@ class IAMSeeder extends Seeder
             ]);
         }
 
-        // Manager gets view + create + update on leads/students/courses
+        // Manager gets view + create + update + export on leads/students/courses
         $managerPerms = [
-            'leads.view', 'leads.create', 'leads.update',
+            'leads.view', 'leads.create', 'leads.update', 'leads.export',
             'students.view', 'students.create', 'students.update',
             'courses.view', 'courses.create', 'courses.update',
         ];

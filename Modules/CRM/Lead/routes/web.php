@@ -18,4 +18,5 @@ Route::prefix('admin/leads')
         Route::get('/{id}/edit', [LeadWebController::class, 'edit'])->name('edit')->middleware('permission:leads.update');
         Route::put('/{id}', [LeadWebController::class, 'update'])->name('update')->middleware('permission:leads.update');
         Route::delete('/{id}', [LeadWebController::class, 'destroy'])->name('destroy')->middleware('permission:leads.delete');
+        Route::get('/export/excel', [LeadWebController::class, 'export'])->name('export')->middleware('permission:leads.export');
     });

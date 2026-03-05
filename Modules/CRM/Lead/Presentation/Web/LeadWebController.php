@@ -29,6 +29,8 @@ use Modules\Core\User\Application\Queries\GetAllUsersHandler;
 use Modules\CRM\Lead\Application\Queries\DownloadLeadTemplateQuery;
 use Modules\CRM\Lead\Application\Queries\DownloadLeadTemplateHandler;
 use Modules\CRM\Lead\Application\Imports\LeadsImport;
+use Maatwebsite\Excel\Facades\Excel;
+use Modules\CRM\Lead\Application\Exports\LeadsExport;
 
 class LeadWebController extends Controller
 {
@@ -61,6 +63,33 @@ class LeadWebController extends Controller
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users', 'isGlobalScope', 'search', 'phone', 'centerId', 'status'));
+    }
+
+    public function export(Request $request, GetLeadsPaginatedHandler $handler)
+    {
+        $search = $request->query('search');
+        $phone = $request->query('phone');
+        $centerId = $request->query('center_id');
+        $status = $request->query('status');
+
+        $allLeads = collect();
+        $page = 1;
+        $perPage = 1000;
+
+        do {
+            $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status);
+            $paginator = $handler->handle($query);
+            
+            $items = \Illuminate\Database\Eloquent\Collection::make($paginator->items());
+            if ($items->isNotEmpty()) {
+                $items->loadMissing(['source', 'interestType']);
+                $allLeads = $allLeads->merge($items);
+            }
+            
+            $page++;
+        } while ($paginator->hasMorePages());
+
+        return Excel::download(new LeadsExport($allLeads), 'leads.xlsx');
     }
 
     public function store(Request $request, CreateLeadHandler $handler)

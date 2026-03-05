@@ -10,8 +10,14 @@
             <h1 class="text-2xl font-bold text-slate-800">Leads Management</h1>
             <p class="text-slate-500 mt-1">Manage and track all leads</p>
         </div>
-        @can('leads.create')
         <div class="flex gap-2">
+            @can('leads.export')
+            <a href="{{ route('admin.leads.export', request()->query()) }}" class="px-4 py-2 bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-lg hover:bg-emerald-100 transition flex items-center gap-2 border border-emerald-200 font-medium whitespace-nowrap">
+                <i data-lucide="sheet" class="w-4 h-4"></i>
+                <span class="hidden sm:inline">Export Excel</span>
+            </a>
+            @endcan
+            @can('leads.create')
             <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-slate-100 text-slate-700 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200 font-medium whitespace-nowrap">
                 <i data-lucide="file-down" class="w-4 h-4"></i>
                 <span class="hidden sm:inline">Import Excel</span>
@@ -20,8 +26,8 @@
                 <i data-lucide="plus" class="w-4 h-4"></i>
                 <span>New Lead</span>
             </button>
+            @endcan
         </div>
-        @endcan
     </div>
 
     <!-- Filter/Search -->
