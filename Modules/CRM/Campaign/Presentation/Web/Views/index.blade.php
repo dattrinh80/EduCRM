@@ -18,9 +18,98 @@
         @endcan
     </div>
 
+    <!-- Filter/Search -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+        <form action="{{ route('admin.campaigns.index') }}" method="GET" class="space-y-4">
+            <!-- Keep existing sort query params hidden -->
+            @if(request('sort_by')) <input type="hidden" name="sort_by" value="{{ request('sort_by') }}"> @endif
+            @if(request('sort_dir')) <input type="hidden" name="sort_dir" value="{{ request('sort_dir') }}"> @endif
+            @if(request('per_page')) <input type="hidden" name="per_page" value="{{ request('per_page') }}"> @endif
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-slate-700 mb-1">Chiến dịch</label>
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="search" id="search" placeholder="Tên hoặc mã..." value="{{ request('search') }}"
+                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                    </div>
+                </div>
+
+                <!-- Center -->
+                @if($isGlobalScope)
+                <div>
+                    <label for="center_id" class="block text-sm font-medium text-slate-700 mb-1">Cơ sở</label>
+                    <div class="relative w-full">
+                        <i data-lucide="building-2" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select name="center_id" id="center_id" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
+                            <option value="">Tất cả cơ sở</option>
+                            @foreach($centers as $c)
+                                <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+                @endif
+
+                <!-- Status -->
+                <div>
+                    <label for="is_active" class="block text-sm font-medium text-slate-700 mb-1">Trạng thái</label>
+                    <div class="relative w-full">
+                        <i data-lucide="tag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <select name="is_active" id="is_active" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Hoạt động</option>
+                            <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Đã khóa</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-2 w-full md:w-auto">
+                    <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
+                        <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                    </button>
+                    @if(request()->hasAny(['search', 'center_id', 'budget_from', 'budget_to', 'date_from', 'date_to', 'is_active']))
+                    <a href="{{ route('admin.campaigns.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
+                        <i data-lucide="x" class="w-4 h-4"></i> Clear
+                    </a>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Second row for ranges -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Ngân sách (Từ - Đến)</label>
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1">
+                            <input type="number" name="budget_from" value="{{ request('budget_from') }}" placeholder="Min" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                        </div>
+                        <span class="text-slate-300">-</span>
+                        <div class="relative flex-1">
+                            <input type="number" name="budget_to" value="{{ request('budget_to') }}" placeholder="Max" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2">
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Thời gian (Từ - Đến)</label>
+                    <div class="flex items-center gap-2">
+                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                        <span class="text-slate-300">-</span>
+                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
     <!-- Data List -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        @if($campaigns->isEmpty() && !$search)
+        @if($campaigns->isEmpty() && !$search && !request()->hasAny(['center_id', 'budget_from', 'budget_to', 'date_from', 'date_to', 'is_active']))
         <div class="p-12 text-center">
             <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
                 <i data-lucide="megaphone" class="w-8 h-8 text-slate-400"></i>
@@ -33,14 +122,6 @@
             @endcan
         </div>
         @else
-        <!-- Search bar -->
-        <div class="p-4 border-b border-slate-100 bg-slate-50/50">
-            <form action="{{ route('admin.campaigns.index') }}" method="GET" class="relative max-w-sm">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" name="search" value="{{ $search }}" placeholder="Tìm kiếm tên hoặc mã chiến dịch..." class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition">
-            </form>
-        </div>
-
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>

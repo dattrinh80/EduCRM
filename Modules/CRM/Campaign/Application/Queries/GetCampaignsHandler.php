@@ -19,6 +19,24 @@ class GetCampaignsHandler
             $dbQuery->where("is_active", $query->isActive);
         }
 
+        if ($query->budgetFrom !== null) {
+            $dbQuery->where('budget', '>=', $query->budgetFrom);
+        }
+        if ($query->budgetTo !== null) {
+            $dbQuery->where('budget', '<=', $query->budgetTo);
+        }
+
+        if ($query->dateFrom !== null) {
+            $dbQuery->where('start_date', '>=', $query->dateFrom);
+        }
+        if ($query->dateTo !== null) {
+            $dbQuery->where('end_date', '<=', $query->dateTo);
+        }
+
+        if ($query->centerId !== null) {
+            $dbQuery->where('center_id', $query->centerId);
+        }
+
         // Apply sorting
         $sortableColumns = config('crm.campaign.sortable_columns', ['name', 'code', 'created_at']);
         $validSortColumn = PaginationHelper::resolveSortColumn($query->sortBy, $sortableColumns);

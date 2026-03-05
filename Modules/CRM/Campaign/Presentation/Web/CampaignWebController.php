@@ -28,7 +28,26 @@ class CampaignWebController extends Controller
         $sortBy = $request->query('sort_by');
         $sortDir = PaginationHelper::resolveSortDirection($request->query('sort_dir'));
         
-        $query = new GetCampaignsQuery($search, null, $perPage, $page, $sortBy, $sortDir);
+        $budgetFrom = $request->query('budget_from') !== null ? (float) $request->query('budget_from') : null;
+        $budgetTo = $request->query('budget_to') !== null ? (float) $request->query('budget_to') : null;
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
+        $isActive = $request->query('is_active') !== null ? ($request->query('is_active') === '1') : null;
+        $centerId = $request->query('center_id');
+
+        $query = new GetCampaignsQuery(
+            $search, 
+            $isActive, 
+            $perPage, 
+            $page, 
+            $sortBy, 
+            $sortDir, 
+            $budgetFrom, 
+            $budgetTo, 
+            $dateFrom, 
+            $dateTo, 
+            $centerId
+        );
         $campaigns = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
@@ -38,7 +57,8 @@ class CampaignWebController extends Controller
 
         return view('campaign::index', compact(
             'campaigns', 'search', 'centers', 'isGlobalScope',
-            'sortBy', 'sortDir', 'perPage'
+            'sortBy', 'sortDir', 'perPage',
+            'budgetFrom', 'budgetTo', 'dateFrom', 'dateTo', 'isActive', 'centerId'
         ));
     }
 
