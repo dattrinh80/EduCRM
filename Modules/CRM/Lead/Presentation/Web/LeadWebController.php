@@ -43,8 +43,12 @@ class LeadWebController extends Controller
     ) {
         $perPage = (int) $request->query('per_page', 15);
         $page = (int) $request->query('page', 1);
+        $search = $request->query('search');
+        $phone = $request->query('phone');
+        $centerId = $request->query('center_id');
+        $status = $request->query('status');
 
-        $query = new GetLeadsPaginatedQuery($perPage, $page);
+        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status);
         $leads = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
@@ -56,7 +60,7 @@ class LeadWebController extends Controller
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
-        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users', 'isGlobalScope'));
+        return view('lead::index', compact('leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users', 'isGlobalScope', 'search', 'phone', 'centerId', 'status'));
     }
 
     public function store(Request $request, CreateLeadHandler $handler)

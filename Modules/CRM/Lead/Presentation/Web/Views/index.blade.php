@@ -24,6 +24,67 @@
         @endcan
     </div>
 
+    <!-- Filter/Search -->
+    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+        <form action="{{ route('admin.leads.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
+            <div class="w-full md:w-1/4">
+                <label for="search" class="block text-sm font-medium text-slate-700 mb-1">Name</label>
+                <div class="relative w-full">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="search" id="search" placeholder="Search by name..." value="{{ request('search') }}"
+                           class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                </div>
+            </div>
+            <div class="w-full md:w-1/4">
+                <label for="phone" class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
+                <div class="relative w-full">
+                    <i data-lucide="phone" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="phone" id="phone" placeholder="Search by phone..." value="{{ request('phone') }}"
+                           class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                </div>
+            </div>
+            @if($isGlobalScope)
+            <div class="w-full md:w-1/4">
+                <label for="center_id" class="block text-sm font-medium text-slate-700 mb-1">Center</label>
+                <div class="relative w-full">
+                    <i data-lucide="building-2" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="center_id" id="center_id" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
+                        <option value="">All Centers</option>
+                        @foreach($centers as $c)
+                            <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                        @endforeach
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+            @endif
+            <div class="w-full md:w-1/4">
+                <label for="status" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
+                <div class="relative w-full">
+                    <i data-lucide="tag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <select name="status" id="status" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
+                        <option value="">All Statuses</option>
+                        <option value="New" {{ request('status') == 'New' ? 'selected' : '' }}>New</option>
+                        <option value="Contacted" {{ request('status') == 'Contacted' ? 'selected' : '' }}>Contacted</option>
+                        <option value="Qualified" {{ request('status') == 'Qualified' ? 'selected' : '' }}>Qualified</option>
+                        <option value="Lost" {{ request('status') == 'Lost' ? 'selected' : '' }}>Lost</option>
+                    </select>
+                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                </div>
+            </div>
+            <div class="flex gap-2 w-full md:w-auto">
+                <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap">
+                    <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                </button>
+                @if(request()->hasAny(['search', 'phone', 'center_id', 'status']))
+                <a href="{{ route('admin.leads.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
+                    <i data-lucide="x" class="w-4 h-4"></i> Clear
+                </a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     <!-- Data List -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         @if($leads->isEmpty())
@@ -343,7 +404,7 @@
         
         @if($leads->hasPages())
         <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
-            {{ $leads->links() }}
+            {{ $leads->appends(request()->query())->links() }}
         </div>
         @endif
         @endif
