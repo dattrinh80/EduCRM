@@ -10,11 +10,11 @@ use InvalidArgumentException;
 class MergeLeadsHandler
 {
     private LeadRepositoryInterface $repository;
-    private \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository;
+    private \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository;
 
     public function __construct(
         LeadRepositoryInterface $repository,
-        \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository
+        \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository
     ) {
         $this->repository = $repository;
         $this->statusRepository = $statusRepository;
@@ -49,3 +49,4 @@ class MergeLeadsHandler
         }
     }
 }
+

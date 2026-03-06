@@ -7,10 +7,10 @@ namespace Modules\CRM\Lead;
 use Modules\ServiceProvider as BaseServiceProvider;
 use Modules\CRM\Lead\Domain\LeadRepositoryInterface;
 use Modules\CRM\Lead\Infrastructure\Persistence\EloquentLeadRepository;
-use Modules\CRM\Lead\LeadActivity\Domain\LeadActivityRepositoryInterface;
-use Modules\CRM\Lead\LeadActivity\Infrastructure\Persistence\EloquentLeadActivityRepository;
-use Modules\CRM\Lead\LeadNote\Domain\LeadNoteRepositoryInterface;
-use Modules\CRM\Lead\LeadNote\Infrastructure\Persistence\EloquentLeadNoteRepository;
+use Modules\CRM\LeadActivity\Domain\LeadActivityRepositoryInterface;
+use Modules\CRM\LeadActivity\Infrastructure\Persistence\EloquentLeadActivityRepository;
+use Modules\CRM\LeadNote\Domain\LeadNoteRepositoryInterface;
+use Modules\CRM\LeadNote\Infrastructure\Persistence\EloquentLeadNoteRepository;
 
 class ServiceProvider extends BaseServiceProvider
 {
@@ -36,14 +36,14 @@ class ServiceProvider extends BaseServiceProvider
 
         // Lead Status sub-module
         $this->app->bind(
-            \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface::class,
-            \Modules\CRM\Lead\LeadStatus\Infrastructure\Persistence\EloquentLeadStatusRepository::class
+            \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface::class,
+            \Modules\CRM\LeadStatus\Infrastructure\Persistence\EloquentLeadStatusRepository::class
         );
 
         // Lead Tag sub-module
         $this->app->bind(
-            \Modules\CRM\Lead\LeadTag\Domain\LeadTagRepositoryInterface::class,
-            \Modules\CRM\Lead\LeadTag\Infrastructure\Persistence\EloquentLeadTagRepository::class
+            \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface::class,
+            \Modules\CRM\LeadTag\Infrastructure\Persistence\EloquentLeadTagRepository::class
         );
 
         // Lead Assignment History
@@ -61,10 +61,11 @@ class ServiceProvider extends BaseServiceProvider
 
         // Load Migrations (core + sub-modules)
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
-        $this->loadMigrationsFrom(__DIR__ . '/LeadActivity/Database/Migrations');
-        $this->loadMigrationsFrom(__DIR__ . '/LeadNote/Database/Migrations');
+        $this->loadMigrationsFrom(dirname(__DIR__) . '/LeadActivity/Database/Migrations');
+        $this->loadMigrationsFrom(dirname(__DIR__) . '/LeadNote/Database/Migrations');
 
         // Load Views
         $this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'lead');
     }
 }
+

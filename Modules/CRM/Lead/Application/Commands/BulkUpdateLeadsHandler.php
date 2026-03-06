@@ -8,11 +8,11 @@ use Modules\CRM\Lead\Domain\LeadRepositoryInterface;
 
 class BulkUpdateLeadsHandler
 {
-    private \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository;
+    private \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository;
 
     public function __construct(
         LeadRepositoryInterface $repository,
-        \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository
+        \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository
     )
     {
         $this->repository = $repository;
@@ -68,3 +68,4 @@ class BulkUpdateLeadsHandler
         }
     }
 }
+

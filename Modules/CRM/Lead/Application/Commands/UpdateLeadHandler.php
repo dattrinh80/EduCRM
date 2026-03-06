@@ -13,10 +13,10 @@ class UpdateLeadHandler implements CommandHandler
 {
     public function __construct(
         private readonly LeadRepositoryInterface $repository,
-        private readonly \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
-        private readonly \Modules\CRM\Lead\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository,
+        private readonly \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
+        private readonly \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository,
         private readonly \Modules\CRM\Lead\Domain\LeadAssignmentRepositoryInterface $assignmentRepository,
-        private readonly \Modules\CRM\Lead\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository
+        private readonly \Modules\CRM\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository
     ) {
     }
 
@@ -58,10 +58,10 @@ class UpdateLeadHandler implements CommandHandler
 
         // Log status change
         if ($command->statusId !== $currentStatus?->getId()) {
-            $activity = \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::create(
+            $activity = \Modules\CRM\LeadActivity\Domain\LeadActivity::create(
                 (string) \Illuminate\Support\Str::uuid(),
                 $lead->getId(),
-                \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::TYPE_STATUS_CHANGE,
+                \Modules\CRM\LeadActivity\Domain\LeadActivity::TYPE_STATUS_CHANGE,
                 "Trạng thái thay đổi từ [" . ($currentStatus?->name ?? 'N/A') . "] sang [" . $newStatus->name . "]",
                 $command->assignedBy
             );
@@ -85,10 +85,10 @@ class UpdateLeadHandler implements CommandHandler
                 $assignedUserName = $assignedUser ? $assignedUser->name : 'User ID: ' . $command->assignedTo;
             }
 
-            $activity = \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::create(
+            $activity = \Modules\CRM\LeadActivity\Domain\LeadActivity::create(
                 (string) \Illuminate\Support\Str::uuid(),
                 $lead->getId(),
-                \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::TYPE_ASSIGNMENT,
+                \Modules\CRM\LeadActivity\Domain\LeadActivity::TYPE_ASSIGNMENT,
                 "Giao Lead cho: " . $assignedUserName,
                 $command->assignedBy
             );
@@ -102,3 +102,4 @@ class UpdateLeadHandler implements CommandHandler
         return $lead;
     }
 }
+

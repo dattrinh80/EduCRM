@@ -17,14 +17,14 @@ use Modules\CRM\Lead\Application\Queries\GetLeadByIdQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadByIdHandler;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
-use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityCommand;
-use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityHandler;
-use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
-use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
-use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteCommand;
-use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteHandler;
-use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesQuery;
-use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesHandler;
+use Modules\CRM\LeadActivity\Application\Commands\AddLeadActivityCommand;
+use Modules\CRM\LeadActivity\Application\Commands\AddLeadActivityHandler;
+use Modules\CRM\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
+use Modules\CRM\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
+use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteCommand;
+use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteHandler;
+use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesQuery;
+use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesHandler;
 use Illuminate\Validation\ValidationException;
 
 class LeadApiController extends Controller
@@ -287,3 +287,4 @@ class LeadApiController extends Controller
         ], 201);
     }
 }
+

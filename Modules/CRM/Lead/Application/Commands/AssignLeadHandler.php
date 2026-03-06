@@ -11,7 +11,7 @@ class AssignLeadHandler
     public function __construct(
         private readonly LeadRepositoryInterface $repository,
         private readonly \Modules\CRM\Lead\Domain\LeadAssignmentRepositoryInterface $assignmentRepository,
-        private readonly \Modules\CRM\Lead\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository
+        private readonly \Modules\CRM\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository
     ) {
     }
 
@@ -47,10 +47,10 @@ class AssignLeadHandler
                         $assignedUserName = $assignedUser ? $assignedUser->name : 'User ID: ' . $command->assignedTo;
                     }
 
-                    $activity = \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::create(
+                    $activity = \Modules\CRM\LeadActivity\Domain\LeadActivity::create(
                         (string) \Illuminate\Support\Str::uuid(),
                         $leadId,
-                        \Modules\CRM\Lead\LeadActivity\Domain\LeadActivity::TYPE_ASSIGNMENT,
+                        \Modules\CRM\LeadActivity\Domain\LeadActivity::TYPE_ASSIGNMENT,
                         "Bàn giao Lead cho: " . $assignedUserName,
                         $command->assignedBy
                     );
@@ -60,3 +60,4 @@ class AssignLeadHandler
         }
     }
 }
+

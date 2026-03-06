@@ -49,6 +49,15 @@ class EloquentLeadRepository implements LeadRepositoryInterface
         $model->phone = $lead->phone;
         $model->email = $lead->email;
         $model->status_id = $lead->statusId;
+        
+        // Backward compatibility: fill old status column
+        if ($lead->statusId) {
+            $statusModel = \Modules\CRM\LeadStatus\Infrastructure\ReadModels\LeadStatusReadModel::find($lead->statusId);
+            $model->status = $statusModel ? $statusModel->name : 'New';
+        } else {
+            $model->status = 'New';
+        }
+
         $model->center_id = $lead->centerId;
         $model->dob = $lead->dob;
         $model->lead_source_id = $lead->leadSourceId;

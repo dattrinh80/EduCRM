@@ -33,7 +33,7 @@ class LeadReadModel extends Model
 
     public function leadStatus()
     {
-        return $this->belongsTo(\Modules\CRM\Lead\LeadStatus\Infrastructure\ReadModels\LeadStatusReadModel::class, 'status_id');
+        return $this->belongsTo(\Modules\CRM\LeadStatus\Infrastructure\ReadModels\LeadStatusReadModel::class, 'status_id');
     }
 
     public function leadSource()
@@ -58,17 +58,17 @@ class LeadReadModel extends Model
 
     public function activities()
     {
-        return $this->hasMany(\Modules\CRM\Lead\LeadActivity\Infrastructure\ReadModels\LeadActivityReadModel::class, 'lead_id');
+        return $this->hasMany(\Modules\CRM\LeadActivity\Infrastructure\ReadModels\LeadActivityReadModel::class, 'lead_id');
     }
 
     public function notes()
     {
-        return $this->hasMany(\Modules\CRM\Lead\LeadNote\Infrastructure\ReadModels\LeadNoteReadModel::class, 'lead_id');
+        return $this->hasMany(\Modules\CRM\LeadNote\Infrastructure\ReadModels\LeadNoteReadModel::class, 'lead_id');
     }
 
     public function tags()
     {
-        return $this->belongsToMany(\Modules\CRM\Lead\LeadTag\Infrastructure\ReadModels\LeadTagReadModel::class, 'lead_tag_pivot', 'lead_id', 'tag_id');
+        return $this->belongsToMany(\Modules\CRM\LeadTag\Infrastructure\ReadModels\LeadTagReadModel::class, 'lead_tag_pivot', 'lead_id', 'tag_id');
     }
 
     public function assignments()
@@ -81,3 +81,4 @@ class LeadReadModel extends Model
         'updated_at' => 'datetime',
     ];
 }
+

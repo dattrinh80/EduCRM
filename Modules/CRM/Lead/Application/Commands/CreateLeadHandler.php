@@ -14,8 +14,8 @@ class CreateLeadHandler implements CommandHandler
 {
     public function __construct(
         private readonly LeadRepositoryInterface $repository,
-        private readonly \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
-        private readonly \Modules\CRM\Lead\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository,
+        private readonly \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
+        private readonly \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository,
         private readonly \Modules\CRM\Lead\Domain\LeadAssignmentRepositoryInterface $assignmentRepository
     ) {
     }
@@ -64,3 +64,4 @@ class CreateLeadHandler implements CommandHandler
         return $lead;
     }
 }
+

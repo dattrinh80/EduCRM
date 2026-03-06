@@ -90,11 +90,11 @@ class Lead extends Entity
     public function changeStatus(string $newStatusId, string $newStage, ?string $currentStage = null): void
     {
         // Validation: Cannot move out of LOST or CONVERTED once reaching them (business rule example)
-        if ($currentStage === \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_LOST && $newStage !== \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_LOST) {
+        if ($currentStage === \Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_LOST && $newStage !== \Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_LOST) {
             throw new \DomainException("Cannot change status from a 'Lost' state.");
         }
 
-        if ($currentStage === \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED && $newStage !== \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED) {
+        if ($currentStage === \Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED && $newStage !== \Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED) {
             throw new \DomainException("Cannot change status of a 'Converted' lead.");
         }
 
@@ -131,3 +131,4 @@ class Lead extends Entity
         $this->changeStatus($statusId, $newStage, $currentStage);
     }
 }
+

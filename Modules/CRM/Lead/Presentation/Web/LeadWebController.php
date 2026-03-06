@@ -36,21 +36,21 @@ use Illuminate\Support\Facades\DB;
 use App\Core\Helpers\PaginationHelper;
 use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsCommand;
 use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsHandler;
-use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityCommand;
-use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityHandler;
-use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
-use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
-use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteCommand;
-use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteHandler;
-use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesQuery;
-use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesHandler;
+use Modules\CRM\LeadActivity\Application\Commands\AddLeadActivityCommand;
+use Modules\CRM\LeadActivity\Application\Commands\AddLeadActivityHandler;
+use Modules\CRM\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
+use Modules\CRM\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
+use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteCommand;
+use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteHandler;
+use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesQuery;
+use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesHandler;
 use Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel;
 
 class LeadWebController extends Controller
 {
     public function __construct(
-        private readonly \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
-        private readonly \Modules\CRM\Lead\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository
+        private readonly \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
+        private readonly \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository
     ) {}
 
     /**
@@ -503,3 +503,4 @@ class LeadWebController extends Controller
         return redirect()->back()->with('success', count($leadIds) . ' leads updated successfully.');
     }
 }
+
