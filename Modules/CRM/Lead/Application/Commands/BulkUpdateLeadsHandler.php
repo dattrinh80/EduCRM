@@ -8,17 +8,29 @@ use Modules\CRM\Lead\Domain\LeadRepositoryInterface;
 
 class BulkUpdateLeadsHandler
 {
-    private LeadRepositoryInterface $repository;
+    private \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository;
 
-    public function __construct(LeadRepositoryInterface $repository)
+    public function __construct(
+        LeadRepositoryInterface $repository,
+        \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository
+    )
     {
         $this->repository = $repository;
+        $this->statusRepository = $statusRepository;
     }
 
     public function handle(BulkUpdateLeadsCommand $command): void
     {
         if (empty($command->leadIds)) {
             return;
+        }
+
+        $newStatus = null;
+        if ($command->status !== null) {
+            $newStatus = $this->statusRepository->findById($command->status);
+            if (!$newStatus) {
+                throw new \Exception("Status not found: {$command->status}");
+            }
         }
 
         foreach ($command->leadIds as $leadId) {
@@ -47,8 +59,9 @@ class BulkUpdateLeadsHandler
                 $lead->setCampaign($command->campaignId === 'null' ? null : $command->campaignId);
             }
 
-            if ($command->status !== null) {
-                $lead->setStatus($command->status);
+            if ($newStatus !== null && $lead->statusId !== $newStatus->id) {
+                $currentStatus = $this->statusRepository->findById($lead->statusId);
+                $lead->setStatus($newStatus->id, $newStatus->stage, $currentStatus?->stage);
             }
 
             $this->repository->update($lead);

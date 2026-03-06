@@ -17,6 +17,14 @@ use Modules\CRM\Lead\Application\Queries\GetLeadByIdQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadByIdHandler;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
+use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityCommand;
+use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityHandler;
+use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
+use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
+use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteCommand;
+use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteHandler;
+use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesQuery;
+use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesHandler;
 use Illuminate\Validation\ValidationException;
 
 class LeadApiController extends Controller
@@ -76,6 +84,8 @@ class LeadApiController extends Controller
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'uuid|exists:lead_tags,id',
         ];
 
         if ($isGlobalScope) {
@@ -97,7 +107,10 @@ class LeadApiController extends Controller
             $validated['lead_source_id'] ?? null,
             $validated['campaign_id'] ?? null,
             $validated['interest_type_id'] ?? null,
-            $validated['assigned_to'] ?? null
+            $validated['assigned_to'] ?? null,
+            null, // statusId (will be default 'New' in handler)
+            $validated['tag_ids'] ?? [],
+            auth()->id()
         );
 
         $lead = $handler->handle($command);
@@ -118,13 +131,15 @@ class LeadApiController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'status_id' => 'required|uuid|exists:lead_statuses,id',
             'email' => 'nullable|email|max:255',
             'dob' => 'nullable|date',
             'lead_source_id' => 'nullable|uuid|exists:lead_sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'uuid|exists:lead_tags,id',
         ];
 
         if ($isGlobalScope) {
@@ -142,14 +157,16 @@ class LeadApiController extends Controller
                 $id,
                 $validated['name'],
                 $validated['phone'],
-                $validated['status'],
+                $validated['status_id'],
                 $validated['email'] ?? null,
                 $centerId,
                 $validated['dob'] ?? null,
                 $validated['lead_source_id'] ?? null,
                 $validated['campaign_id'] ?? null,
                 $validated['interest_type_id'] ?? null,
-                $validated['assigned_to'] ?? null
+                $validated['assigned_to'] ?? null,
+                $validated['tag_ids'] ?? [],
+                auth()->id()
             );
 
             $handler->handle($command);
@@ -188,5 +205,85 @@ class LeadApiController extends Controller
             'success' => true,
             'data' => []
         ]);
+    }
+
+    // ─── Lead Notes ─────────────────────────────────────────
+
+    public function getNotes(Request $request, string $id, GetLeadNotesHandler $handler): JsonResponse
+    {
+        $perPage = (int) $request->query('per_page', 20);
+        $page = (int) $request->query('page', 1);
+
+        $notes = $handler->handle(new GetLeadNotesQuery($id, $perPage, $page));
+
+        return response()->json([
+            'success' => true,
+            'data' => $notes->items(),
+            'meta' => [
+                'current_page' => $notes->currentPage(),
+                'last_page' => $notes->lastPage(),
+                'per_page' => $notes->perPage(),
+                'total' => $notes->total()
+            ]
+        ]);
+    }
+
+    public function storeNote(Request $request, string $id, AddLeadNoteHandler $handler): JsonResponse
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:5000',
+        ]);
+
+        $note = $handler->handle(new AddLeadNoteCommand(
+            $id,
+            $validated['content'],
+            auth()->id()
+        ));
+
+        return response()->json([
+            'success' => true,
+            'data' => ['id' => $note->getId()]
+        ], 201);
+    }
+
+    // ─── Lead Activities ────────────────────────────────────
+
+    public function getActivities(Request $request, string $id, GetLeadActivitiesHandler $handler): JsonResponse
+    {
+        $perPage = (int) $request->query('per_page', 20);
+        $page = (int) $request->query('page', 1);
+
+        $activities = $handler->handle(new GetLeadActivitiesQuery($id, $perPage, $page));
+
+        return response()->json([
+            'success' => true,
+            'data' => $activities->items(),
+            'meta' => [
+                'current_page' => $activities->currentPage(),
+                'last_page' => $activities->lastPage(),
+                'per_page' => $activities->perPage(),
+                'total' => $activities->total()
+            ]
+        ]);
+    }
+
+    public function storeActivity(Request $request, string $id, AddLeadActivityHandler $handler): JsonResponse
+    {
+        $validated = $request->validate([
+            'activity_type' => 'required|string|in:call,meeting,sms,email',
+            'description' => 'nullable|string|max:5000',
+        ]);
+
+        $activity = $handler->handle(new AddLeadActivityCommand(
+            $id,
+            $validated['activity_type'],
+            $validated['description'] ?? null,
+            auth()->id()
+        ));
+
+        return response()->json([
+            'success' => true,
+            'data' => ['id' => $activity->getId()]
+        ], 201);
     }
 }

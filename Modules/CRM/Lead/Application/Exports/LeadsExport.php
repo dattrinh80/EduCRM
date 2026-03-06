@@ -64,7 +64,7 @@ class LeadsExport implements FromCollection, WithHeadings, WithMapping, WithEven
             $lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') : '',
             $lead->leadSource?->name ?? '',
             $lead->interestType?->name ?? '',
-            strtoupper($lead->status),
+            $lead->leadStatus?->name ?? 'N/A',
             $lead->assigned_to ? ($this->users[$lead->assigned_to] ?? 'Chưa giao') : 'Chưa giao',
             $lead->center_id ? ($this->centers[$lead->center_id] ?? '') : '',
             $lead->created_at?->format('d/m/Y H:i:s'),

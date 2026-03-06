@@ -16,8 +16,14 @@ Route::prefix('admin/leads')
         Route::post('/assign', [LeadWebController::class, 'assign'])->name('assign')->middleware('permission:leads.update');
         Route::post('/bulk-update', [LeadWebController::class, 'bulkUpdate'])->name('bulk-update')->middleware('permission:leads.update');
         Route::post('/merge', [LeadWebController::class, 'merge'])->name('merge')->middleware('permission:leads.update');
+        Route::get('/export', [LeadWebController::class, 'export'])->name('export')->middleware('permission:leads.export');
+
+        // Lead Detail + sub-resources
+        Route::get('/{id}', [LeadWebController::class, 'show'])->name('show')->middleware('permission:leads.view');
+        Route::post('/{id}/notes', [LeadWebController::class, 'storeNote'])->name('notes.store')->middleware('permission:leads.update');
+        Route::post('/{id}/activities', [LeadWebController::class, 'storeActivity'])->name('activities.store')->middleware('permission:leads.update');
+
         Route::get('/{id}/edit', [LeadWebController::class, 'edit'])->name('edit')->middleware('permission:leads.update');
         Route::put('/{id}', [LeadWebController::class, 'update'])->name('update')->middleware('permission:leads.update');
         Route::delete('/{id}', [LeadWebController::class, 'destroy'])->name('destroy')->middleware('permission:leads.delete');
-        Route::get('/export', [LeadWebController::class, 'export'])->name('export')->middleware('permission:leads.export');
     });

@@ -28,12 +28,12 @@ class GetLeadsPaginatedHandler implements QueryHandler
             $builder->where('center_id', $query->centerId);
         }
 
-        if (!empty($query->status)) {
-            $builder->where('status', $query->status);
+        if (!empty($query->statusId)) {
+            $builder->where('status_id', $query->statusId);
         }
 
         // Apply sorting: validate column against whitelist, fallback to latest()
-        $sortableColumns = config('crm.lead.sortable_columns', ['name', 'phone', 'email', 'status', 'created_at', 'updated_at']);
+        $sortableColumns = config('crm.lead.sortable_columns', ['name', 'phone', 'email', 'status_id', 'created_at', 'updated_at']);
         $validSortColumn = \App\Core\Helpers\PaginationHelper::resolveSortColumn($query->sortBy, $sortableColumns);
         
         if ($validSortColumn) {
@@ -44,6 +44,7 @@ class GetLeadsPaginatedHandler implements QueryHandler
         }
 
         return $builder
+            ->with(['leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags'])
             ->paginate($query->perPage, ['*'], 'page', $query->page);
     }
 }

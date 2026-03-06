@@ -110,7 +110,7 @@
                 <td class="col-source">{{ $lead->source?->name ?? '' }}</td>
                 <td class="col-interest">{{ $lead->interestType?->name ?? '' }}</td>
                 <td class="col-status">
-                    {{ strtoupper($lead->status) }}
+                    {{ $lead->leadStatus?->name ?? 'N/A' }}
                 </td>
                 <td class="col-assign">{{ $lead->assigned_to ? ($users[$lead->assigned_to] ?? 'Chưa giao') : 'Chưa giao' }}</td>
                 <td class="col-center">{{ $lead->center_id ? ($centers[$lead->center_id] ?? '') : '' }}</td>

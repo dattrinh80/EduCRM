@@ -10,7 +10,8 @@ class AssignLeadCommand implements Command
 {
     public function __construct(
         public readonly array $leadIds,
-        public readonly ?string $assignedTo = null
+        public readonly ?string $assignedTo = null,
+        public readonly ?string $assignedBy = null
     ) {
     }
 }

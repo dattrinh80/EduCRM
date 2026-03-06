@@ -13,7 +13,7 @@ class Lead extends Entity
         public string $name,
         public string $phone,
         public ?string $email,
-        public string $status,
+        public string $statusId,
         public ?string $centerId,
         public ?string $dob = null,
         public ?string $leadSourceId = null,
@@ -31,6 +31,7 @@ class Lead extends Entity
         string $name,
         string $phone,
         ?string $email,
+        string $statusId,
         ?string $centerId,
         ?string $dob = null,
         ?string $leadSourceId = null,
@@ -43,7 +44,7 @@ class Lead extends Entity
             $name,
             $phone,
             $email,
-            'new',
+            $statusId,
             $centerId,
             $dob,
             $leadSourceId,
@@ -59,8 +60,10 @@ class Lead extends Entity
         string $name,
         string $phone,
         ?string $email,
-        string $status,
-        ?string $centerId,
+        string $newStatusId,
+        string $newStage,
+        ?string $currentStage = null,
+        ?string $centerId = null,
         ?string $dob = null,
         ?string $leadSourceId = null,
         ?string $campaignId = null,
@@ -70,13 +73,32 @@ class Lead extends Entity
         $this->name = $name;
         $this->phone = $phone;
         $this->email = $email;
-        $this->status = $status;
+        
+        if ($this->statusId !== $newStatusId) {
+            $this->changeStatus($newStatusId, $newStage, $currentStage);
+        }
+
         $this->centerId = $centerId;
         $this->dob = $dob;
         $this->leadSourceId = $leadSourceId;
         $this->campaignId = $campaignId;
         $this->interestTypeId = $interestTypeId;
         $this->assignedTo = $assignedTo;
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
+    public function changeStatus(string $newStatusId, string $newStage, ?string $currentStage = null): void
+    {
+        // Validation: Cannot move out of LOST or CONVERTED once reaching them (business rule example)
+        if ($currentStage === \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_LOST && $newStage !== \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_LOST) {
+            throw new \DomainException("Cannot change status from a 'Lost' state.");
+        }
+
+        if ($currentStage === \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED && $newStage !== \Modules\CRM\Lead\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED) {
+            throw new \DomainException("Cannot change status of a 'Converted' lead.");
+        }
+
+        $this->statusId = $newStatusId;
         $this->updatedAt = new \DateTimeImmutable();
     }
 
@@ -105,8 +127,7 @@ class Lead extends Entity
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function setStatus(string $status): void {
-        $this->status = $status;
-        $this->updatedAt = new \DateTimeImmutable();
+    public function setStatus(string $statusId, string $newStage, ?string $currentStage = null): void {
+        $this->changeStatus($statusId, $newStage, $currentStage);
     }
 }

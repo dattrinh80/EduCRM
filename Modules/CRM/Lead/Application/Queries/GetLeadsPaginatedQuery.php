@@ -14,7 +14,7 @@ class GetLeadsPaginatedQuery implements Query
         public readonly ?string $search = null,
         public readonly ?string $phone = null,
         public readonly ?string $centerId = null,
-        public readonly ?string $status = null,
+        public readonly ?string $statusId = null,
         public readonly ?string $sortBy = null,
         public readonly string $sortDirection = 'desc'
     ) {

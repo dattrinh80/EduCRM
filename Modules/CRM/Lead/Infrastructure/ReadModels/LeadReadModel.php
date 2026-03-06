@@ -22,7 +22,7 @@ class LeadReadModel extends Model
         'name',
         'phone',
         'email',
-        'status',
+        'status_id',
         'center_id',
         'dob',
         'lead_source_id',
@@ -30,6 +30,11 @@ class LeadReadModel extends Model
         'interest_type_id',
         'assigned_to'
     ];
+
+    public function leadStatus()
+    {
+        return $this->belongsTo(\Modules\CRM\Lead\LeadStatus\Infrastructure\ReadModels\LeadStatusReadModel::class, 'status_id');
+    }
 
     public function leadSource()
     {
@@ -44,6 +49,31 @@ class LeadReadModel extends Model
     public function assignTo()
     {
         return $this->belongsTo(\Modules\Core\User\Infrastructure\ReadModels\UserReadModel::class, 'assigned_to');
+    }
+
+    public function center()
+    {
+        return $this->belongsTo(\Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::class, 'center_id');
+    }
+
+    public function activities()
+    {
+        return $this->hasMany(\Modules\CRM\Lead\LeadActivity\Infrastructure\ReadModels\LeadActivityReadModel::class, 'lead_id');
+    }
+
+    public function notes()
+    {
+        return $this->hasMany(\Modules\CRM\Lead\LeadNote\Infrastructure\ReadModels\LeadNoteReadModel::class, 'lead_id');
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(\Modules\CRM\Lead\LeadTag\Infrastructure\ReadModels\LeadTagReadModel::class, 'lead_tag_pivot', 'lead_id', 'tag_id');
+    }
+
+    public function assignments()
+    {
+        return $this->hasMany(LeadAssignmentReadModel::class, 'lead_id')->latest();
     }
 
     protected $casts = [

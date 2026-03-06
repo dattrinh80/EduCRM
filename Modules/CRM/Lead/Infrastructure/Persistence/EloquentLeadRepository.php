@@ -48,7 +48,7 @@ class EloquentLeadRepository implements LeadRepositoryInterface
         $model->name = $lead->name;
         $model->phone = $lead->phone;
         $model->email = $lead->email;
-        $model->status = $lead->status;
+        $model->status_id = $lead->statusId;
         $model->center_id = $lead->centerId;
         $model->dob = $lead->dob;
         $model->lead_source_id = $lead->leadSourceId;
@@ -66,7 +66,7 @@ class EloquentLeadRepository implements LeadRepositoryInterface
             $model->name,
             $model->phone,
             $model->email,
-            $model->status,
+            $model->status_id ?? '',
             $model->center_id,
             $model->dob,
             $model->lead_source_id,

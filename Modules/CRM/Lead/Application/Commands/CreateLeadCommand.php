@@ -17,7 +17,10 @@ class CreateLeadCommand implements Command
         public readonly ?string $leadSourceId = null,
         public readonly ?string $campaignId = null,
         public readonly ?string $interestTypeId = null,
-        public readonly ?string $assignedTo = null
+        public readonly ?string $assignedTo = null,
+        public readonly ?string $statusId = null,
+        public readonly array $tagIds = [],
+        public readonly ?string $assignedBy = null
     ) {
     }
 }

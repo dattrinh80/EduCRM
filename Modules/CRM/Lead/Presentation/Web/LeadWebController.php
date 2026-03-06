@@ -36,9 +36,104 @@ use Illuminate\Support\Facades\DB;
 use App\Core\Helpers\PaginationHelper;
 use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsCommand;
 use Modules\CRM\Lead\Application\Commands\BulkUpdateLeadsHandler;
+use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityCommand;
+use Modules\CRM\Lead\LeadActivity\Application\Commands\AddLeadActivityHandler;
+use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesQuery;
+use Modules\CRM\Lead\LeadActivity\Application\Queries\GetLeadActivitiesHandler;
+use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteCommand;
+use Modules\CRM\Lead\LeadNote\Application\Commands\AddLeadNoteHandler;
+use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesQuery;
+use Modules\CRM\Lead\LeadNote\Application\Queries\GetLeadNotesHandler;
+use Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel;
 
 class LeadWebController extends Controller
 {
+    public function __construct(
+        private readonly \Modules\CRM\Lead\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
+        private readonly \Modules\CRM\Lead\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository
+    ) {}
+
+    /**
+     * Lead Detail Page
+     */
+    public function show(
+        string $id,
+        GetActiveCentersHandler $centersHandler,
+        GetLeadSourcesHandler $leadSourcesHandler,
+        GetInterestTypesHandler $interestTypesHandler,
+        GetCampaignsHandler $campaignsHandler,
+        GetAllUsersHandler $usersHandler,
+        GetLeadActivitiesHandler $activitiesHandler,
+        GetLeadNotesHandler $notesHandler
+    ) {
+        $lead = LeadReadModel::with([
+            'leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags',
+            'assignments.assignedToUser', 'assignments.assignedByUser'
+        ])->find($id);
+
+        if (!$lead) {
+            return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
+        }
+
+        $activities = $activitiesHandler->handle(new GetLeadActivitiesQuery($id, 50));
+        $notes = $notesHandler->handle(new GetLeadNotesQuery($id, 50));
+
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
+        $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
+        $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
+        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $statuses = $this->statusRepository->getAllActive();
+        $allTags = $this->tagRepository->getAll();
+
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        return view('lead::detail', compact(
+            'lead', 'activities', 'notes',
+            'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+            'isGlobalScope'
+        ));
+    }
+
+    /**
+     * Store a note for a lead
+     */
+    public function storeNote(Request $request, string $id, AddLeadNoteHandler $handler)
+    {
+        $request->validate([
+            'content' => 'required|string|max:5000',
+        ]);
+
+        $handler->handle(new AddLeadNoteCommand(
+            $id,
+            $request->input('content'),
+            auth()->id()
+        ));
+
+        return redirect()->route('admin.leads.show', $id)->with('success', 'Ghi chú đã được thêm.');
+    }
+
+    /**
+     * Store an activity for a lead
+     */
+    public function storeActivity(Request $request, string $id, AddLeadActivityHandler $handler)
+    {
+        $request->validate([
+            'activity_type' => 'required|string|in:call,meeting,sms,email',
+            'description' => 'nullable|string|max:5000',
+        ]);
+
+        $handler->handle(new AddLeadActivityCommand(
+            $id,
+            $request->input('activity_type'),
+            $request->input('description'),
+            auth()->id()
+        ));
+
+        return redirect()->route('admin.leads.show', $id)->with('success', 'Hoạt động đã được ghi nhận.');
+    }
+
     public function index(
         Request $request, 
         GetLeadsPaginatedHandler $handler, 
@@ -54,12 +149,12 @@ class LeadWebController extends Controller
         $search = $request->query('search');
         $phone = $request->query('phone');
         $centerId = $request->query('center_id');
-        $status = $request->query('status');
+        $statusId = $request->query('status_id');
         
         $sortBy = $request->query('sort_by');
         $sortDir = PaginationHelper::resolveSortDirection($request->query('sort_dir'));
 
-        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status, $sortBy, $sortDir);
+        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $statusId, $sortBy, $sortDir);
         $leads = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
@@ -67,13 +162,15 @@ class LeadWebController extends Controller
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = $usersHandler->handle(new GetAllUsersQuery());
+        $statuses = $this->statusRepository->getAllActive();
+        $allTags = $this->tagRepository->getAll();
 
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::index', compact(
-            'leads', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users',
-            'isGlobalScope', 'search', 'phone', 'centerId', 'status',
+            'leads', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+            'isGlobalScope', 'search', 'phone', 'centerId', 'statusId',
             'sortBy', 'sortDir', 'perPage'
         ));
     }
@@ -87,19 +184,19 @@ class LeadWebController extends Controller
         $search = $request->query('search');
         $phone = $request->query('phone');
         $centerId = $request->query('center_id');
-        $status = $request->query('status');
+        $statusId = $request->query('status_id');
 
         $allLeads = collect();
         $page = 1;
         $perPage = 1000;
 
         do {
-            $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $status);
+            $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $statusId);
             $paginator = $handler->handle($query);
             
             $items = \Illuminate\Database\Eloquent\Collection::make($paginator->items());
             if ($items->isNotEmpty()) {
-                $items->loadMissing(['leadSource', 'interestType']);
+                $items->loadMissing(['leadSource', 'interestType', 'leadStatus']);
                 $allLeads = $allLeads->merge($items);
             }
             
@@ -138,6 +235,9 @@ class LeadWebController extends Controller
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
+            'status_id' => 'nullable|uuid|exists:lead_statuses,id',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'uuid|exists:lead_tags,id',
         ];
 
         // Only users with Global Scope can manually choose center
@@ -161,7 +261,10 @@ class LeadWebController extends Controller
             $validated['lead_source_id'] ?? null,
             $validated['campaign_id'] ?? null,
             $validated['interest_type_id'] ?? null,
-            $validated['assigned_to'] ?? null
+            $validated['assigned_to'] ?? null,
+            $validated['status_id'] ?? null,
+            $validated['tag_ids'] ?? [],
+            auth()->id()
         );
 
         $handler->handle($command);
@@ -269,13 +372,15 @@ class LeadWebController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'required|string|max:50',
-            'status' => 'required|string|max:50',
+            'status_id' => 'required|uuid|exists:lead_statuses,id',
             'email' => 'nullable|email|max:255',
             'dob' => 'nullable|date',
             'lead_source_id' => 'nullable|uuid|exists:lead_sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
+            'tag_ids' => 'nullable|array',
+            'tag_ids.*' => 'uuid|exists:lead_tags,id',
         ];
 
         if ($isGlobalScope) {
@@ -293,19 +398,21 @@ class LeadWebController extends Controller
                 $id,
                 $validated['name'],
                 $validated['phone'],
-                $validated['status'],
+                $validated['status_id'],
                 $validated['email'] ?? null,
                 $centerId,
                 $validated['dob'] ?? null,
                 $validated['lead_source_id'] ?? null,
                 $validated['campaign_id'] ?? null,
                 $validated['interest_type_id'] ?? null,
-                $validated['assigned_to'] ?? null
+                $validated['assigned_to'] ?? null,
+                $validated['tag_ids'] ?? [],
+                auth()->id()
             );
 
             $handler->handle($command);
         } catch (\Exception $e) {
-            return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
+            return redirect()->route('admin.leads.index')->with('error', 'Lead not found or update failed.');
         }
 
         return redirect()->route('admin.leads.index')->with('success', 'Lead updated successfully.');
@@ -333,7 +440,8 @@ class LeadWebController extends Controller
 
         $command = new \Modules\CRM\Lead\Application\Commands\AssignLeadCommand(
             $request->input('lead_ids'),
-            $request->input('assigned_to')
+            $request->input('assigned_to'),
+            auth()->id()
         );
 
         $handler->handle($command);
@@ -373,7 +481,7 @@ class LeadWebController extends Controller
             'center_id' => 'nullable',
             'assigned_to' => 'nullable',
             'campaign_id' => 'nullable',
-            'status' => 'nullable|string',
+            'status_id' => 'nullable|uuid|exists:lead_statuses,id',
         ]);
 
         $leadIds = $request->input('lead_ids');
@@ -387,7 +495,7 @@ class LeadWebController extends Controller
             $request->input('center_id') !== '' ? $request->input('center_id') : null,
             $request->input('assigned_to') !== '' ? $request->input('assigned_to') : null,
             $request->input('campaign_id') !== '' ? $request->input('campaign_id') : null,
-            $request->input('status') !== '' ? $request->input('status') : null,
+            $request->input('status_id') !== '' ? $request->input('status_id') : null,
         );
 
         $handler->handle($command);
