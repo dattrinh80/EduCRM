@@ -25,15 +25,15 @@ class LeadReadModel extends Model
         'status',
         'center_id',
         'dob',
-        'source_id',
+        'lead_source_id',
         'campaign_id',
         'interest_type_id',
         'assigned_to'
     ];
 
-    public function source()
+    public function leadSource()
     {
-        return $this->belongsTo(\Modules\CRM\Source\Infrastructure\ReadModels\SourceReadModel::class, 'source_id');
+        return $this->belongsTo(\Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel::class, 'lead_source_id');
     }
 
     public function interestType()

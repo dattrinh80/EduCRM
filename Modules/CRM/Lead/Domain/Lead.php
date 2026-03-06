@@ -16,7 +16,7 @@ class Lead extends Entity
         public string $status,
         public ?string $centerId,
         public ?string $dob = null,
-        public ?string $sourceId = null,
+        public ?string $leadSourceId = null,
         public ?string $campaignId = null,
         public ?string $interestTypeId = null,
         public ?string $assignedTo = null,
@@ -33,7 +33,7 @@ class Lead extends Entity
         ?string $email,
         ?string $centerId,
         ?string $dob = null,
-        ?string $sourceId = null,
+        ?string $leadSourceId = null,
         ?string $campaignId = null,
         ?string $interestTypeId = null,
         ?string $assignedTo = null
@@ -46,7 +46,7 @@ class Lead extends Entity
             'new',
             $centerId,
             $dob,
-            $sourceId,
+            $leadSourceId,
             $campaignId,
             $interestTypeId,
             $assignedTo,
@@ -62,7 +62,7 @@ class Lead extends Entity
         string $status,
         ?string $centerId,
         ?string $dob = null,
-        ?string $sourceId = null,
+        ?string $leadSourceId = null,
         ?string $campaignId = null,
         ?string $interestTypeId = null,
         ?string $assignedTo = null
@@ -73,7 +73,7 @@ class Lead extends Entity
         $this->status = $status;
         $this->centerId = $centerId;
         $this->dob = $dob;
-        $this->sourceId = $sourceId;
+        $this->leadSourceId = $leadSourceId;
         $this->campaignId = $campaignId;
         $this->interestTypeId = $interestTypeId;
         $this->assignedTo = $assignedTo;
@@ -85,8 +85,8 @@ class Lead extends Entity
         $this->updatedAt = new \DateTimeImmutable();
     }
 
-    public function setSource(?string $sourceId): void {
-        $this->sourceId = $sourceId;
+    public function setLeadSource(?string $leadSourceId): void {
+        $this->leadSourceId = $leadSourceId;
         $this->updatedAt = new \DateTimeImmutable();
     }
 

@@ -20,7 +20,7 @@ class PermissionGroupSeeder extends Seeder
             ['name' => 'Student Management', 'description' => 'Quản lý học viên', 'sort_order' => 5, 'prefix' => 'students'],
             ['name' => 'Course Management', 'description' => 'Quản lý khoá học', 'sort_order' => 6, 'prefix' => 'courses'],
             ['name' => 'Finance', 'description' => 'Quản lý tài chính, hoá đơn', 'sort_order' => 7, 'prefix' => 'invoices'],
-            ['name' => 'Source Management', 'description' => 'Quản lý Nguồn khách hàng', 'sort_order' => 8, 'prefix' => 'sources'],
+            ['name' => 'Lead Source Management', 'description' => 'Quản lý Nguồn khách hàng', 'sort_order' => 8, 'prefix' => 'lead_sources'],
             ['name' => 'Interest Type Management', 'description' => 'Quản lý Nhu cầu khách hàng', 'sort_order' => 9, 'prefix' => 'interest_types'],
         ];
 
@@ -71,10 +71,10 @@ class PermissionGroupSeeder extends Seeder
             'invoices.create' => 'Tạo hoá đơn mới',
             'invoices.update' => 'Chỉnh sửa hoá đơn',
             'invoices.delete' => 'Xoá hoá đơn',
-            'sources.view' => 'Xem danh sách Nguồn khách hàng',
-            'sources.create' => 'Tạo Nguồn khách hàng mới',
-            'sources.update' => 'Chỉnh sửa Nguồn khách hàng',
-            'sources.delete' => 'Xoá Nguồn khách hàng',
+            'lead_sources.view' => 'Xem danh sách Nguồn khách hàng',
+            'lead_sources.create' => 'Tạo Nguồn khách hàng mới',
+            'lead_sources.update' => 'Chỉnh sửa Nguồn khách hàng',
+            'lead_sources.delete' => 'Xoá Nguồn khách hàng',
             'interest_types.view' => 'Xem danh sách Nhu cầu khách hàng',
             'interest_types.create' => 'Tạo Nhu cầu mới',
             'interest_types.update' => 'Chỉnh sửa Nhu cầu',

@@ -10,7 +10,7 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Modules\CRM\Lead\Application\Commands\CreateLeadCommand;
 use Modules\CRM\Lead\Application\Commands\CreateLeadHandler;
 use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
-use Modules\CRM\Source\Infrastructure\ReadModels\SourceReadModel;
+use Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
 use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
 use Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
 
@@ -42,10 +42,10 @@ class LeadsImport implements ToCollection, WithHeadingRow
                 }
             }
 
-            $sourceId = null;
-            if (!empty($row['source_code'])) {
-                $source = SourceReadModel::where('code', $row['source_code'])->first();
-                if ($source) $sourceId = $source->id;
+            $leadSourceId = null;
+            if (!empty($row['lead_source_code'])) {
+                $leadSource = LeadSourceReadModel::where('code', $row['lead_source_code'])->first();
+                if ($leadSource) $leadSourceId = $leadSource->id;
             }
 
             $campaignId = null;
@@ -76,7 +76,7 @@ class LeadsImport implements ToCollection, WithHeadingRow
                 empty($row['email']) ? null : (string)$row['email'],
                 $centerId,
                 $dob,
-                $sourceId,
+                $leadSourceId,
                 $campaignId,
                 $interestTypeId,
                 null // assigned_to is left null

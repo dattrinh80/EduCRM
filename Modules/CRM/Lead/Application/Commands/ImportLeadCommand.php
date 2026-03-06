@@ -14,7 +14,7 @@ class ImportLeadCommand implements Command
         public readonly ?string $email = null,
         public readonly ?string $centerCode = null,
         public readonly ?string $dob = null,
-        public readonly ?string $sourceCode = null,
+        public readonly ?string $leadSourceCode = null,
         public readonly ?string $campaignCode = null,
         public readonly ?string $interestTypeCode = null
     ) {

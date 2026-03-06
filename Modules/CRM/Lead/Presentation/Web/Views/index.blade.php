@@ -100,11 +100,11 @@
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="filter" class="w-4 h-4"></i> Filter
+                    <i data-lucide="filter" class="w-4 h-4"></i> Lọc
                 </button>
                 @if(request()->hasAny(['search', 'phone', 'center_id', 'status']))
                 <a href="{{ route('admin.leads.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
-                    <i data-lucide="x" class="w-4 h-4"></i> Clear
+                    <i data-lucide="x-circle" class="w-4 h-4 font-bold"></i> Xoá
                 </a>
                 @endif
             </div>
@@ -357,16 +357,16 @@
                                                             <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
                                                             <div class="relative">
                                                                 <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                <select name="lead_source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                                                     <option value="">-- Chọn Nguồn --</option>
-                                                                    @foreach($sources as $source)
-                                                                        <option value="{{ $source->id }}" {{ (old('lead_id') == $lead->id ? old('source_id') : $lead->source_id) === $source->id ? 'selected' : '' }}>{{ $source->name }}</option>
+                                                                    @foreach($leadSources as $leadSource)
+                                                                        <option value="{{ $leadSource->id }}" {{ (old('lead_id') == $lead->id ? old('lead_source_id') : $lead->lead_source_id) === $leadSource->id ? 'selected' : '' }}>{{ $leadSource->name }}</option>
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                                             </div>
                                                             @if(old('lead_id') == $lead->id)
-                                                                @error('source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                                @error('lead_source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                                             @endif
                                                         </div>
 
@@ -568,16 +568,16 @@
                                 <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
                                 <div class="relative">
                                     <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <select name="lead_source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                         <option value="">-- Chọn Nguồn --</option>
-                                        @foreach($sources as $source)
-                                            <option value="{{ $source->id }}" {{ (!old('_method') && old('source_id') === $source->id) ? 'selected' : '' }}>{{ $source->name }}</option>
+                                        @foreach($leadSources as $leadSource)
+                                            <option value="{{ $leadSource->id }}" {{ (!old('_method') && old('lead_source_id') === $leadSource->id) ? 'selected' : '' }}>{{ $leadSource->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                 </div>
                                 @if(!old('_method'))
-                                    @error('source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                    @error('lead_source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                                 @endif
                             </div>
 
@@ -709,7 +709,7 @@
                                 <p class="font-semibold mb-1">Hướng dẫn Import:</p>
                                 <ul class="list-disc pl-4 space-y-1 text-primary-700/90 text-[13px]">
                                     <li>Cột bắt buộc: <code class="bg-white/60 px-1 rounded font-mono">name</code>, <code class="bg-white/60 px-1 rounded font-mono">phone</code>, <code class="bg-white/60 px-1 rounded font-mono">center_code</code>.</li>
-                                    <li>Cột tùy chọn: <code class="bg-white/60 px-1 rounded font-mono">email</code>, <code class="bg-white/60 px-1 rounded font-mono">dob</code>, <code class="bg-white/60 px-1 rounded font-mono">source_code</code>, <code class="bg-white/60 px-1 rounded font-mono">campaign_code</code>, <code class="bg-white/60 px-1 rounded font-mono">interest_type_code</code>.</li>
+                                    <li>Cột tùy chọn: <code class="bg-white/60 px-1 rounded font-mono">email</code>, <code class="bg-white/60 px-1 rounded font-mono">dob</code>, <code class="bg-white/60 px-1 rounded font-mono">lead_source_code</code>, <code class="bg-white/60 px-1 rounded font-mono">campaign_code</code>, <code class="bg-white/60 px-1 rounded font-mono">interest_type_code</code>.</li>
                                 </ul>
                                 <a href="{{ route('admin.leads.template') }}" class="inline-flex items-center gap-1 mt-3 px-3 py-1.5 bg-white text-primary-600 hover:bg-primary-100 rounded-lg text-[13px] font-medium transition shadow-sm border border-primary-200">
                                     <i data-lucide="download" class="w-3.5 h-3.5"></i>
@@ -942,11 +942,11 @@
                                 <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
                                 <div class="relative">
                                     <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <select name="lead_source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                         <option value="">-- Giữ nguyên --</option>
                                         <option value="null">-- Trống --</option>
-                                        @foreach($sources as $source)
-                                            <option value="{{ $source->id }}">{{ $source->name }}</option>
+                                        @foreach($leadSources as $leadSource)
+                                            <option value="{{ $leadSource->id }}">{{ $leadSource->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>

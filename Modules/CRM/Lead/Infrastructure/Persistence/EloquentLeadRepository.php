@@ -51,7 +51,7 @@ class EloquentLeadRepository implements LeadRepositoryInterface
         $model->status = $lead->status;
         $model->center_id = $lead->centerId;
         $model->dob = $lead->dob;
-        $model->source_id = $lead->sourceId;
+        $model->lead_source_id = $lead->leadSourceId;
         $model->campaign_id = $lead->campaignId;
         $model->interest_type_id = $lead->interestTypeId;
         $model->assigned_to = $lead->assignedTo;
@@ -69,7 +69,7 @@ class EloquentLeadRepository implements LeadRepositoryInterface
             $model->status,
             $model->center_id,
             $model->dob,
-            $model->source_id,
+            $model->lead_source_id,
             $model->campaign_id,
             $model->interest_type_id,
             $model->assigned_to,

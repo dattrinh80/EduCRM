@@ -27,8 +27,8 @@ class BulkUpdateLeadsHandler
                 continue;
             }
 
-            if ($command->sourceId !== null) {
-                $lead->setSource($command->sourceId === 'null' ? null : $command->sourceId);
+            if ($command->leadSourceId !== null) {
+                $lead->setLeadSource($command->leadSourceId === 'null' ? null : $command->leadSourceId);
             }
 
             if ($command->interestTypeId !== null) {

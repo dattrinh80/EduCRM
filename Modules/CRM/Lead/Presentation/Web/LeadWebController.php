@@ -18,8 +18,8 @@ use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
-use Modules\CRM\Source\Application\Queries\GetSourcesQuery;
-use Modules\CRM\Source\Application\Queries\GetSourcesHandler;
+use Modules\CRM\LeadSource\Application\Queries\GetLeadSourcesQuery;
+use Modules\CRM\LeadSource\Application\Queries\GetLeadSourcesHandler;
 use Modules\CRM\InterestType\Application\Queries\GetInterestTypesQuery;
 use Modules\CRM\InterestType\Application\Queries\GetInterestTypesHandler;
 use Modules\CRM\Campaign\Application\Queries\GetCampaignsQuery;
@@ -43,7 +43,7 @@ class LeadWebController extends Controller
         Request $request, 
         GetLeadsPaginatedHandler $handler, 
         GetActiveCentersHandler $centersHandler,
-        GetSourcesHandler $sourcesHandler,
+        GetLeadSourcesHandler $leadSourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
         GetCampaignsHandler $campaignsHandler,
         GetAllUsersHandler $usersHandler
@@ -63,7 +63,7 @@ class LeadWebController extends Controller
         $leads = $handler->handle($query);
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
-        $sources = $sourcesHandler->handle(new GetSourcesQuery(null, true));
+        $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = $usersHandler->handle(new GetAllUsersQuery());
@@ -72,7 +72,7 @@ class LeadWebController extends Controller
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::index', compact(
-            'leads', 'centers', 'sources', 'interestTypes', 'campaigns', 'users',
+            'leads', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users',
             'isGlobalScope', 'search', 'phone', 'centerId', 'status',
             'sortBy', 'sortDir', 'perPage'
         ));
@@ -99,7 +99,7 @@ class LeadWebController extends Controller
             
             $items = \Illuminate\Database\Eloquent\Collection::make($paginator->items());
             if ($items->isNotEmpty()) {
-                $items->loadMissing(['source', 'interestType']);
+                $items->loadMissing(['leadSource', 'interestType']);
                 $allLeads = $allLeads->merge($items);
             }
             
@@ -134,7 +134,7 @@ class LeadWebController extends Controller
             'phone' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
             'dob' => 'nullable|date',
-            'source_id' => 'nullable|uuid|exists:sources,id',
+            'lead_source_id' => 'nullable|uuid|exists:lead_sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
@@ -158,7 +158,7 @@ class LeadWebController extends Controller
             $validated['email'] ?? null,
             $centerId,
             $validated['dob'] ?? null,
-            $validated['source_id'] ?? null,
+            $validated['lead_source_id'] ?? null,
             $validated['campaign_id'] ?? null,
             $validated['interest_type_id'] ?? null,
             $validated['assigned_to'] ?? null
@@ -234,7 +234,7 @@ class LeadWebController extends Controller
                     empty($normalizedRow['email']) ? null : (string)$normalizedRow['email'],
                     empty($normalizedRow['center_code']) ? null : (string)$normalizedRow['center_code'],
                     empty($normalizedRow['dob']) ? null : (string)$normalizedRow['dob'],
-                    empty($normalizedRow['source_code']) ? null : (string)$normalizedRow['source_code'],
+                    empty($normalizedRow['lead_source_code']) ? null : (string)$normalizedRow['lead_source_code'],
                     empty($normalizedRow['campaign_code']) ? null : (string)$normalizedRow['campaign_code'],
                     empty($normalizedRow['interest_type_code']) ? null : (string)$normalizedRow['interest_type_code']
                 );
@@ -272,7 +272,7 @@ class LeadWebController extends Controller
             'status' => 'required|string|max:50',
             'email' => 'nullable|email|max:255',
             'dob' => 'nullable|date',
-            'source_id' => 'nullable|uuid|exists:sources,id',
+            'lead_source_id' => 'nullable|uuid|exists:lead_sources,id',
             'campaign_id' => 'nullable|uuid|exists:campaigns,id',
             'interest_type_id' => 'nullable|uuid|exists:interest_types,id',
             'assigned_to' => 'nullable|uuid|exists:users,id',
@@ -297,7 +297,7 @@ class LeadWebController extends Controller
                 $validated['email'] ?? null,
                 $centerId,
                 $validated['dob'] ?? null,
-                $validated['source_id'] ?? null,
+                $validated['lead_source_id'] ?? null,
                 $validated['campaign_id'] ?? null,
                 $validated['interest_type_id'] ?? null,
                 $validated['assigned_to'] ?? null
@@ -368,7 +368,7 @@ class LeadWebController extends Controller
         $request->validate([
             'lead_ids' => 'required|array',
             'lead_ids.*' => 'required|uuid',
-            'source_id' => 'nullable',
+            'lead_source_id' => 'nullable',
             'interest_type_id' => 'nullable',
             'center_id' => 'nullable',
             'assigned_to' => 'nullable',
@@ -382,7 +382,7 @@ class LeadWebController extends Controller
         // Empty string means "Keep original"
         $command = new BulkUpdateLeadsCommand(
             $leadIds,
-            $request->input('source_id') !== '' ? $request->input('source_id') : null,
+            $request->input('lead_source_id') !== '' ? $request->input('lead_source_id') : null,
             $request->input('interest_type_id') !== '' ? $request->input('interest_type_id') : null,
             $request->input('center_id') !== '' ? $request->input('center_id') : null,
             $request->input('assigned_to') !== '' ? $request->input('assigned_to') : null,

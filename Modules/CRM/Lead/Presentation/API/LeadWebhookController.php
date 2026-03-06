@@ -28,7 +28,7 @@ class LeadWebhookController extends Controller
             
             // Allow codes instead of IDs for easier external integration
             'center_code' => 'required|string',
-            'source_code' => 'nullable|string',
+            'lead_source_code' => 'nullable|string',
             'campaign_code' => 'nullable|string',
             'interest_type_code' => 'nullable|string',
         ]);
@@ -39,7 +39,7 @@ class LeadWebhookController extends Controller
             $validated['email'] ?? null,
             $validated['center_code'],
             $validated['dob'] ?? null,
-            $validated['source_code'] ?? null,
+            $validated['lead_source_code'] ?? null,
             $validated['campaign_code'] ?? null,
             $validated['interest_type_code'] ?? null
         );

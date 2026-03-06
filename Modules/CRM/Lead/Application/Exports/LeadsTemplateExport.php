@@ -20,7 +20,7 @@ class LeadsTemplateExport implements FromArray, WithHeadings, ShouldAutoSize, Wi
             'email',
             'dob',
             'center_code',
-            'source_code',
+            'lead_source_code',
             'campaign_code',
             'interest_type_code'
         ];

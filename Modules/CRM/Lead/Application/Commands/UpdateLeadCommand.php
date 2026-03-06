@@ -16,7 +16,7 @@ class UpdateLeadCommand implements Command
         public readonly ?string $email = null,
         public readonly ?string $centerId = null,
         public readonly ?string $dob = null,
-        public readonly ?string $sourceId = null,
+        public readonly ?string $leadSourceId = null,
         public readonly ?string $campaignId = null,
         public readonly ?string $interestTypeId = null,
         public readonly ?string $assignedTo = null

@@ -106,7 +106,7 @@
                 @endcanany
 
                 <!-- Management -->
-                @canany(['centers.view', 'sources.view', 'interest_types.view', 'campaigns.view'])
+                @canany(['centers.view', 'lead_sources.view', 'interest_types.view', 'campaigns.view'])
                 <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Quản lý</p>
                 @can('centers.view')
                 <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/centers*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
@@ -114,8 +114,8 @@
                     Cơ sở
                 </a>
                 @endcan
-                @can('sources.view')
-                <a href="{{ route('admin.sources.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/sources*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                @can('lead_sources.view')
+                <a href="{{ route('admin.lead-sources.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/lead-sources*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="share-2" class="w-5 h-5"></i>
                     Nguồn
                 </a>

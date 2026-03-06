@@ -33,7 +33,7 @@ class UpdateLeadHandler implements CommandHandler
             $command->status,
             $command->centerId,
             $command->dob,
-            $command->sourceId,
+            $command->leadSourceId,
             $command->campaignId,
             $command->interestTypeId,
             $command->assignedTo

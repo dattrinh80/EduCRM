@@ -40,8 +40,8 @@ class IAMSeeder extends Seeder
             'courses.view', 'courses.create', 'courses.update', 'courses.delete',
             // Finance
             'invoices.view', 'invoices.create', 'invoices.update', 'invoices.delete',
-            // Sources
-            'sources.view', 'sources.create', 'sources.update', 'sources.delete',
+            // Lead Sources
+            'lead_sources.view', 'lead_sources.create', 'lead_sources.update', 'lead_sources.delete',
             // Interest Types
             'interest_types.view', 'interest_types.create', 'interest_types.update', 'interest_types.delete',
         ];

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Modules\CRM\Lead\Application\Commands;
 
 use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
-use Modules\CRM\Source\Infrastructure\ReadModels\SourceReadModel;
+use Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
 use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
 use Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
 use Modules\CRM\Lead\Domain\Lead;
@@ -34,11 +34,11 @@ class ImportLeadHandler
             $centerId = $center->id;
         }
 
-        $sourceId = null;
-        if (!empty($command->sourceCode)) {
-            $source = SourceReadModel::where('code', $command->sourceCode)->first();
-            if ($source) {
-                $sourceId = $source->id;
+        $leadSourceId = null;
+        if (!empty($command->leadSourceCode)) {
+            $leadSource = LeadSourceReadModel::where('code', $command->leadSourceCode)->first();
+            if ($leadSource) {
+                $leadSourceId = $leadSource->id;
             }
         }
 
@@ -74,7 +74,7 @@ class ImportLeadHandler
             $command->email,
             $centerId,
             $dob,
-            $sourceId,
+            $leadSourceId,
             $campaignId,
             $interestTypeId,
             null
