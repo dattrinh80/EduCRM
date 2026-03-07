@@ -55,6 +55,13 @@ class EloquentCustomerRepository implements CustomerRepositoryInterface
         );
     }
 
+    public function getAll(): array
+    {
+        return CustomerModel::all()
+            ->map(fn($model) => $this->mapToDomain($model))
+            ->all();
+    }
+
     private function mapToDomain(CustomerModel $model): Customer
     {
         return new Customer(

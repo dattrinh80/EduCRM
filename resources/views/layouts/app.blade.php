@@ -100,10 +100,21 @@
                 @can('leads.view')
                 <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/leads*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
                     <i data-lucide="contact" class="w-5 h-5"></i>
-                    Leads
+                    Leads (Tiềm năng)
                 </a>
                 @endcan
+                <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/customers*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="users" class="w-5 h-5"></i>
+                    Khách hàng (PH)
+                </a>
                 @endcanany
+
+                <!-- Education -->
+                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Đào tạo</p>
+                <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/students*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
+                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                    Học viên
+                </a>
 
                 <!-- Management -->
                 @canany(['centers.view', 'lead_sources.view', 'interest_types.view', 'campaigns.view', 'leads.update'])

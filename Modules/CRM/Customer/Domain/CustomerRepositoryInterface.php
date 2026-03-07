@@ -10,4 +10,5 @@ interface CustomerRepositoryInterface
     public function save(Customer $customer): void;
     public function findByPhone(string $phone): ?Customer;
     public function findByEmail(string $email): ?Customer;
+    public function getAll(): array;
 }

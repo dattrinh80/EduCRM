@@ -11,6 +11,7 @@ class Student
         public string $customerId,
         public string $studentCode,
         public string $status = 'NEW',
+        public ?string $studentName = null,
         public ?string $createdAt = null,
         public ?string $updatedAt = null
     ) {}

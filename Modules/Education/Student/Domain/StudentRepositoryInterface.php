@@ -10,4 +10,5 @@ interface StudentRepositoryInterface
     public function save(Student $student): void;
     public function getNextStudentCode(): string;
     public function saveGuardianLink(string $studentId, string $guardianId, ?string $relationship = null, bool $isPrimary = false): void;
+    public function getAll(): array;
 }

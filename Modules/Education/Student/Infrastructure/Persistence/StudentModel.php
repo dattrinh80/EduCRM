@@ -21,4 +21,9 @@ class StudentModel extends Model
         'student_code',
         'status',
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(\Modules\CRM\Customer\Infrastructure\Persistence\CustomerModel::class, 'customer_id');
+    }
 }

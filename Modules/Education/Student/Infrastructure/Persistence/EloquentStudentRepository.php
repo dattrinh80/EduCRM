@@ -60,6 +60,13 @@ class EloquentStudentRepository implements StudentRepositoryInterface
         );
     }
 
+    public function getAll(): array
+    {
+        return StudentModel::with('customer')->get()
+            ->map(fn($model) => $this->mapToDomain($model))
+            ->all();
+    }
+
     private function mapToDomain(StudentModel $model): Student
     {
         return new Student(
@@ -67,6 +74,7 @@ class EloquentStudentRepository implements StudentRepositoryInterface
             customerId: $model->customer_id,
             studentCode: $model->student_code,
             status: $model->status,
+            studentName: $model->customer?->name,
             createdAt: $model->created_at?->toDateTimeString(),
             updatedAt: $model->updated_at?->toDateTimeString()
         );
