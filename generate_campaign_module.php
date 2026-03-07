@@ -1,6 +1,6 @@
 <?php
 
-$baseDir = __DIR__ . '/Modules/CRM/Campaign';
+$baseDir = __DIR__ . '/Modules/Marketing/Campaign';
 $dirs = [
     '/Domain',
     '/Infrastructure/ReadModels',
@@ -22,7 +22,7 @@ $domain = <<<EOT
 <?php
 declare(strict_types=1);
 
-namespace Modules\CRM\Campaign\Domain;
+namespace Modules\Marketing\Campaign\Domain;
 
 use App\Core\Domain\Entity;
 
@@ -107,7 +107,7 @@ $repoInterface = <<<EOT
 <?php
 declare(strict_types=1);
 
-namespace Modules\CRM\Campaign\Domain;
+namespace Modules\Marketing\Campaign\Domain;
 
 interface CampaignRepositoryInterface
 {
@@ -124,7 +124,7 @@ $readModel = <<<EOT
 <?php
 declare(strict_types=1);
 
-namespace Modules\CRM\Campaign\Infrastructure\ReadModels;
+namespace Modules\Marketing\Campaign\Infrastructure\ReadModels;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -165,11 +165,11 @@ $repoImpl = <<<EOT
 <?php
 declare(strict_types=1);
 
-namespace Modules\CRM\Campaign\Infrastructure\Persistence;
+namespace Modules\Marketing\Campaign\Infrastructure\Persistence;
 
-use Modules\CRM\Campaign\Domain\Campaign;
-use Modules\CRM\Campaign\Domain\CampaignRepositoryInterface;
-use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
+use Modules\Marketing\Campaign\Domain\Campaign;
+use Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface;
+use Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel;
 use Carbon\Carbon;
 
 class EloquentCampaignRepository implements CampaignRepositoryInterface
@@ -243,7 +243,7 @@ $cmds = [
     'CreateCampaignCommand' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
+namespace Modules\Marketing\Campaign\Application\Commands;
 class CreateCampaignCommand
 {
     public function __construct(
@@ -259,9 +259,9 @@ class CreateCampaignCommand
     'CreateCampaignHandler' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
-use Modules\CRM\Campaign\Domain\Campaign;
-use Modules\CRM\Campaign\Domain\CampaignRepositoryInterface;
+namespace Modules\Marketing\Campaign\Application\Commands;
+use Modules\Marketing\Campaign\Domain\Campaign;
+use Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface;
 class CreateCampaignHandler
 {
     public function __construct(private CampaignRepositoryInterface $repository) {}
@@ -286,7 +286,7 @@ class CreateCampaignHandler
     'UpdateCampaignCommand' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
+namespace Modules\Marketing\Campaign\Application\Commands;
 class UpdateCampaignCommand
 {
     public function __construct(
@@ -304,8 +304,8 @@ class UpdateCampaignCommand
     'UpdateCampaignHandler' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
-use Modules\CRM\Campaign\Domain\CampaignRepositoryInterface;
+namespace Modules\Marketing\Campaign\Application\Commands;
+use Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface;
 class UpdateCampaignHandler
 {
     public function __construct(private CampaignRepositoryInterface $repository) {}
@@ -334,7 +334,7 @@ class UpdateCampaignHandler
     'DeleteCampaignCommand' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
+namespace Modules\Marketing\Campaign\Application\Commands;
 class DeleteCampaignCommand
 {
     public function __construct(public readonly string $id) {}
@@ -343,8 +343,8 @@ class DeleteCampaignCommand
     'DeleteCampaignHandler' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Commands;
-use Modules\CRM\Campaign\Domain\CampaignRepositoryInterface;
+namespace Modules\Marketing\Campaign\Application\Commands;
+use Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface;
 class DeleteCampaignHandler
 {
     public function __construct(private CampaignRepositoryInterface $repository) {}
@@ -368,7 +368,7 @@ $queries = [
     'GetCampaignsQuery' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Queries;
+namespace Modules\Marketing\Campaign\Application\Queries;
 class GetCampaignsQuery
 {
     public function __construct(
@@ -380,8 +380,8 @@ class GetCampaignsQuery
     'GetCampaignsHandler' => [
         '<?php
 declare(strict_types=1);
-namespace Modules\CRM\Campaign\Application\Queries;
-use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
+namespace Modules\Marketing\Campaign\Application\Queries;
+use Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel;
 use Illuminate\Pagination\LengthAwarePaginator;
 class GetCampaignsHandler
 {
@@ -409,12 +409,12 @@ $serviceProvider = <<<EOT
 <?php
 declare(strict_types=1);
 
-namespace Modules\CRM\Campaign;
+namespace Modules\Marketing\Campaign;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Route;
-use Modules\CRM\Campaign\Domain\CampaignRepositoryInterface;
-use Modules\CRM\Campaign\Infrastructure\Persistence\EloquentCampaignRepository;
+use Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface;
+use Modules\Marketing\Campaign\Infrastructure\Persistence\EloquentCampaignRepository;
 
 class CampaignServiceProvider extends ServiceProvider
 {
@@ -429,17 +429,17 @@ class CampaignServiceProvider extends ServiceProvider
         \$this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'campaign');
 
         Route::middleware(['web', 'auth'])->prefix('admin')->name('admin.')->group(function () {
-            Route::get('/campaigns', [\Modules\CRM\Campaign\Presentation\Web\CampaignWebController::class, 'index'])->name('campaigns.index')->middleware('permission:campaigns.view');
-            Route::post('/campaigns', [\Modules\CRM\Campaign\Presentation\Web\CampaignWebController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.create');
-            Route::put('/campaigns/{id}', [\Modules\CRM\Campaign\Presentation\Web\CampaignWebController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
-            Route::delete('/campaigns/{id}', [\Modules\CRM\Campaign\Presentation\Web\CampaignWebController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.delete');
+            Route::get('/campaigns', [\Modules\Marketing\Campaign\Presentation\Web\CampaignWebController::class, 'index'])->name('campaigns.index')->middleware('permission:campaigns.view');
+            Route::post('/campaigns', [\Modules\Marketing\Campaign\Presentation\Web\CampaignWebController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.create');
+            Route::put('/campaigns/{id}', [\Modules\Marketing\Campaign\Presentation\Web\CampaignWebController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
+            Route::delete('/campaigns/{id}', [\Modules\Marketing\Campaign\Presentation\Web\CampaignWebController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.delete');
         });
 
         Route::middleware(['api', 'auth:sanctum'])->prefix('api/v1')->name('api.')->group(function () {
-            Route::get('/campaigns', [\Modules\CRM\Campaign\Presentation\API\CampaignApiController::class, 'index'])->name('campaigns.index')->middleware('permission:campaigns.view');
-            Route::post('/campaigns', [\Modules\CRM\Campaign\Presentation\API\CampaignApiController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.create');
-            Route::put('/campaigns/{id}', [\Modules\CRM\Campaign\Presentation\API\CampaignApiController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
-            Route::delete('/campaigns/{id}', [\Modules\CRM\Campaign\Presentation\API\CampaignApiController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.delete');
+            Route::get('/campaigns', [\Modules\Marketing\Campaign\Presentation\API\CampaignApiController::class, 'index'])->name('campaigns.index')->middleware('permission:campaigns.view');
+            Route::post('/campaigns', [\Modules\Marketing\Campaign\Presentation\API\CampaignApiController::class, 'store'])->name('campaigns.store')->middleware('permission:campaigns.create');
+            Route::put('/campaigns/{id}', [\Modules\Marketing\Campaign\Presentation\API\CampaignApiController::class, 'update'])->name('campaigns.update')->middleware('permission:campaigns.update');
+            Route::delete('/campaigns/{id}', [\Modules\Marketing\Campaign\Presentation\API\CampaignApiController::class, 'destroy'])->name('campaigns.destroy')->middleware('permission:campaigns.delete');
         });
     }
 }

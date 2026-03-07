@@ -10,9 +10,9 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Modules\CRM\Lead\Application\Commands\CreateLeadCommand;
 use Modules\CRM\Lead\Application\Commands\CreateLeadHandler;
 use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
-use Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
-use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
-use Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
+use Modules\Marketing\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
+use Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel;
+use Modules\Marketing\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
 
 class LeadsImport implements ToCollection, WithHeadingRow
 {

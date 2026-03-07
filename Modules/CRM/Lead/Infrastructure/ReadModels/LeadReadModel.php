@@ -38,12 +38,12 @@ class LeadReadModel extends Model
 
     public function leadSource()
     {
-        return $this->belongsTo(\Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel::class, 'lead_source_id');
+        return $this->belongsTo(\Modules\Marketing\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel::class, 'lead_source_id');
     }
 
     public function interestType()
     {
-        return $this->belongsTo(\Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel::class, 'interest_type_id');
+        return $this->belongsTo(\Modules\Marketing\InterestType\Infrastructure\ReadModels\InterestTypeReadModel::class, 'interest_type_id');
     }
 
     public function assignTo()

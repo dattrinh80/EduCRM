@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Modules\CRM\Lead\Application\Commands;
 
 use Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel;
-use Modules\CRM\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
-use Modules\CRM\Campaign\Infrastructure\ReadModels\CampaignReadModel;
-use Modules\CRM\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
+use Modules\Marketing\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel;
+use Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel;
+use Modules\Marketing\InterestType\Infrastructure\ReadModels\InterestTypeReadModel;
 use Modules\CRM\Lead\Domain\Lead;
 
 class ImportLeadHandler
