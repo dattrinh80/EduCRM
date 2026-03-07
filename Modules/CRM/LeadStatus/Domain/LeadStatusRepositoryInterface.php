@@ -12,6 +12,9 @@ interface LeadStatusRepositoryInterface
 
     public function findByName(string $name): ?LeadStatus;
 
-    public function getAllActive(): array;
-}
+    public function getAll(): array;
 
+    public function getAllActive(): array;
+
+    public function delete(string $id): void;
+}

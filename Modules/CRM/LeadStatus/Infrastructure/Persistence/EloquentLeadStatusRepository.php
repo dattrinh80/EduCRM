@@ -56,6 +56,21 @@ class EloquentLeadStatusRepository implements LeadStatusRepositoryInterface
         );
     }
 
+    public function getAll(): array
+    {
+        return LeadStatusReadModel::orderBy('sort_order')
+            ->get()
+            ->map(fn($model) => new LeadStatus(
+                $model->id,
+                $model->name,
+                $model->stage,
+                (int) $model->sort_order,
+                (bool) $model->is_active,
+                $model->color
+            ))
+            ->toArray();
+    }
+
     public function getAllActive(): array
     {
         return LeadStatusReadModel::where('is_active', true)
@@ -70,6 +85,11 @@ class EloquentLeadStatusRepository implements LeadStatusRepositoryInterface
                 $model->color
             ))
             ->toArray();
+    }
+
+    public function delete(string $id): void
+    {
+        LeadStatusReadModel::destroy($id);
     }
 }
 

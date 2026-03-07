@@ -66,6 +66,8 @@ class ServiceProvider extends BaseServiceProvider
 
         // Load Views
         $this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'lead');
+        $this->loadViewsFrom(dirname(__DIR__) . '/LeadStatus/Presentation/Web/Views', 'lead_status');
+        $this->loadViewsFrom(dirname(__DIR__) . '/LeadTag/Presentation/Web/Views', 'lead_tag');
     }
 }
 

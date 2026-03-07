@@ -27,3 +27,9 @@ Route::prefix('admin/leads')
         Route::put('/{id}', [LeadWebController::class, 'update'])->name('update')->middleware('permission:leads.update');
         Route::delete('/{id}', [LeadWebController::class, 'destroy'])->name('destroy')->middleware('permission:leads.delete');
     });
+
+// Lead Config routes (Sub-modules)
+Route::middleware(['web', 'auth'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('lead-statuses', \Modules\CRM\LeadStatus\Presentation\Web\LeadStatusWebController::class)->except(['create', 'edit', 'show'])->middleware('permission:leads.update');
+    Route::resource('lead-tags', \Modules\CRM\LeadTag\Presentation\Web\LeadTagWebController::class)->except(['create', 'edit', 'show'])->middleware('permission:leads.update');
+});
