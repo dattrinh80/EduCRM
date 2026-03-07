@@ -46,7 +46,6 @@ assigned_to
 status
 interest_type
     - English course
-    - Study abroad
     - Both
 created_at
 2.2 Lead Status Pipeline
@@ -96,7 +95,6 @@ owner_id
 customer_type
     - Student
     - Parent
-    - Study abroad applicant
 3.2 Relationship
 
 Một customer có thể là:
@@ -104,8 +102,6 @@ Một customer có thể là:
 học viên
 
 phụ huynh
-
-người đăng ký du học
 
 MODULE 4: Quản lý Học viên (Student Management)
 
@@ -137,7 +133,6 @@ IELTS
 TOEIC
 Kids English
 Communication
-Study Abroad Prep
 MODULE 6: Quản lý Lớp học (Class Management)
 6.1 Class
 class_id
@@ -167,56 +162,7 @@ Active
 Completed
 Dropped
 Deferred
-MODULE 8: Study Abroad Management
 
-Đây là module quan trọng riêng cho trung tâm du học.
-
-8.1 Study Abroad Application
-application_id
-customer_id
-destination_country
-school_name
-program
-intake
-consultant_id
-status
-created_at
-
-Status pipeline:
-
-New
-Consulting
-Preparing Documents
-Applied
-Offer Received
-Visa Processing
-Visa Approved
-Completed
-Rejected
-8.2 Document Management
-document_id
-application_id
-document_type
-file_url
-status
-
-Document types:
-
-Passport
-Transcript
-Certificate
-IELTS
-Bank statement
-Offer letter
-Visa
-8.3 Timeline tracking
-
-Track:
-
-Apply date
-Offer date
-Visa date
-Departure date
 MODULE 9: Sales Management
 9.1 Deal Management
 deal_id
@@ -252,7 +198,6 @@ Related to:
 Lead
 Customer
 Deal
-Application
 Student
 MODULE 11: Marketing Management
 11.1 Campaign
@@ -321,12 +266,6 @@ Leads by source
 
 Conversion rate
 
-14.3 Study abroad reports
-
-Applications by country
-
-Visa success rate
-
 14.4 Consultant performance
 
 Leads handled
@@ -355,7 +294,6 @@ Admin
 Director
 Branch Manager
 Consultant
-Study Abroad Consultant
 Teacher
 Accountant
 Marketing
@@ -383,16 +321,11 @@ Auto create task:
 IF new lead created
 THEN create follow up task
 
-Auto notify:
-
-IF visa approved
-THEN notify consultant and manager
 MODULE 18: Document Management
 
 Store:
 
 contracts
-visa
 student documents
 
 Support:
@@ -434,4 +367,3 @@ Director dashboard:
 
 Total revenue
 All branches performance
-Study abroad pipeline

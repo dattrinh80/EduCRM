@@ -5,7 +5,7 @@
     - Model: `id` (uuid), `name`, `code`, `is_active`
     - Cấu trúc thư mục: `Modules/CRM/Source`
     - Chức năng: CRUD (Web UI + API JSON)
-- [x] **Tạo Module `InterestType` (Nhu cầu/Loại quan tâm)**: Quản lý loại hình dịch vụ khách quan tâm (English, Study Abroad,...)
+- [x] **Tạo Module `InterestType` (Nhu cầu/Loại quan tâm)**: Quản lý loại hình dịch vụ khách quan tâm (English,...)
     - Model: `id` (uuid), `name`, `description`, `is_active`
     - Cấu trúc thư mục: `Modules/CRM/InterestType`
     - Chức năng: CRUD (Web UI + API JSON)
