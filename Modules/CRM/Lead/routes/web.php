@@ -32,4 +32,8 @@ Route::prefix('admin/leads')
 Route::middleware(['web', 'auth'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('lead-statuses', \Modules\CRM\LeadStatus\Presentation\Web\LeadStatusWebController::class)->except(['create', 'edit', 'show'])->middleware('permission:leads.update');
     Route::resource('lead-tags', \Modules\CRM\LeadTag\Presentation\Web\LeadTagWebController::class)->except(['create', 'edit', 'show'])->middleware('permission:leads.update');
+
+    // Conversion
+    Route::get('leads/{id}/convert', [\Modules\CRM\Lead\Presentation\Web\LeadConversionWebController::class, 'show'])->name('leads.convert');
+    Route::post('leads/{id}/convert', [\Modules\CRM\Lead\Presentation\Web\LeadConversionWebController::class, 'convert'])->name('leads.convert.submit');
 });

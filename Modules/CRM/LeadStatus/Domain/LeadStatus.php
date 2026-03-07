@@ -13,6 +13,7 @@ class LeadStatus extends Entity
     public const STAGE_INTERESTED = 'INTERESTED';
     public const STAGE_QUALIFIED = 'QUALIFIED';
     public const STAGE_CONVERTED = 'CONVERTED';
+    public const STAGE_PARTIALLY_CONVERTED = 'PARTIALLY_CONVERTED';
     public const STAGE_LOST = 'LOST';
 
     public function __construct(
@@ -31,6 +32,7 @@ class LeadStatus extends Entity
             self::STAGE_INTERESTED,
             self::STAGE_QUALIFIED,
             self::STAGE_CONVERTED,
+            self::STAGE_PARTIALLY_CONVERTED,
             self::STAGE_LOST,
         ], true)) {
             throw new \InvalidArgumentException("Invalid stage: {$stage}");

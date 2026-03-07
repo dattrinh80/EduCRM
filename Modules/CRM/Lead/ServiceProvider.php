@@ -51,6 +51,12 @@ class ServiceProvider extends BaseServiceProvider
             \Modules\CRM\Lead\Domain\LeadAssignmentRepositoryInterface::class,
             \Modules\CRM\Lead\Infrastructure\Persistence\EloquentLeadAssignmentRepository::class
         );
+
+        // Lead Conversion
+        $this->app->bind(
+            \Modules\CRM\Lead\Domain\LeadConversionRepositoryInterface::class,
+            \Modules\CRM\Lead\Infrastructure\Persistence\EloquentLeadConversionRepository::class
+        );
     }
 
     public function boot(): void

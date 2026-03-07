@@ -261,6 +261,11 @@
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
                                     @can('leads.update')
+                                    <a href="{{ route('admin.leads.convert', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Chuyển đổi thành Học viên">
+                                        <i data-lucide="user-plus" class="w-4 h-4"></i>
+                                    </a>
+                                    @endcan
+                                    @can('leads.update')
                                     <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition cursor-pointer" title="Edit">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>

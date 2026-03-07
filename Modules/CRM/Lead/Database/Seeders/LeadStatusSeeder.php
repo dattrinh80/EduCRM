@@ -17,9 +17,10 @@ class LeadStatusSeeder extends Seeder
             ['name' => 'Contacted', 'stage' => 'CONTACTED', 'sort_order' => 2, 'color' => 'amber'],
             ['name' => 'Interested', 'stage' => 'INTERESTED', 'sort_order' => 3, 'color' => 'purple'],
             ['name' => 'Qualified', 'stage' => 'QUALIFIED', 'sort_order' => 4, 'color' => 'emerald'],
-            ['name' => 'Converted', 'stage' => 'CONVERTED', 'sort_order' => 5, 'color' => 'green'],
-            ['name' => 'Lost', 'stage' => 'LOST', 'sort_order' => 6, 'color' => 'red'],
-            ['name' => 'Merged', 'stage' => 'LOST', 'sort_order' => 7, 'color' => 'slate'],
+            ['name' => 'Partially Converted', 'stage' => 'PARTIALLY_CONVERTED', 'sort_order' => 5, 'color' => 'cyan'],
+            ['name' => 'Converted', 'stage' => 'CONVERTED', 'sort_order' => 6, 'color' => 'green'],
+            ['name' => 'Lost', 'stage' => 'LOST', 'sort_order' => 7, 'color' => 'red'],
+            ['name' => 'Merged', 'stage' => 'LOST', 'sort_order' => 8, 'color' => 'slate'],
         ];
 
         foreach ($statuses as $status) {

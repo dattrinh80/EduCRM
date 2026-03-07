@@ -10,7 +10,10 @@ class ServiceProvider extends BaseServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \Modules\Education\Student\Domain\StudentRepositoryInterface::class,
+            \Modules\Education\Student\Infrastructure\Persistence\EloquentStudentRepository::class
+        );
     }
 
     public function boot(): void

@@ -10,7 +10,10 @@ class ServiceProvider extends BaseServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \Modules\CRM\Customer\Domain\CustomerRepositoryInterface::class,
+            \Modules\CRM\Customer\Infrastructure\Persistence\EloquentCustomerRepository::class
+        );
     }
 
     public function boot(): void

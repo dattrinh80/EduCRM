@@ -11,6 +11,7 @@ interface LeadStatusRepositoryInterface
     public function findById(string $id): ?LeadStatus;
 
     public function findByName(string $name): ?LeadStatus;
+    public function findByStage(string $stage): ?LeadStatus;
 
     public function getAll(): array;
 

@@ -126,6 +126,7 @@
                                                                 <option value="CONTACTED" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'CONTACTED' ? 'selected' : '' }}>Đã liên lạc</option>
                                                                 <option value="INTERESTED" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'INTERESTED' ? 'selected' : '' }}>Quan tâm</option>
                                                                 <option value="QUALIFIED" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'QUALIFIED' ? 'selected' : '' }}>Tiềm năng</option>
+                                                                <option value="PARTIALLY_CONVERTED" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'PARTIALLY_CONVERTED' ? 'selected' : '' }}>Chuyển đổi một phần</option>
                                                                 <option value="CONVERTED" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'CONVERTED' ? 'selected' : '' }}>Thành công</option>
                                                                 <option value="LOST" {{ (old('status_id') == $status->getId() ? old('stage') : $status->stage) == 'LOST' ? 'selected' : '' }}>Thất bại</option>
                                                             </select>
@@ -205,6 +206,7 @@
                                     <option value="CONTACTED">Đã liên lạc</option>
                                     <option value="INTERESTED">Quan tâm</option>
                                     <option value="QUALIFIED">Tiềm năng</option>
+                                    <option value="PARTIALLY_CONVERTED">Chuyển đổi một phần</option>
                                     <option value="CONVERTED">Thành công</option>
                                     <option value="LOST">Thất bại</option>
                                 </select>

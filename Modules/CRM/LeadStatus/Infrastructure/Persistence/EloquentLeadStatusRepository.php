@@ -29,14 +29,7 @@ class EloquentLeadStatusRepository implements LeadStatusRepositoryInterface
             return null;
         }
 
-        return new LeadStatus(
-            $model->id,
-            $model->name,
-            $model->stage,
-            (int) $model->sort_order,
-            (bool) $model->is_active,
-            $model->color
-        );
+        return $this->mapToDomain($model);
     }
 
     public function findByName(string $name): ?LeadStatus
@@ -46,28 +39,24 @@ class EloquentLeadStatusRepository implements LeadStatusRepositoryInterface
             return null;
         }
 
-        return new LeadStatus(
-            $model->id,
-            $model->name,
-            $model->stage,
-            (int) $model->sort_order,
-            (bool) $model->is_active,
-            $model->color
-        );
+        return $this->mapToDomain($model);
+    }
+
+    public function findByStage(string $stage): ?LeadStatus
+    {
+        $model = LeadStatusReadModel::where('stage', $stage)->first();
+        if (!$model) {
+            return null;
+        }
+
+        return $this->mapToDomain($model);
     }
 
     public function getAll(): array
     {
         return LeadStatusReadModel::orderBy('sort_order')
             ->get()
-            ->map(fn($model) => new LeadStatus(
-                $model->id,
-                $model->name,
-                $model->stage,
-                (int) $model->sort_order,
-                (bool) $model->is_active,
-                $model->color
-            ))
+            ->map(fn($model) => $this->mapToDomain($model))
             ->toArray();
     }
 
@@ -76,20 +65,25 @@ class EloquentLeadStatusRepository implements LeadStatusRepositoryInterface
         return LeadStatusReadModel::where('is_active', true)
             ->orderBy('sort_order')
             ->get()
-            ->map(fn($model) => new LeadStatus(
-                $model->id,
-                $model->name,
-                $model->stage,
-                (int) $model->sort_order,
-                (bool) $model->is_active,
-                $model->color
-            ))
+            ->map(fn($model) => $this->mapToDomain($model))
             ->toArray();
     }
 
     public function delete(string $id): void
     {
         LeadStatusReadModel::destroy($id);
+    }
+
+    private function mapToDomain(LeadStatusReadModel $model): LeadStatus
+    {
+        return new LeadStatus(
+            $model->id,
+            $model->name,
+            $model->stage,
+            (int) $model->sort_order,
+            (bool) $model->is_active,
+            $model->color
+        );
     }
 }
 

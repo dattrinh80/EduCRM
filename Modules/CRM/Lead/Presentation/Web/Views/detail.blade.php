@@ -201,6 +201,10 @@
                             <div class="w-8 h-8 rounded-lg bg-green-100 text-green-600 flex items-center justify-center"><i data-lucide="message-square" class="w-4 h-4"></i></div>
                             SMS
                         </button>
+                        <a href="{{ route('admin.leads.convert', $lead->id) }}" class="col-span-2 flex items-center justify-center gap-2 p-3 mt-2 rounded-xl border border-indigo-200 bg-indigo-50 text-sm font-bold text-indigo-700 hover:bg-indigo-100 transition cursor-pointer shadow-sm">
+                            <div class="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center shadow-md shadow-indigo-500/20"><i data-lucide="user-plus" class="w-4 h-4"></i></div>
+                            Chuyển đổi thành Học sinh
+                        </a>
                     </div>
                 </form>
             </div>
