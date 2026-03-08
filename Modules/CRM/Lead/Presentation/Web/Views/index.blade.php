@@ -5,7 +5,7 @@
 @section('breadcrumb_items')
     <a href="{{ url('/admin/leads') }}" class="text-slate-400 hover:text-primary-500 transition-colors">CRM</a>
     <i data-lucide="chevron-right" class="w-2.5 h-2.5 opacity-50"></i>
-    <span class="text-primary-500">Leads Management</span>
+    <span class="text-primary-500">Quản lý Lead</span>
 @endsection
 
 @section('content')
@@ -156,18 +156,17 @@
             <div x-show="selectedItems.length > 0" x-cloak class="bg-primary-50 px-6 py-3 border-b border-primary-100 flex items-center justify-between transition-all">
                 <div class="text-sm font-bold text-primary-800 flex items-center gap-2">
                     <span class="bg-primary-200 text-primary-700 px-2 py-0.5 rounded-md text-xs" x-text="selectedItems.length"></span>
-                    <span>lead đã chọn</span>
+                    <span>Lead đã chọn</span>
                 </div>
                 <div class="flex items-center gap-2">
                     @can('leads.update')
-                    <button type="button" @click="showMassEditModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
-                    <button type="button" x-show="selectedItems.length > 0" @click="showMassEditModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                    <button type="button" x-show="selectedItems.length > 0" @click="showMassEditModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
                         <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Sửa hàng loạt
                     </button>
-                    <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                    <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
                         <i data-lucide="merge" class="w-3.5 h-3.5"></i> Gộp Lead
                     </button>
-                    <button type="button" x-show="selectedItems.length > 0" @click="showAssignModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                    <button type="button" x-show="selectedItems.length > 0" @click="showAssignModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
                         <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Giao nhân sự
                     </button>
                     @endcan
@@ -204,7 +203,7 @@
                         </th>
                         @endforeach
                         <th class="p-4 px-6">Cơ sở</th>
-                        <th class="p-4 px-6 text-center">Nguồn / Campaign</th>
+                        <th class="p-4 px-6 text-center">Nguồn / Chiến dịch</th>
                         <th class="p-4 px-6 text-center">Nhân sự</th>
                         <th class="p-4 px-6">
                             <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['sort_by' => 'status_id', 'sort_dir' => ($sortBy === 'status_id' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"

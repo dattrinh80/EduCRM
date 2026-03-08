@@ -88,4 +88,10 @@ class Task extends Entity
         $this->status = self::STATUS_DONE;
         $this->updatedAt = new DateTimeImmutable();
     }
+
+    public function toggleStatus(): void
+    {
+        $this->status = ($this->status === self::STATUS_DONE) ? self::STATUS_TODO : self::STATUS_DONE;
+        $this->updatedAt = new DateTimeImmutable();
+    }
 }

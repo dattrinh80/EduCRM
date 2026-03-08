@@ -28,7 +28,11 @@ class EloquentTaskRepository implements TaskRepositoryInterface
 
     public function delete(string $id): void
     {
-        TaskReadModel::destroy($id);
+        $model = TaskReadModel::find($id);
+        if (!$model) {
+            throw new \Exception('Không tìm thấy nhiệm vụ để xóa.');
+        }
+        $model->delete(); // This is now a hard delete
     }
 
     public function findById(string $id): ?Task

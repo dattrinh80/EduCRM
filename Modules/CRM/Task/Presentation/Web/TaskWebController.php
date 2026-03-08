@@ -12,11 +12,16 @@ use Modules\CRM\Task\Application\Commands\UpdateTaskCommand;
 use Modules\CRM\Task\Application\Commands\UpdateTaskHandler;
 use Modules\CRM\Task\Application\Queries\GetTasksPaginatedQuery;
 use Modules\CRM\Task\Application\Queries\GetTasksPaginatedHandler;
-use Modules\CRM\Task\Infrastructure\ReadModels\TaskReadModel;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 use Modules\Core\User\Application\Queries\GetAllUsersQuery;
 use Modules\Core\User\Application\Queries\GetAllUsersHandler;
+use Modules\CRM\Task\Application\Queries\GetTaskByIdQuery;
+use Modules\CRM\Task\Application\Queries\GetTaskByIdHandler;
+use Modules\CRM\Task\Application\Commands\ToggleTaskStatusCommand;
+use Modules\CRM\Task\Application\Commands\ToggleTaskStatusHandler;
+use Modules\CRM\Task\Application\Commands\DeleteTaskCommand;
+use Modules\CRM\Task\Application\Commands\DeleteTaskHandler;
 
 class TaskWebController extends Controller
 {
@@ -136,20 +141,44 @@ class TaskWebController extends Controller
         }
     }
 
-    public function toggleStatus(string $id, TaskReadModel $readModel)
+    public function toggleStatus(string $id, ToggleTaskStatusHandler $handler)
     {
-        $taskModel = $readModel->find($id);
-        if (!$taskModel) {
-            return response()->json(['success' => false, 'message' => 'Task not found'], 404);
+        try {
+            $task = $handler->handle(new ToggleTaskStatusCommand($id));
+            
+            return response()->json([
+                'success' => true, 
+                'message' => 'Trạng thái đã được cập nhật.',
+                'new_status' => $task->status
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
+    }
+
+    public function show(string $id, GetTaskByIdHandler $handler, GetAllUsersHandler $usersHandler)
+    {
+        $task = $handler->handle(new GetTaskByIdQuery($id));
+        if (!$task) {
+            return response()->json(['success' => false, 'message' => 'Nhiệm vụ không tồn tại.'], 404);
         }
 
-        $newStatus = ($taskModel->status === 'DONE') ? 'TODO' : 'DONE';
-        $taskModel->update(['status' => $newStatus]);
+        // Include staff members for the task's center to optimize frontend loading
+        $staff = $usersHandler->handle(new GetAllUsersQuery($task->center_id));
 
         return response()->json([
-            'success' => true, 
-            'message' => 'Trạng thái đã được cập nhật.',
-            'new_status' => $newStatus
+            'task' => $task,
+            'available_staff' => $staff
         ]);
+    }
+
+    public function destroy(string $id, DeleteTaskHandler $handler)
+    {
+        try {
+            $handler->handle(new DeleteTaskCommand($id));
+            return response()->json(['success' => true, 'message' => 'Nhiệm vụ đã được xóa.']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 }

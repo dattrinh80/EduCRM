@@ -206,7 +206,7 @@
                         <i data-lucide="repeat" class="w-4 h-4"></i> Bàn giao
                         <span :class="activeTab === 'assignments' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $lead->assignments->count() }}</span>
                     </button>
-                    <button @click="setTab('tasks')" :class="activeTab === 'tasks' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <button @click="setTab('tasks')" :class="activeTab === 'tasks'" :class="activeTab === 'tasks' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
                         <i data-lucide="check-square" class="w-4 h-4"></i> Nhiệm vụ
                         <span :class="activeTab === 'tasks' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $tasks->count() }}</span>
                     </button>
@@ -214,7 +214,7 @@
             </div>
 
             {{-- Tab Contents --}}
-            <div class="min-h-[600px]">
+            <div class="min-h-[400px]">
                 {{-- Timeline --}}
                 <div x-show="activeTab === 'timeline'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     @if($activities->isEmpty())
@@ -355,41 +355,55 @@
                         @endforeach
                     @endif
                 </div>
-            </div>
-        </div>
-    </div>
-            {{-- Tasks --}}
-            <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" class="space-y-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="font-bold text-slate-800">Danh sách nhiệm vụ</h3>
-                    <button @click="showTaskModal = true" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-primary-100 transition">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Thêm nhiệm vụ
-                    </button>
-                </div>
 
-                @if($tasks->isEmpty())
-                <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100">
-                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="check-square" class="w-8 h-8 text-slate-200"></i></div>
-                    <p class="text-slate-400 font-medium italic">Chưa có nhiệm vụ nào cho Lead này.</p>
-                </div>
-                @else
-                <div class="space-y-3">
-                    @foreach($tasks as $t)
-                    <div class="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between group hover:shadow-sm transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-2 h-2 rounded-full {{ $t->status === 'DONE' ? 'bg-emerald-500' : 'bg-primary-500' }}"></div>
-                            <div>
-                                <h4 class="font-bold text-slate-800 text-sm {{ $t->status === 'DONE' ? 'line-through opacity-50' : '' }}">{{ $t->title }}</h4>
-                                <p class="text-[10px] text-slate-400 font-medium">Hạn: {{ $t->due_date ? \Carbon\Carbon::parse($t->due_date)->format('d/m/Y') : 'Không' }} | Ưu tiên: {{ $t->priority }}</p>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                             <span class="text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">By {{ $t->assignedTo->name ?? 'System' }}</span>
-                        </div>
+                {{-- Tasks --}}
+                <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-bold text-slate-800 uppercase text-xs tracking-widest">Danh sách nhiệm vụ</h3>
+                        <button @click="showTaskModal = true; $dispatch('refresh-icons')" class="px-5 py-2.5 bg-primary-100 text-primary-700 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-primary-200 transition active:scale-95 shadow-sm border border-primary-200">
+                            <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm nhiệm vụ
+                        </button>
                     </div>
-                    @endforeach
+
+                    @if($tasks->isEmpty())
+                        <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100 shadow-sm">
+                            <div class="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-inner">
+                                <i data-lucide="check-square" class="w-8 h-8 text-slate-200"></i>
+                            </div>
+                            <p class="text-slate-400 font-medium italic">Chưa có nhiệm vụ nào cho Lead này.</p>
+                        </div>
+                    @else
+                        <div class="space-y-3">
+                            @foreach($tasks as $t)
+                                @php
+                                    $pColor = match($t->priority) {
+                                        'URGENT' => 'bg-red-500',
+                                        'HIGH' => 'bg-orange-500',
+                                        'MEDIUM' => 'bg-primary-500',
+                                        default => 'bg-slate-300'
+                                    };
+                                @endphp
+                                <div class="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between group hover:shadow-md transition-all hover:-translate-y-0.5">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-1.5 h-10 rounded-full {{ $pColor }}" title="Ưu tiên: {{ $t->priority }}"></div>
+                                        <div>
+                                            <h4 class="font-bold text-slate-800 text-sm {{ $t->status === 'DONE' ? 'line-through opacity-50' : '' }}">{{ $t->title }}</h4>
+                                            <div class="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                                <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> {{ $t->due_date ? \Carbon\Carbon::parse($t->due_date)->format('d/m/Y') : 'Không hạn' }}</span>
+                                                <span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> {{ $t->assignedTo->name ?? 'Tự làm' }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border {{ $t->status === 'DONE' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100' }}">
+                                            {{ $t->status }}
+                                        </span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
-                @endif
             </div>
         </div>
     </div>
@@ -398,41 +412,71 @@
 {{-- Task Quick Add Modal --}}
 <template x-teleport="body">
     <div x-show="showTaskModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showTaskModal = false"></div>
-        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-            <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between">
-                <h3 class="font-bold text-slate-800">Thêm nhiệm vụ cho {{ $lead->name }}</h3>
-                <button @click="showTaskModal = false"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showTaskModal = false" x-transition.opacity></div>
+        <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden"
+             x-show="showTaskModal" 
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="scale-95 opacity-0 translate-y-8"
+             x-transition:enter-end="scale-100 opacity-100 translate-y-0">
+            
+            <div class="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
+                <h3 class="font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    <i data-lucide="check-square" class="w-5 h-5 text-primary-500"></i>
+                    Thêm nhiệm vụ mới
+                </h3>
+                <button @click="showTaskModal = false" class="p-2 hover:bg-white rounded-xl transition-colors"><i data-lucide="x" class="w-5 h-5 text-slate-400"></i></button>
             </div>
-            <form action="{{ route('admin.tasks.store') }}" method="POST" class="p-6 space-y-4">
+
+            <form action="{{ route('admin.tasks.store') }}" method="POST" class="p-8 space-y-5">
                 @csrf
                 <input type="hidden" name="relation_id" value="{{ $lead->id }}">
                 <input type="hidden" name="relation_type" value="Lead">
                 <input type="hidden" name="center_id" value="{{ $lead->center_id }}">
                 
-                <div class="space-y-1">
-                    <label class="text-sm font-bold text-slate-700">Tên nhiệm vụ</label>
-                    <input type="text" name="title" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500">
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Tên nhiệm vụ *</label>
+                    <input type="text" name="title" required placeholder="Ví dụ: Gọi điện tư vấn lại sau 2 ngày..."
+                           class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all font-medium text-slate-700">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">Hạn chót</label>
-                        <input type="date" name="due_date" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Hạn chót</label>
+                        <input type="date" name="due_date" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-medium">
                     </div>
-                    <div class="space-y-1">
-                        <label class="text-sm font-bold text-slate-700">Độ ưu tiên</label>
-                        <select name="priority" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Độ ưu tiên</label>
+                        <select name="priority" class="w-full px-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-medium">
                             <option value="LOW">Thấp</option>
                             <option value="MEDIUM" selected>Trung bình</option>
                             <option value="HIGH">Cao</option>
+                            <option value="URGENT">Khẩn cấp</option>
                         </select>
                     </div>
                 </div>
 
-                <div class="pt-2 flex gap-3">
-                    <button type="button" @click="showTaskModal = false" class="flex-1 px-4 py-2 text-slate-500 font-bold">Huỷ</button>
-                    <button type="submit" class="flex-1 px-4 py-2 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition">Lưu nhiệm vụ</button>
+                <div class="space-y-1.5">
+                    <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Giao cho nhân sự</label>
+                    <div class="relative">
+                        <select name="assigned_to" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-medium appearance-none">
+                            <option value="{{ auth()->id() }}">Giao cho chính tôi</option>
+                            <option value="">-- Để trống --</option>
+                            @foreach($users as $user)
+                                @if($user->id !== auth()->id())
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                        <i data-lucide="user" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <div class="pt-4 flex gap-4">
+                    <button type="button" @click="showTaskModal = false" class="flex-1 px-6 py-3.5 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition">Huỷ</button>
+                    <button type="submit" class="flex-2 px-8 py-3.5 bg-primary-600 text-white font-extrabold rounded-2xl shadow-xl shadow-primary-500/25 hover:bg-primary-700 transition active:scale-95 flex items-center justify-center gap-2">
+                        <i data-lucide="save" class="w-5 h-5"></i>
+                        Tạo nhiệm vụ
+                    </button>
                 </div>
             </form>
         </div>

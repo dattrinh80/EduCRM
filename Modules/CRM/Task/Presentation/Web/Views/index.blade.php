@@ -29,7 +29,7 @@
 
     <!-- Filters -->
     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
-        <form action="{{ route('admin.tasks.index') }}" method="GET" class="w-full grid grid-cols-1 md:grid-cols-5 gap-4">
+        <form action="{{ route('admin.tasks.index') }}" method="GET" class="w-full grid grid-cols-1 md:grid-cols-{{ $isGlobalScope ? 5 : 4 }} gap-4">
             <div class="md:col-span-2">
                 <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tiêu đề</label>
                 <div class="relative group">
@@ -38,15 +38,17 @@
                            class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
                 </div>
             </div>
+            @if($isGlobalScope)
             <div>
                 <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cơ sở</label>
-                <select name="center_id" class="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none appearance-none">
+                <select name="center_id" class="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none">
                     <option value="">Tất cả cơ sở</option>
                     @foreach($centers as $c)
-                        <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                        <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
                     @endforeach
                 </select>
             </div>
+            @endif
             <div>
                 <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Trạng thái</label>
                 <select name="status" class="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none">
@@ -56,8 +58,8 @@
                     <option value="DONE" {{ $status == 'DONE' ? 'selected' : '' }}>Hoàn thành</option>
                 </select>
             </div>
-            <div class="flex items-end">
-                <button type="submit" class="w-full px-4 py-2.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-xl transition font-bold text-sm flex items-center justify-center gap-2">
+            <div class="flex items-end flex-1">
+                <button type="submit" class="w-full md:w-auto px-6 py-2.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-xl transition font-bold text-sm flex items-center justify-center gap-2">
                     <i data-lucide="filter" class="w-4 h-4"></i> Lọc dữ liệu
                 </button>
             </div>
@@ -110,13 +112,100 @@
                     @endif
                 </div>
             </div>
-            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button @click="editTask('{{ $task->id }}')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all">
+            <div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity" x-data="{ showEditModal: false, taskCenterId: '{{ $task->center_id }}' }">
+                <button @click="showEditModal = true; $dispatch('refresh-icons')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all">
                     <i data-lucide="edit-3" class="w-4 h-4"></i>
                 </button>
                 <button @click="deleteTask('{{ $task->id }}')" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
                 </button>
+
+                <!-- Edit Task Modal (Per Row) -->
+                <template x-teleport="body">
+                    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
+                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left"
+                             x-show="showEditModal" 
+                             x-transition:enter="transition ease-out duration-300 transform"
+                             x-transition:enter-start="opacity-0 translate-y-8 scale-95"
+                             x-transition:enter-end="opacity-100 translate-y-0 scale-100">
+                            
+                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="text-lg font-bold text-slate-800">Cập nhật nhiệm vụ</h3>
+                                <button @click="showEditModal = false" class="p-2 text-slate-400 hover:text-slate-600 rounded-xl transition-colors"><i data-lucide="x" class="w-5 h-5"></i></button>
+                            </div>
+                            
+                            <form action="{{ route('admin.tasks.update', $task->id) }}" method="POST" class="p-6 space-y-4">
+                                @csrf
+                                @method('PUT')
+                                <div class="space-y-1">
+                                    <label class="text-sm font-bold text-slate-700">Tiêu đề nhiệm vụ *</label>
+                                    <input type="text" name="title" value="{{ $task->title }}" required placeholder="Nhập tên nhiệm vụ..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                </div>
+                                
+                                <div class="space-y-1">
+                                    <label class="text-sm font-bold text-slate-700">Mô tả chi tiết</label>
+                                    <textarea name="description" rows="3" placeholder="Ghi chú thêm về công việc..." class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">{{ $task->description }}</textarea>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-sm font-bold text-slate-700">Ngày hết hạn</label>
+                                        <input type="date" name="due_date" value="{{ $task->due_date ? \Carbon\Carbon::parse($task->due_date)->format('Y-m-d') : '' }}" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-sm font-bold text-slate-700">Độ ưu tiên</label>
+                                        <select name="priority" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                            <option value="LOW" {{ $task->priority === 'LOW' ? 'selected' : '' }}>Thấp</option>
+                                            <option value="MEDIUM" {{ $task->priority === 'MEDIUM' ? 'selected' : '' }}>Trung bình</option>
+                                            <option value="HIGH" {{ $task->priority === 'HIGH' ? 'selected' : '' }}>Cao</option>
+                                            <option value="URGENT" {{ $task->priority === 'URGENT' ? 'selected' : '' }}>Khẩn cấp</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1">
+                                        <label class="text-sm font-bold text-slate-700">Trạng thái</label>
+                                        <select name="status" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                            <option value="TODO" {{ $task->status === 'TODO' ? 'selected' : '' }}>Mới (Todo)</option>
+                                            <option value="DOING" {{ $task->status === 'DOING' ? 'selected' : '' }}>Đang làm</option>
+                                            <option value="DONE" {{ $task->status === 'DONE' ? 'selected' : '' }}>Hoàn thành</option>
+                                            <option value="CANCELLED" {{ $task->status === 'CANCELLED' ? 'selected' : '' }}>Đã huỷ</option>
+                                        </select>
+                                    </div>
+                                    <div class="space-y-1">
+                                        <label class="text-sm font-bold text-slate-700">Giao cho nhân sự</label>
+                                        <select name="assigned_to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                            <option value="">Tự làm / Chưa giao</option>
+                                            @foreach($users as $u)
+                                                @if($u->default_center_id == $task->center_id)
+                                                    <option value="{{ $u->id }}" {{ $task->assigned_to == $u->id ? 'selected' : '' }}>{{ $u->name }}</option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                @if($isGlobalScope)
+                                <div class="space-y-1">
+                                    <label class="text-sm font-bold text-slate-700">Cơ sở (Chỉ đọc)</label>
+                                    <div class="px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-500 text-sm font-medium">
+                                        {{ $task->center->name ?? 'N/A' }}
+                                    </div>
+                                </div>
+                                @endif
+
+                                <div class="pt-4 flex gap-3">
+                                    <button type="button" @click="showEditModal = false" class="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50 transition">Huỷ</button>
+                                    <button type="submit" class="flex-1 px-4 py-2.5 bg-primary-600 text-white rounded-xl font-bold shadow-lg shadow-primary-500/25 hover:bg-primary-700 transition">
+                                        Cập nhật
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </template>
             </div>
         </div>
         @endforeach
@@ -186,11 +275,11 @@
                         @endif
                         <div class="space-y-1 {{ !$isGlobalScope ? 'col-span-2' : '' }}">
                             <label class="text-sm font-bold text-slate-700">Giao cho nhân sự</label>
-                            <select name="assigned_to" id="task_assigned_to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                            <select name="assigned_to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
                                 <option value="">Tự làm / Chưa giao</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                @endforeach
+                                <template x-for="user in staffList" :key="user.id">
+                                    <option :value="user.id" x-text="user.name"></option>
+                                </template>
                             </select>
                         </div>
                     </div>
@@ -211,11 +300,13 @@
     function taskManagement() {
         return {
             showCreateModal: false,
+            staffList: [],
+            allUsers: @json($users),
             init() {
                 // Initialize icons
                 $dispatch('refresh-icons');
                 
-                // If not global scope, load staff for current center automatically
+                // Load initial staff list for Create Modal
                 @if(!$isGlobalScope)
                     this.loadStaff('{{ session('current_center_id') ?? app('center_id') }}');
                 @elseif($centerId)
@@ -224,54 +315,73 @@
             },
             loadStaff(centerId) {
                 if (!centerId) {
-                    const select = document.getElementById('task_assigned_to');
-                    if (select) select.innerHTML = '<option value="">Tự làm / Chưa giao</option>';
+                    this.staffList = [];
                     return;
                 }
-                
-                fetch(`/admin/tasks/staff-by-center/${centerId}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        const select = document.getElementById('task_assigned_to');
-                        if (!select) return;
-                        
-                        let html = '<option value="">Tự làm / Chưa giao</option>';
-                        data.forEach(user => {
-                            html += `<option value="${user.id}">${user.name}</option>`;
-                        });
-                        select.innerHTML = html;
-                    });
+                this.staffList = this.allUsers.filter(u => u.default_center_id == centerId);
             },
-            toggleStatus(id) {
-                fetch(`/admin/tasks/${id}/toggle-status`, {
-                    method: 'PATCH',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(res => res.json())
-                .then(data => {
+            async toggleStatus(id) {
+                try {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.content 
+                                || document.querySelector('input[name="_token"]')?.value;
+
+                    const res = await fetch(`/admin/tasks/${id}/toggle-status`, {
+                        method: 'PATCH',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    const data = await res.json();
                     if (data.success) {
                         showToast(data.message, 'success');
                         setTimeout(() => window.location.reload(), 500);
                     } else {
-                        showToast(data.message, 'error');
+                        showToast(data.message || 'Cập nhật thất bại', 'error');
                     }
-                });
+                } catch (err) {
+                    console.error('Toggle status error:', err);
+                    showToast('Lỗi khi cập nhật trạng thái.', 'error');
+                }
             },
-            editTask(id) {
-                showToast('Tính năng chỉnh sửa đang phát triển...', 'info');
-            },
-            deleteTask(id) {
-                showConfirm({
-                    title: 'Xoá nhiệm vụ',
-                    message: 'Bạn có chắc chắn muốn xoá nhiệm vụ này?',
+            async deleteTask(id) {
+                const ok = await showConfirm({
+                    title: 'Xoá nhiệm vụ?',
+                    message: 'Bạn có chắc chắn muốn xoá nhiệm vụ này? Hành động này không thể hoàn tác.',
                     confirmText: 'Xoá ngay',
                     type: 'danger'
-                }).then(ok => {
-                    if (ok) showToast('Nhiệm vụ đã được xoá.', 'success');
                 });
+
+                if (!ok) return;
+
+                try {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.content 
+                                || document.querySelector('input[name="_token"]')?.value;
+
+                    const res = await fetch(`/admin/tasks/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': token,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (res.status === 419) {
+                        showToast('Phiên làm việc hết hạn, vui lòng reload trang.', 'error');
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.success) {
+                        showToast(data.message, 'success');
+                        setTimeout(() => window.location.reload(), 500);
+                    } else {
+                        showToast(data.message || 'Xoá thất bại', 'error');
+                    }
+                } catch (err) {
+                    console.error('Delete error:', err);
+                    showToast('Lỗi kết nối hoặc hệ thống khi xoá: ' + err.message, 'error');
+                }
             }
         }
     }

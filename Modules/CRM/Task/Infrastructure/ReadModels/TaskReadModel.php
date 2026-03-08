@@ -5,12 +5,11 @@ declare(strict_types=1);
 namespace Modules\CRM\Task\Infrastructure\ReadModels;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Core\Persistence\Traits\BelongsToCenter;
 
 class TaskReadModel extends Model
 {
-    use BelongsToCenter, SoftDeletes;
+    use BelongsToCenter;
 
     protected $table = 'tasks';
 
@@ -35,7 +34,6 @@ class TaskReadModel extends Model
         'due_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     public function assignedTo()
