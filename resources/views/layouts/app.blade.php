@@ -93,6 +93,48 @@
         .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
         .sidebar-menu:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
 
+        /* Mini Sidebar Styles */
+        .sidebar-collapsed .sidebar-group-title { display: none !important; }
+        .sidebar-collapsed .sidebar-link span { display: none !important; }
+        .sidebar-collapsed .sidebar-link { 
+            justify-content: center !important; 
+            align-items: center !important;
+            padding: 1rem 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            border-radius: 0 !important;
+            position: relative !important;
+            gap: 0 !important;
+            transform: none !important;
+        }
+        .sidebar-collapsed .sidebar-link:hover { background-color: hsla(215, 100%, 50%, 0.04) !important; transform: none !important; }
+        .sidebar-collapsed .sidebar-link.active { 
+            border-left: none !important; 
+            background: linear-gradient(90deg, hsla(215, 100%, 50%, 0.1) 0%, transparent 100%) !important;
+            color: hsl(215, 100%, 80%) !important;
+            box-shadow: none !important;
+        }
+        .sidebar-collapsed .sidebar-link.active::before {
+            content: "" !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 20% !important;
+            bottom: 20% !important;
+            width: 5px !important;
+            background: hsl(215, 100%, 55%) !important;
+            border-radius: 0 6px 6px 0 !important; /* This actually looks most like the "style as before" but better */
+        }
+        /* Override specifically to BO CA 4 CANH as user requested exactly */
+        .sidebar-collapsed .sidebar-link.active::before {
+            border-radius: 999px !important;
+            left: 2px !important;
+            width: 5px !important;
+        }
+        .sidebar-collapsed .logo-text { display: none !important; }
+        .sidebar-collapsed aside { width: 5rem !important; }
+        .sidebar-collapsed main { margin-left: 5rem !important; }
+        .sidebar-collapsed .sidebar-toggle-btn { margin-left: 0 !important; }
+
         /* Toast & Modal */
         @keyframes toastIn { from { opacity: 0; transform: translateX(100%) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
@@ -175,19 +217,37 @@
         .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen" x-data="{ sidebarOpen: false }">
+<body class="bg-slate-50 min-h-screen" 
+      x-data="{ 
+        sidebarOpen: false, 
+        sidebarCollapsed: localStorage.getItem('sidebarCollapsed') === 'true' 
+      }"
+      :class="sidebarCollapsed ? 'sidebar-collapsed' : ''"
+      @keyup.ctrl.k.window.prevent="showToast('Tính năng Command Palette (Ctrl+K) đang được phát triển...', 'info')">
     <div class="flex">
         <!-- Sidebar -->
-        <aside class="w-72 bg-dark-100 h-screen fixed left-0 top-0 text-white z-40 transition-transform duration-300 transform flex flex-col border-r border-white/5 shadow-2xl"
-               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
-            <!-- Logo -->
-            <div class="h-20 flex items-center px-6 border-b border-white/5 flex-shrink-0">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+        <aside class="bg-dark-100 h-screen fixed left-0 top-0 text-white z-40 transition-all duration-300 transform flex flex-col border-r border-white/5 shadow-2xl"
+               :class="[
+                   sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
+                   sidebarCollapsed ? 'lg:w-20' : 'lg:w-72',
+                   'w-72'
+               ]">
+            <!-- Logo & Toggle -->
+            <div class="h-20 flex items-center border-b border-white/5 flex-shrink-0 transition-all duration-300 relative"
+                 :class="sidebarCollapsed ? 'justify-center px-0' : 'justify-between px-6'">
+                <div class="flex items-center gap-3" x-show="!sidebarCollapsed || false">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20 flex-shrink-0">
                         <i data-lucide="graduation-cap" class="w-6 h-6 text-white"></i>
                     </div>
-                    <span class="font-bold text-xl tracking-tight text-white">Edu <span class="text-primary-400">CRM</span></span>
+                    <span class="font-bold text-xl tracking-tight text-white logo-text whitespace-nowrap" x-show="!sidebarCollapsed" x-transition>Edu <span class="text-primary-400">CRM</span></span>
                 </div>
+                
+                {{-- Toggle Desktop --}}
+                <button @click="sidebarCollapsed = !sidebarCollapsed; localStorage.setItem('sidebarCollapsed', sidebarCollapsed); $nextTick(() => lucide.createIcons())" 
+                        class="hidden lg:flex p-2 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all focus:outline-none sidebar-toggle-btn"
+                        :class="sidebarCollapsed ? '' : 'ml-2'">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
             </div>
             
 
@@ -274,7 +334,8 @@
         </aside>
         
         <!-- Main Content -->
-        <main class="flex-1 lg:ml-72 min-w-0 transition-all duration-300">
+        <main class="flex-1 min-w-0 transition-all duration-300"
+              :class="sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'">
             <!-- Top Header -->
             <header class="h-20 glass border-b border-slate-200/60 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
                 <div class="flex flex-col gap-0.5">

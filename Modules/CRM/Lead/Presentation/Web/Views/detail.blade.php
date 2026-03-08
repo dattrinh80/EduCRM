@@ -215,65 +215,127 @@
 
             {{-- Tab Contents --}}
             <div class="min-h-[400px]">
-                {{-- Timeline --}}
                 <div x-show="activeTab === 'timeline'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     @if($activities->isEmpty())
-                        <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100 shadow-sm">
-                            <div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6">
-                                <i data-lucide="activity" class="w-10 h-10 text-slate-200"></i>
+                        <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100 shadow-sm group">
+                            <div class="w-24 h-24 rounded-full bg-slate-50 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <i data-lucide="ghost" class="w-12 h-12 text-slate-200"></i>
                             </div>
-                            <h3 class="text-lg font-bold text-slate-800">Chưa có lịch sử hoạt động</h3>
-                            <p class="text-slate-400 text-sm mt-2">Mọi tương tác với Lead này sẽ được lưu giữ tại đây.</p>
+                            <h3 class="text-xl font-black text-slate-800 tracking-tight">Vùng đất trống...</h3>
+                            <p class="text-slate-400 text-sm mt-2 max-w-xs mx-auto">Mọi dấu vết tương tác với khách hàng này sẽ được khắc ghi tại đây một cách chi tiết.</p>
                         </div>
                     @else
-                        <div class="relative pl-8 border-l-2 border-slate-100 ml-4 space-y-10 py-4">
-                            @foreach($activities as $activity)
-                                @php
-                                    $config = match($activity->activity_type) {
-                                        'call' => ['icon' => 'phone-call', 'color' => 'bg-blue-500', 'label' => 'Cuộc gọi'],
-                                        'meeting' => ['icon' => 'calendar-check', 'color' => 'bg-purple-500', 'label' => 'Cuộc hẹn'],
-                                        'status_change' => ['icon' => 'refresh-cw', 'color' => 'bg-indigo-500', 'label' => 'Thay đổi trạng thái'],
-                                        'note' => ['icon' => 'sticky-note', 'color' => 'bg-amber-500', 'label' => 'Ghi chú'],
-                                        'conversion' => ['icon' => 'sparkles', 'color' => 'bg-emerald-500', 'label' => 'Chuyển đổi'],
-                                        default => ['icon' => 'activity', 'color' => 'bg-slate-500', 'label' => 'Hoạt động']
-                                    };
-                                @endphp
-                                <div class="relative">
-                                    {{-- Time Dot --}}
-                                    <div class="absolute -left-[41px] top-0 w-[18px] h-[18px] rounded-full border-4 border-white shadow-md {{ $config['color'] }} z-10 transition-transform hover:scale-150"></div>
-                                    
-                                    <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm hover:shadow-md transition-all group overflow-hidden relative">
-                                        {{-- Visual Flair --}}
-                                        <div class="absolute top-0 right-0 w-32 h-32 {{ $config['color'] }} opacity-[0.03] rounded-full -mr-16 -mt-16 group-hover:opacity-[0.05] transition-opacity"></div>
+                        <div class="relative pl-12 ml-4">
+                            {{-- Central Running Line --}}
+                            <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-primary-500/20 via-slate-200 to-transparent rounded-full shadow-inner"></div>
+
+                            <div class="space-y-12">
+                                @foreach($activities as $activity)
+                                    @php
+                                        $config = match($activity->activity_type) {
+                                            'call' => [
+                                                'icon' => 'phone-call', 
+                                                'color' => 'from-blue-500 to-indigo-600', 
+                                                'bg' => 'bg-blue-50', 
+                                                'text' => 'text-blue-600',
+                                                'label' => 'Chiến dịch gọi',
+                                                'shadow' => 'shadow-blue-500/30'
+                                            ],
+                                            'meeting' => [
+                                                'icon' => 'calendar-check', 
+                                                'color' => 'from-purple-500 to-pink-600', 
+                                                'bg' => 'bg-purple-50', 
+                                                'text' => 'text-purple-600',
+                                                'label' => 'Hẹn gặp trực tiếp',
+                                                'shadow' => 'shadow-purple-500/30'
+                                            ],
+                                            'status_change' => [
+                                                'icon' => 'zap', 
+                                                'color' => 'from-amber-400 to-orange-500', 
+                                                'bg' => 'bg-amber-50', 
+                                                'text' => 'text-amber-600',
+                                                'label' => 'Chuyển trạng thái',
+                                                'shadow' => 'shadow-amber-500/30'
+                                            ],
+                                            'note' => [
+                                                'icon' => 'sticky-note', 
+                                                'color' => 'from-emerald-400 to-teal-500', 
+                                                'bg' => 'bg-emerald-50', 
+                                                'text' => 'text-emerald-600',
+                                                'label' => 'Ghi chú hệ thống',
+                                                'shadow' => 'shadow-emerald-500/30'
+                                            ],
+                                            'conversion' => [
+                                                'icon' => 'award', 
+                                                'color' => 'from-rose-500 to-pink-600', 
+                                                'bg' => 'bg-rose-50', 
+                                                'text' => 'text-rose-600',
+                                                'label' => 'Thành công (Converted)',
+                                                'shadow' => 'shadow-rose-500/30'
+                                            ],
+                                            default => [
+                                                'icon' => 'activity', 
+                                                'color' => 'from-slate-400 to-slate-600', 
+                                                'bg' => 'bg-slate-50', 
+                                                'text' => 'text-slate-600',
+                                                'label' => 'Cập nhật khác',
+                                                'shadow' => 'shadow-slate-500/30'
+                                            ]
+                                        };
+                                    @endphp
+                                    <div class="relative group">
+                                        {{-- Connector Dot --}}
+                                        <div class="absolute -left-[54px] top-6 w-5 h-5 rounded-full border-[4px] border-slate-50 bg-gradient-to-br {{ $config['color'] }} shadow-lg ring-4 ring-white z-10 transition-all duration-500 group-hover:scale-125"></div>
                                         
-                                        <div class="flex items-start justify-between gap-4 mb-3">
-                                            <div class="flex items-center gap-3">
-                                                <div class="w-10 h-10 rounded-xl flex items-center justify-center {{ $config['color'] }} text-white shadow-lg">
-                                                    <i data-lucide="{{ $config['icon'] }}" class="w-5 h-5"></i>
+                                        <div class="bg-white rounded-[2.5rem] p-8 border border-white shadow-xl shadow-slate-200/40 relative overflow-hidden transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-2xl group-hover:shadow-primary-500/5">
+                                            {{-- Glassmorphism Flare --}}
+                                            <div class="absolute -top-12 -right-12 w-48 h-48 bg-gradient-to-br {{ $config['color'] }} opacity-[0.03] rounded-full blur-3xl group-hover:opacity-[0.08] transition-opacity duration-700"></div>
+
+                                            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 relative">
+                                                <div class="flex items-center gap-4">
+                                                    <div class="w-14 h-14 rounded-2xl bg-gradient-to-br {{ $config['color'] }} flex items-center justify-center text-white shadow-xl {{ $config['shadow'] }} transform transition-transform group-hover:rotate-6">
+                                                        <i data-lucide="{{ $config['icon'] }}" class="w-7 h-7"></i>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex items-center gap-2">
+                                                            <h4 class="text-lg font-black text-slate-800 tracking-tight">{{ $config['label'] }}</h4>
+                                                            <span class="px-2 py-0.5 rounded-md {{ $config['bg'] }} {{ $config['text'] }} text-[9px] font-black uppercase tracking-widest">{{ $activity->activity_type }}</span>
+                                                        </div>
+                                                        <p class="text-[11px] text-slate-400 font-bold uppercase tracking-widest mt-0.5 flex items-center gap-1.5">
+                                                            <i data-lucide="clock" class="w-3 h-3 opacity-60"></i>
+                                                            {{ $activity->created_at?->translatedFormat('H:i, d/m/Y') }}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h4 class="font-black text-slate-800 tracking-tight">{{ $config['label'] }}</h4>
-                                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ $activity->created_at?->translatedFormat('H:i - d/m/Y') }}</p>
+                                                <div class="flex items-center gap-2 bg-slate-50 border border-slate-100 px-4 py-2 rounded-2xl self-start md:self-center">
+                                                    <div class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></div>
+                                                    <span class="text-[11px] font-black text-slate-500 uppercase tracking-tighter">{{ $activity->created_at?->diffForHumans() }}</span>
                                                 </div>
                                             </div>
-                                            <span class="text-[11px] font-bold text-slate-400 bg-slate-50 px-3 py-1 rounded-full">{{ $activity->created_at?->diffForHumans() }}</span>
-                                        </div>
-                                        <div class="pl-13">
-                                            <p class="text-sm text-slate-600 leading-relaxed font-medium">
-                                                {!! nl2br(e($activity->description)) !!}
-                                            </p>
-                                            @if($activity->creator)
-                                                <div class="mt-4 flex items-center gap-2 pt-4 border-t border-slate-50">
-                                                    <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black text-slate-600 uppercase">
-                                                        {{ substr($activity->creator->name, 0, 1) }}
-                                                    </div>
-                                                    <span class="text-[11px] font-bold text-slate-500">{{ $activity->creator->name }}</span>
+
+                                            <div class="md:pl-[4.5rem] relative">
+                                                <div class="p-6 bg-slate-50/50 rounded-3xl border border-slate-100 group-hover:bg-white group-hover:border-primary-100/50 transition-colors duration-500">
+                                                    <p class="text-sm font-medium text-slate-600 leading-relaxed italic group-hover:text-slate-800 transition-colors">
+                                                        "{!! nl2br(e($activity->description)) !!}"
+                                                    </p>
                                                 </div>
-                                            @endif
+
+                                                @if($activity->creator)
+                                                    <div class="mt-4 flex items-center gap-3">
+                                                        <div class="w-8 h-8 rounded-xl bg-white shadow-sm border border-slate-100 flex items-center justify-center text-[10px] font-black text-primary-600 uppercase">
+                                                            {{ substr($activity->creator->name, 0, 1) }}
+                                                        </div>
+                                                        <div class="text-[11px]">
+                                                            <span class="text-slate-400 font-bold">Thực hiện bởi:</span>
+                                                            <span class="text-slate-700 font-black ml-1">{{ $activity->creator->name }}</span>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            @endforeach
+                                @endforeach
+                            </div>
                         </div>
                     @endif
                 </div>
