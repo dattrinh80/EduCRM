@@ -215,6 +215,10 @@
                     <i data-lucide="users" class="w-5 h-5 text-blue-400/80"></i>
                     <span>Phụ huynh & Học sinh</span>
                 </a>
+                <a href="{{ route('admin.lead-tags.index') }}" class="sidebar-link {{ request()->is('admin/lead-tags*') ? 'active' : '' }}">
+                    <i data-lucide="tags" class="w-5 h-5 text-slate-400/80"></i>
+                    <span>Cấu hình Label/Tags</span>
+                </a>
 
                 <!-- Education Section -->
                 <div class="sidebar-group-title">Đào tạo & Học vụ</div>
@@ -224,19 +228,22 @@
                     <span>Hồ sơ học viên</span>
                 </a>
                 @endcan
+                <!-- Marketing Section -->
+                <div class="sidebar-group-title">Marketing & Thiết lập</div>
+                <a href="{{ route('admin.campaigns.index') }}" class="sidebar-link {{ request()->is('admin/campaigns*') ? 'active' : '' }}">
+                    <i data-lucide="megaphone" class="w-5 h-5 text-indigo-400/80"></i>
+                    <span>Chiến dịch Marketing</span>
+                </a>
+                <a href="{{ route('admin.lead-sources.index') }}" class="sidebar-link {{ request()->is('admin/lead-sources*') ? 'active' : '' }}">
+                    <i data-lucide="external-link" class="w-5 h-5 text-sky-400/80"></i>
+                    <span>Nguồn khách hàng</span>
+                </a>
                 @can('interest_types.view')
                 <a href="{{ route('admin.interest-types.index') }}" class="sidebar-link {{ request()->is('admin/interest-types*') ? 'active' : '' }}">
                     <i data-lucide="list-todo" class="w-5 h-5 text-amber-400/80"></i>
                     <span>Dịch vụ & Nhu cầu</span>
                 </a>
                 @endcan
-
-                <!-- Marketing Section -->
-                <div class="sidebar-group-title">Marketing</div>
-                <a href="#" class="sidebar-link hover:text-white/60 opacity-60">
-                    <i data-lucide="megaphone" class="w-5 h-5"></i>
-                    <span>Chiến dịch (Coming)</span>
-                </a>
 
                 <!-- System Section -->
                 <div class="sidebar-group-title">Cấu hình & Hệ thống</div>
@@ -258,6 +265,10 @@
                     <span>Quyền hạn hệ thống</span>
                 </a>
                 @endcan
+                <a href="{{ route('admin.permissions.index') }}" class="sidebar-link {{ request()->is('admin/permissions*') ? 'active' : '' }}">
+                    <i data-lucide="key" class="w-5 h-5 text-slate-400/80"></i>
+                    <span>Danh sách Permission</span>
+                </a>
 
             </nav>
         </aside>
