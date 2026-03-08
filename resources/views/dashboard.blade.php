@@ -2,6 +2,10 @@
 
 @section('title', 'Bảng điều khiển')
 
+@section('breadcrumb_items')
+    <span class="text-primary-500">Dashboard</span>
+@endsection
+
 @section('content')
 <div class="space-y-8">
     <!-- Header with Welcome -->

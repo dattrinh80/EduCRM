@@ -98,9 +98,60 @@
         @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
         .modal-enter { animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-        /* General Utilities */
-        .tabular-nums { font-variant-numeric: tabular-nums; }
-        .text-balance { text-wrap: balance; }
+        /* Skeleton Loading */
+        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+        .skeleton { 
+            background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%); 
+            background-size: 200% 100%; 
+            animation: shimmer 1.5s infinite; 
+            border-radius: 0.5rem;
+        }
+
+        .sidebar-group-title {
+            font-size: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: hsl(222, 47%, 45%);
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+            padding: 0 1rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar-link {
+            display: flex;
+            items-center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.75rem;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: hsl(215, 20%, 75%);
+        }
+        
+        .sidebar-link:hover {
+            background-color: hsla(215, 100%, 50%, 0.08);
+            color: white;
+            transform: translateX(4px);
+        }
+        
+        .sidebar-link.active {
+            background: linear-gradient(90deg, hsla(215, 100%, 50%, 0.15) 0%, transparent 100%);
+            border-left: 3px solid hsl(215, 94%, 48%);
+            color: hsl(215, 100%, 80%) !important;
+            box-shadow: inset 4px 0 12px -6px hsla(215, 100%, 50%, 0.4);
+            transform: translateX(4px);
+        }
+
+        .sidebar-link i {
+            transition: transform 0.2s;
+        }
+
+        .sidebar-link:hover i {
+            transform: scale(1.15) rotate(3deg);
+        }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen" x-data="{ sidebarOpen: false }">
@@ -121,62 +172,65 @@
 
             
             <!-- Navigation -->
-            <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto sidebar-menu">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/dashboard') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Bảng điều khiển
+            <nav class="p-4 space-y-1 flex-1 overflow-y-auto sidebar-menu custom-scrollbar">
+                <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
+                    <span>Tổng quan hệ thống</span>
                 </a>
 
-                <!-- CRM & Recruitment -->
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">CRM & Tuyển sinh</p>
+                <!-- CRM Section -->
+                <div class="sidebar-group-title">CRM & Tuyển sinh</div>
                 @can('leads.view')
-                <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/leads*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="contact" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Khách hàng tiềm năng
+                <a href="{{ url('/admin/leads') }}" class="sidebar-link {{ request()->is('admin/leads*') ? 'active' : '' }}">
+                    <i data-lucide="contact" class="w-5 h-5 text-emerald-400/80"></i>
+                    <span>Khách hàng tiềm năng</span>
                 </a>
                 @endcan
-                <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/customers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Phụ huynh (CRM)
+                <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}">
+                    <i data-lucide="users" class="w-5 h-5 text-blue-400/80"></i>
+                    <span>Phụ huynh & Học sinh</span>
                 </a>
 
-                <!-- Education -->
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Đào tạo & Học vụ</p>
+                <!-- Education Section -->
+                <div class="sidebar-group-title">Đào tạo & Học vụ</div>
                 @can('students.view')
-                <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/students*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="graduation-cap" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Hồ sơ học viên
+                <a href="{{ route('admin.students.index') }}" class="sidebar-link {{ request()->is('admin/students*') ? 'active' : '' }}">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-400/80"></i>
+                    <span>Hồ sơ học viên</span>
                 </a>
                 @endcan
                 @can('interest_types.view')
-                <a href="{{ route('admin.interest-types.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/interest-types*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="list-todo" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Dịch vụ & Nhu cầu
+                <a href="{{ route('admin.interest-types.index') }}" class="sidebar-link {{ request()->is('admin/interest-types*') ? 'active' : '' }}">
+                    <i data-lucide="list-todo" class="w-5 h-5 text-amber-400/80"></i>
+                    <span>Dịch vụ & Nhu cầu</span>
                 </a>
                 @endcan
 
-                <!-- System & Config -->
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Cấu hình & Hệ thống</p>
+                <!-- Marketing Section -->
+                <div class="sidebar-group-title">Marketing</div>
+                <a href="#" class="sidebar-link hover:text-white/60 opacity-60">
+                    <i data-lucide="megaphone" class="w-5 h-5"></i>
+                    <span>Chiến dịch (Coming)</span>
+                </a>
+
+                <!-- System Section -->
+                <div class="sidebar-group-title">Cấu hình & Hệ thống</div>
                 @can('centers.view')
-                <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/centers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="building-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Danh sách cơ sở
+                <a href="{{ route('admin.centers.index') }}" class="sidebar-link {{ request()->is('admin/centers*') ? 'active' : '' }}">
+                    <i data-lucide="building-2" class="w-5 h-5 text-slate-400/80"></i>
+                    <span>Danh sách cơ sở</span>
                 </a>
                 @endcan
                 @can('users.view')
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/users*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="user-cog" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Nhân sự & Tài khoản
+                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->is('admin/users*') ? 'active' : '' }}">
+                    <i data-lucide="user-cog" class="w-5 h-5 text-slate-400/80"></i>
+                    <span>Nhân sự & Tài khoản</span>
                 </a>
                 @endcan
                 @can('roles.view')
-                <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/roles*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="shield-check" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Quyền hạn (RBAC)
-                </a>
-                <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/permissions*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="key" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Quyền hạn chuyên sâu
+                <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->is('admin/roles*') ? 'active' : '' }}">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-rose-400/80"></i>
+                    <span>Quyền hạn hệ thống</span>
                 </a>
                 @endcan
 
@@ -187,22 +241,32 @@
         <main class="flex-1 lg:ml-72 min-w-0 transition-all duration-300">
             <!-- Top Header -->
             <header class="h-20 glass border-b border-slate-200/60 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
-                <div class="flex items-center gap-4">
-                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2.5 -ml-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all focus:outline-none">
-                        <i data-lucide="menu" class="w-6 h-6"></i>
-                    </button>
-                    <h1 class="text-xl font-bold text-slate-800 tracking-tight transition-all">@yield('title', 'Bảng điều khiển')</h1>
+                <div class="flex flex-col gap-0.5">
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-0.5">
+                        <a href="{{ route('admin.dashboard') }}" class="hover:text-primary-500 transition-colors">Hệ thống</a>
+                        <i data-lucide="chevron-right" class="w-2.5 h-2.5 opacity-50"></i>
+                        @yield('breadcrumb_items')
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2.5 -ml-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all focus:outline-none">
+                            <i data-lucide="menu" class="w-6 h-6"></i>
+                        </button>
+                        <h1 class="text-xl font-bold text-slate-800 tracking-tight transition-all">@yield('title', 'Bảng điều khiển')</h1>
+                    </div>
                 </div>
 
                 <!-- Global Search & Actions -->
                 <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
-                    <div class="relative w-full group">
+                    <div class="relative w-full group cursor-pointer" @click="showToast('Tính năng Command Palette (Ctrl+K) đang được phát triển...', 'info')">
                         <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 group-hover:text-primary-500 transition-colors"></i>
                         </div>
-                        <input type="text" 
-                            class="block w-full pl-10 pr-4 py-2 bg-slate-100/50 border-transparent focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/30 rounded-xl text-sm transition-all" 
-                            placeholder="Tìm kiếm nhanh (Ctrl + K)...">
+                        <input type="text" readonly
+                            class="block w-full pl-10 pr-4 py-2 bg-slate-100/50 border border-transparent group-hover:border-slate-200 group-hover:bg-white rounded-xl text-sm transition-all cursor-pointer" 
+                            placeholder="Tìm kiếm nhanh...">
+                        <div class="absolute inset-y-0 right-0 pr-2.5 flex items-center pointer-events-none">
+                            <kbd class="hidden sm:inline-flex items-center px-1.5 py-0.5 border border-slate-200 rounded text-[10px] font-bold text-slate-400 bg-white group-hover:border-primary-500/30 group-hover:text-primary-500 transition-all">Ctrl K</kbd>
+                        </div>
                     </div>
                 </div>
                 
