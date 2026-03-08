@@ -5,17 +5,14 @@ declare(strict_types=1);
 namespace Modules\Education\Student\Presentation\Web;
 
 use Illuminate\Routing\Controller;
-use Modules\Education\Student\Domain\StudentRepositoryInterface;
+use Modules\Education\Student\Application\Queries\GetStudentsQuery;
+use Modules\Education\Student\Application\Queries\GetStudentsHandler;
 
 class StudentWebController extends Controller
 {
-    public function __construct(
-        private StudentRepositoryInterface $studentRepository
-    ) {}
-
-    public function index()
+    public function index(GetStudentsHandler $handler)
     {
-        $students = $this->studentRepository->getAll();
+        $students = $handler->handle(new GetStudentsQuery());
         return view('student::index', compact('students'));
     }
 }

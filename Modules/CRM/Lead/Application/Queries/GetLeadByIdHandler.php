@@ -14,6 +14,12 @@ class GetLeadByIdHandler implements QueryHandler
     {
         /** @var GetLeadByIdQuery $query */
         
-        return LeadReadModel::find($query->id);
+        $dbQuery = LeadReadModel::query();
+        
+        if (!empty($query->with)) {
+            $dbQuery->with($query->with);
+        }
+
+        return $dbQuery->find($query->id);
     }
 }

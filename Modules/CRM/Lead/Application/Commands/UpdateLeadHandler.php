@@ -16,7 +16,8 @@ class UpdateLeadHandler implements CommandHandler
         private readonly \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
         private readonly \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository,
         private readonly \Modules\CRM\Lead\Domain\LeadAssignmentRepositoryInterface $assignmentRepository,
-        private readonly \Modules\CRM\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository
+        private readonly \Modules\CRM\LeadActivity\Domain\LeadActivityRepositoryInterface $activityRepository,
+        private readonly \Modules\Core\User\Domain\UserRepositoryInterface $userRepository
     ) {
     }
 
@@ -81,7 +82,7 @@ class UpdateLeadHandler implements CommandHandler
             // Also log as activity
             $assignedUserName = 'Chưa giao';
             if ($command->assignedTo) {
-                $assignedUser = \Modules\Core\User\Infrastructure\ReadModels\UserReadModel::find($command->assignedTo);
+                $assignedUser = $this->userRepository->findById($command->assignedTo);
                 $assignedUserName = $assignedUser ? $assignedUser->name : 'User ID: ' . $command->assignedTo;
             }
 

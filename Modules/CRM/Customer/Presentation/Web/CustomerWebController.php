@@ -5,20 +5,17 @@ declare(strict_types=1);
 namespace Modules\CRM\Customer\Presentation\Web;
 
 use Illuminate\Routing\Controller;
-use Modules\CRM\Customer\Domain\CustomerRepositoryInterface;
+use Modules\CRM\Customer\Application\Queries\GetCustomersQuery;
+use Modules\CRM\Customer\Application\Queries\GetCustomersHandler;
+use Illuminate\Http\Request;
 
 class CustomerWebController extends Controller
 {
-    public function __construct(
-        private CustomerRepositoryInterface $customerRepository
-    ) {}
-
-    public function index(\Illuminate\Http\Request $request)
+    public function index(Request $request, GetCustomersHandler $handler)
     {
         $search = $request->get('search');
-        $customers = $this->customerRepository->search($search);
+        $customers = $handler->handle(new GetCustomersQuery($search));
         
-        return view('customer::index', compact('customers'));
+        return view('customer::index', compact('customers', 'search'));
     }
-
 }

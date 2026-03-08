@@ -44,32 +44,34 @@ use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteCommand;
 use Modules\CRM\LeadNote\Application\Commands\AddLeadNoteHandler;
 use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesQuery;
 use Modules\CRM\LeadNote\Application\Queries\GetLeadNotesHandler;
+use Modules\CRM\LeadStatus\Application\Queries\GetLeadStatusesQuery;
+use Modules\CRM\LeadStatus\Application\Queries\GetLeadStatusesHandler;
+use Modules\CRM\LeadTag\Application\Queries\GetLeadTagsQuery;
+use Modules\CRM\LeadTag\Application\Queries\GetLeadTagsHandler;
 use Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel;
 
 class LeadWebController extends Controller
 {
-    public function __construct(
-        private readonly \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $statusRepository,
-        private readonly \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $tagRepository
-    ) {}
-
     /**
      * Lead Detail Page
      */
     public function show(
         string $id,
+        GetLeadByIdHandler $leadHandler,
         GetActiveCentersHandler $centersHandler,
         GetLeadSourcesHandler $leadSourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
         GetCampaignsHandler $campaignsHandler,
         GetAllUsersHandler $usersHandler,
         GetLeadActivitiesHandler $activitiesHandler,
-        GetLeadNotesHandler $notesHandler
+        GetLeadNotesHandler $notesHandler,
+        GetLeadStatusesHandler $statusesHandler,
+        GetLeadTagsHandler $tagsHandler
     ) {
-        $lead = LeadReadModel::with([
+        $lead = $leadHandler->handle(new GetLeadByIdQuery($id, [
             'leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags',
             'assignments.assignedToUser', 'assignments.assignedByUser'
-        ])->find($id);
+        ]));
 
         if (!$lead) {
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
@@ -83,8 +85,8 @@ class LeadWebController extends Controller
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = $usersHandler->handle(new GetAllUsersQuery());
-        $statuses = $this->statusRepository->getAllActive();
-        $allTags = $this->tagRepository->getAll();
+        $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
+        $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
 
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
@@ -101,13 +103,16 @@ class LeadWebController extends Controller
      */
     public function edit(
         string $id,
+        GetLeadByIdHandler $leadHandler,
         GetActiveCentersHandler $centersHandler,
         GetLeadSourcesHandler $leadSourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
         GetCampaignsHandler $campaignsHandler,
-        GetAllUsersHandler $usersHandler
+        GetAllUsersHandler $usersHandler,
+        GetLeadStatusesHandler $statusesHandler,
+        GetLeadTagsHandler $tagsHandler
     ) {
-        $lead = LeadReadModel::with(['tags'])->find($id);
+        $lead = $leadHandler->handle(new GetLeadByIdQuery($id, ['tags']));
 
         if (!$lead) {
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
@@ -118,8 +123,8 @@ class LeadWebController extends Controller
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = $usersHandler->handle(new GetAllUsersQuery());
-        $statuses = $this->statusRepository->getAllActive();
-        $allTags = $this->tagRepository->getAll();
+        $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
+        $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
 
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
@@ -175,7 +180,9 @@ class LeadWebController extends Controller
         GetLeadSourcesHandler $leadSourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
         GetCampaignsHandler $campaignsHandler,
-        GetAllUsersHandler $usersHandler
+        GetAllUsersHandler $usersHandler,
+        GetLeadStatusesHandler $statusesHandler,
+        GetLeadTagsHandler $tagsHandler
     ) {
         $perPage = PaginationHelper::resolvePerPage((int) $request->query('per_page'));
         $page = (int) $request->query('page', 1);
@@ -196,8 +203,8 @@ class LeadWebController extends Controller
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
         $users = $usersHandler->handle(new GetAllUsersQuery());
-        $statuses = $this->statusRepository->getAllActive();
-        $allTags = $this->tagRepository->getAll();
+        $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
+        $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
 
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}

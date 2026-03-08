@@ -9,7 +9,9 @@ use App\Core\CQRS\Query;
 class GetLeadByIdQuery implements Query
 {
     public function __construct(
-        public readonly string $id
+        public readonly string $id,
+        /** @var array<string> $with */
+        public readonly array $with = []
     ) {
     }
 }
