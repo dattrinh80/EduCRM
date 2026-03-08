@@ -70,7 +70,8 @@ class LeadWebController extends Controller
         GetLeadActivitiesHandler $activitiesHandler,
         GetLeadNotesHandler $notesHandler,
         GetLeadStatusesHandler $statusesHandler,
-        GetLeadTagsHandler $tagsHandler
+        GetLeadTagsHandler $tagsHandler,
+        \Modules\CRM\Task\Application\Queries\GetTasksPaginatedHandler $tasksHandler
     ) {
         $lead = $leadHandler->handle(new GetLeadByIdQuery($id, [
             'leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags',
@@ -91,12 +92,18 @@ class LeadWebController extends Controller
         $users = $usersHandler->handle(new GetAllUsersQuery());
         $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
         $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
+        
+        $tasks = $tasksHandler->handle(new \Modules\CRM\Task\Application\Queries\GetTasksPaginatedQuery(
+            perPage: 100,
+            relationId: $id,
+            relationType: 'Lead'
+        ));
 
         $isGlobalScope = false;
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::detail', compact(
-            'lead', 'activities', 'notes',
+            'lead', 'activities', 'notes', 'tasks',
             'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
             'isGlobalScope'
         ));

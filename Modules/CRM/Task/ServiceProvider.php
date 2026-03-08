@@ -10,7 +10,10 @@ class ServiceProvider extends BaseServiceProvider
 {
     public function register(): void
     {
-        //
+        $this->app->bind(
+            \Modules\CRM\Task\Domain\TaskRepositoryInterface::class,
+            \Modules\CRM\Task\Infrastructure\Persistence\EloquentTaskRepository::class
+        );
     }
 
     public function boot(): void

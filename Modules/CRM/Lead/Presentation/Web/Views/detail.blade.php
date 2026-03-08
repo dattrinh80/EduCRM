@@ -206,6 +206,10 @@
                         <i data-lucide="repeat" class="w-4 h-4"></i> Bàn giao
                         <span :class="activeTab === 'assignments' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $lead->assignments->count() }}</span>
                     </button>
+                    <button @click="setTab('tasks')" :class="activeTab === 'tasks' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="check-square" class="w-4 h-4"></i> Nhiệm vụ
+                        <span :class="activeTab === 'tasks' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $tasks->count() }}</span>
+                    </button>
                 </div>
             </div>
 
@@ -354,7 +358,86 @@
             </div>
         </div>
     </div>
+            {{-- Tasks --}}
+            <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" class="space-y-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-slate-800">Danh sách nhiệm vụ</h3>
+                    <button @click="showTaskModal = true" class="px-4 py-2 bg-primary-50 text-primary-600 rounded-xl font-bold text-sm flex items-center gap-2 hover:bg-primary-100 transition">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Thêm nhiệm vụ
+                    </button>
+                </div>
+
+                @if($tasks->isEmpty())
+                <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100">
+                    <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4"><i data-lucide="check-square" class="w-8 h-8 text-slate-200"></i></div>
+                    <p class="text-slate-400 font-medium italic">Chưa có nhiệm vụ nào cho Lead này.</p>
+                </div>
+                @else
+                <div class="space-y-3">
+                    @foreach($tasks as $t)
+                    <div class="bg-white rounded-2xl p-4 border border-slate-100 flex items-center justify-between group hover:shadow-sm transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-2 h-2 rounded-full {{ $t->status === 'DONE' ? 'bg-emerald-500' : 'bg-primary-500' }}"></div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm {{ $t->status === 'DONE' ? 'line-through opacity-50' : '' }}">{{ $t->title }}</h4>
+                                <p class="text-[10px] text-slate-400 font-medium">Hạn: {{ $t->due_date ? \Carbon\Carbon::parse($t->due_date)->format('d/m/Y') : 'Không' }} | Ưu tiên: {{ $t->priority }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <span class="text-[10px] font-bold text-slate-500 bg-slate-50 px-2 py-1 rounded-lg">By {{ $t->assignedTo->name ?? 'System' }}</span>
+                        </div>
+                    </div>
+                    @endforeach
+                </div>
+                @endif
+            </div>
+        </div>
+    </div>
 </div>
+
+{{-- Task Quick Add Modal --}}
+<template x-teleport="body">
+    <div x-show="showTaskModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showTaskModal = false"></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between">
+                <h3 class="font-bold text-slate-800">Thêm nhiệm vụ cho {{ $lead->name }}</h3>
+                <button @click="showTaskModal = false"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <form action="{{ route('admin.tasks.store') }}" method="POST" class="p-6 space-y-4">
+                @csrf
+                <input type="hidden" name="relation_id" value="{{ $lead->id }}">
+                <input type="hidden" name="relation_type" value="Lead">
+                <input type="hidden" name="center_id" value="{{ $lead->center_id }}">
+                
+                <div class="space-y-1">
+                    <label class="text-sm font-bold text-slate-700">Tên nhiệm vụ</label>
+                    <input type="text" name="title" required class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-primary-500">
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">Hạn chót</label>
+                        <input type="date" name="due_date" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-sm font-bold text-slate-700">Độ ưu tiên</label>
+                        <select name="priority" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl outline-none">
+                            <option value="LOW">Thấp</option>
+                            <option value="MEDIUM" selected>Trung bình</option>
+                            <option value="HIGH">Cao</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-2 flex gap-3">
+                    <button type="button" @click="showTaskModal = false" class="flex-1 px-4 py-2 text-slate-500 font-bold">Huỷ</button>
+                    <button type="submit" class="flex-1 px-4 py-2 bg-primary-600 text-white font-bold rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 transition">Lưu nhiệm vụ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
 @endsection
 
 @push('scripts')
@@ -362,6 +445,7 @@
     document.addEventListener('alpine:init', () => {
         Alpine.data('leadDetailStore', () => ({
             activeTab: 'timeline',
+            showTaskModal: false,
             
             setTab(tab) {
                 this.activeTab = tab;

@@ -205,6 +205,10 @@
                     <i data-lucide="contact" class="w-5 h-5 text-emerald-400/80"></i>
                     <span>Khách hàng tiềm năng</span>
                 </a>
+                <a href="{{ route('admin.tasks.index') }}" class="sidebar-link {{ request()->is('admin/tasks*') ? 'active' : '' }}">
+                    <i data-lucide="check-square" class="w-5 h-5 text-amber-400/80"></i>
+                    <span>Nhiệm vụ & Công việc</span>
+                </a>
                 @endcan
                 <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}">
                     <i data-lucide="users" class="w-5 h-5 text-blue-400/80"></i>
