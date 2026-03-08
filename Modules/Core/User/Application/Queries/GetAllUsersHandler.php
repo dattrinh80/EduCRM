@@ -10,6 +10,20 @@ class GetAllUsersHandler
 {
     public function handle(GetAllUsersQuery $query)
     {
-        return UserReadModel::all();
+        $builder = UserReadModel::query();
+
+        if ($query->centerId) {
+            $builder->where(function ($q) use ($query) {
+                $q->where('default_center_id', $query->centerId)
+                  ->orWhereHas('userRoles', function ($sq) use ($query) {
+                      $sq->where(function ($ssq) use ($query) {
+                          $ssq->where('scope_type', 'CENTER')
+                              ->where('scope_id', $query->centerId);
+                      })->orWhere('scope_type', 'ALL');
+                  });
+            });
+        }
+
+        return $builder->get();
     }
 }

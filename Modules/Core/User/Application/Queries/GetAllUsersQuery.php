@@ -6,5 +6,7 @@ namespace Modules\Core\User\Application\Queries;
 
 class GetAllUsersQuery
 {
-    // No parameters needed for a flat fetch
+    public function __construct(
+        public readonly ?string $centerId = null
+    ) {}
 }

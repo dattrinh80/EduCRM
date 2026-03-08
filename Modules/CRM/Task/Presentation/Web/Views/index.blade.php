@@ -173,20 +173,23 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
+                        @if($isGlobalScope)
                         <div class="space-y-1">
-                            <label class="text-sm font-bold text-slate-700">Giao cho nhân sự</label>
-                            <select name="assigned_to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
-                                <option value="">Tự làm / Chưa giao</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                            <label class="text-sm font-bold text-slate-700">Cơ sở</label>
+                            <select name="center_id" id="task_center_id" required @change="loadStaff($event.target.value)" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="">-- Chọn cơ sở --</option>
+                                @foreach($centers as $c)
+                                    <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
                                 @endforeach
                             </select>
                         </div>
-                        <div class="space-y-1">
-                            <label class="text-sm font-bold text-slate-700">Cơ sở</label>
-                            <select name="center_id" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
-                                @foreach($centers as $c)
-                                    <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                        @endif
+                        <div class="space-y-1 {{ !$isGlobalScope ? 'col-span-2' : '' }}">
+                            <label class="text-sm font-bold text-slate-700">Giao cho nhân sự</label>
+                            <select name="assigned_to" id="task_assigned_to" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 outline-none">
+                                <option value="">Tự làm / Chưa giao</option>
+                                @foreach($users as $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -211,6 +214,33 @@
             init() {
                 // Initialize icons
                 $dispatch('refresh-icons');
+                
+                // If not global scope, load staff for current center automatically
+                @if(!$isGlobalScope)
+                    this.loadStaff('{{ session('current_center_id') ?? app('center_id') }}');
+                @elseif($centerId)
+                    this.loadStaff('{{ $centerId }}');
+                @endif
+            },
+            loadStaff(centerId) {
+                if (!centerId) {
+                    const select = document.getElementById('task_assigned_to');
+                    if (select) select.innerHTML = '<option value="">Tự làm / Chưa giao</option>';
+                    return;
+                }
+                
+                fetch(`/admin/tasks/staff-by-center/${centerId}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        const select = document.getElementById('task_assigned_to');
+                        if (!select) return;
+                        
+                        let html = '<option value="">Tự làm / Chưa giao</option>';
+                        data.forEach(user => {
+                            html += `<option value="${user.id}">${user.name}</option>`;
+                        });
+                        select.innerHTML = html;
+                    });
             },
             toggleStatus(id) {
                 fetch(`/admin/tasks/${id}/toggle-status`, {

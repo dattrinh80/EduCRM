@@ -53,13 +53,24 @@ class TaskWebController extends Controller
 
     public function store(Request $request, CreateTaskHandler $handler)
     {
-        $request->validate([
+        $isGlobalScope = app('is_global_scope');
+        
+        $rules = [
             'title' => 'required|string|max:255',
             'due_date' => 'nullable|date',
             'priority' => 'required|string',
             'assigned_to' => 'nullable|uuid',
-            'center_id' => 'required|uuid',
-        ]);
+        ];
+
+        if ($isGlobalScope) {
+            $rules['center_id'] = 'required|uuid';
+        }
+
+        $request->validate($rules);
+
+        $centerId = $isGlobalScope 
+            ? $request->center_id 
+            : (session('current_center_id') ?? app('center_id'));
 
         try {
             $handler->handle(new CreateTaskCommand(
@@ -69,7 +80,7 @@ class TaskWebController extends Controller
                 $request->priority,
                 $request->assigned_to,
                 (string) auth()->id(),
-                $request->center_id,
+                $centerId,
                 $request->relation_id,
                 $request->relation_type
             ));
@@ -85,6 +96,12 @@ class TaskWebController extends Controller
             }
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function getStaffByCenter(string $centerId, GetAllUsersHandler $usersHandler)
+    {
+        $users = $usersHandler->handle(new GetAllUsersQuery($centerId));
+        return response()->json($users);
     }
 
     public function update(Request $request, string $id, UpdateTaskHandler $handler)
