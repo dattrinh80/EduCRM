@@ -20,6 +20,19 @@
             </p>
         </div>
         <div class="flex gap-2">
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'list'])) }}" 
+                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                    <i data-lucide="list" class="w-4 h-4"></i>
+                    <span>Danh sách</span>
+                </a>
+                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'kanban'])) }}" 
+                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'kanban' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                    <i data-lucide="layout-kanban" class="w-4 h-4"></i>
+                    <span>Kanban</span>
+                </a>
+            </div>
+
             @can('leads.export')
             <div x-data="{ open: false }" class="relative">
                 <button type="button" @click="open = !open" @click.away="open = false" class="px-5 py-2.5 bg-white text-emerald-700 hover:text-white rounded-xl hover:bg-emerald-600 transition-all duration-300 flex items-center gap-2 border border-emerald-100 shadow-sm hover:shadow-emerald-200/50 font-bold whitespace-nowrap active:scale-95 group">
@@ -46,18 +59,7 @@
                 </div>
             </div>
             @endcan
-            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
-                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'list'])) }}" 
-                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
-                    <i data-lucide="list" class="w-4 h-4"></i>
-                    Danh sách
-                </a>
-                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'kanban'])) }}" 
-                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'kanban' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
-                    <i data-lucide="layout-kanban" class="w-4 h-4"></i>
-                    Kanban
-                </a>
-            </div>
+
             @can('leads.create')
             <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-5 py-2.5 bg-slate-50 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-all duration-300 flex items-center gap-2 border border-slate-200 font-bold shadow-sm whitespace-nowrap active:scale-95">
                 <i data-lucide="file-down" class="w-4 h-4 opacity-70"></i>
