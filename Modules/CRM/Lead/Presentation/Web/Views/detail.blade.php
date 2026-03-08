@@ -61,7 +61,7 @@
                             <div class="flex-1">
                                 <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ và tên</p>
                                 <div class="flex flex-wrap items-center gap-6">
-                                     <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $lead->name }}</h2>
+                                     <h2 class="text-4xl font-black text-slate-800 tracking-tight leading-tight">{{ $lead->name }}</h2>
                                      <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
                                      <div class="flex items-center gap-3">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trạng thái:</span>
@@ -85,14 +85,10 @@
                                 </div>
                             </div>
 
-                            <div class="flex flex-col sm:flex-row md:flex-col gap-3 min-w-full sm:min-w-0">
-                                 @can('leads.update')
-                                 <button @click="showEditModal = true; $dispatch('refresh-icons')" class="flex-1 px-8 py-3.5 bg-slate-50 text-slate-700 rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200">
-                                    <i data-lucide="edit-3" class="w-4 h-4"></i> Chỉnh sửa
-                                 </button>
-                                 @endcan
-                                 <a href="{{ route('admin.leads.convert', $lead->id) }}" class="flex-1 px-8 py-3.5 bg-primary-600 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-primary-700 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
-                                    <i data-lucide="user-plus" class="w-4 h-4"></i> Chuyển đổi
+                            <div class="flex flex-col gap-3 min-w-full sm:min-w-0 md:items-end self-center">
+                                 <a href="{{ route('admin.leads.convert', $lead->id) }}" class="min-w-[240px] px-10 py-5 bg-primary-600 text-white rounded-[1.5rem] font-black text-sm flex items-center justify-center gap-4 hover:bg-primary-700 transition-all shadow-2xl shadow-primary-500/30 hover:-translate-y-1 active:scale-95 group">
+                                    <i data-lucide="user-plus" class="w-5 h-5 group-hover:rotate-12 transition-transform"></i> 
+                                    <span>Chuyển đổi học viên</span>
                                  </a>
                             </div>
                         </div>
@@ -504,6 +500,7 @@
     </div>
 </div>
 
+@can('leads.update')
 {{-- Task Quick Add Modal --}}
 <template x-teleport="body">
     <div x-show="showTaskModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
@@ -569,173 +566,8 @@
                 <div class="pt-4 flex gap-4">
                     <button type="button" @click="showTaskModal = false" class="flex-1 px-6 py-3.5 text-slate-500 font-bold hover:bg-slate-50 rounded-2xl transition">Huỷ</button>
                     <button type="submit" class="flex-2 px-8 py-3.5 bg-primary-600 text-white font-extrabold rounded-2xl shadow-xl shadow-primary-500/25 hover:bg-primary-700 transition active:scale-95 flex items-center justify-center gap-2">
-                        <i data-lucide="save" class="w-5 h-5"></i>
-                        Tạo nhiệm vụ
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-</template>
-
-{{-- Edit Lead Modal --}}
-@can('leads.update')
-<template x-teleport="body">
-    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
-        
-        <div class="relative bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl mx-auto overflow-hidden text-left" 
-             x-show="showEditModal" 
-             x-transition:enter="transition ease-out duration-300"
-             x-transition:enter-start="opacity-0 translate-y-8 sm:scale-95"
-             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave="transition ease-in duration-200"
-             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-             x-transition:leave-end="opacity-0 translate-y-8 sm:scale-95">
-             
-            <div class="px-10 py-8 border-b border-slate-100 flex items-center justify-between bg-white relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-[0.03]">
-                    <i data-lucide="edit-3" class="w-32 h-32 -mr-8 -mt-8"></i>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-3">
-                        Cập nhật hồ sơ Lead
-                    </h3>
-                    <p class="text-slate-400 text-sm font-medium mt-1">Chỉnh sửa thông tin cơ bản cho: <span class="text-primary-600 font-bold">{{ $lead->name }}</span></p>
-                </div>
-                <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-3 rounded-2xl transition-all relative z-10">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-            </div>
-
-            <form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="p-10">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="lead_id" value="{{ $lead->id }}">
-                <input type="hidden" name="redirect_to" value="detail">
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Họ tên khách hàng <span class="text-red-500">*</span></label>
-                        <div class="relative group">
-                            <i data-lucide="user" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <input type="text" name="name" required value="{{ old('name', $lead->name) }}"
-                                   class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Số điện thoại <span class="text-red-500">*</span></label>
-                        <div class="relative group">
-                            <i data-lucide="phone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <input type="text" name="phone" required value="{{ old('phone', $lead->phone) }}"
-                                   class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold tabular-nums">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Email</label>
-                        <div class="relative group">
-                            <i data-lucide="mail" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <input type="email" name="email" value="{{ old('email', $lead->email) }}"
-                                   class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Ngày sinh</label>
-                        <div class="relative group">
-                            <i data-lucide="cake" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <input type="date" name="dob" value="{{ old('dob', $lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('Y-m-d') : '') }}"
-                                   class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold">
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nguồn khách hàng</label>
-                        <div class="relative">
-                            <select name="lead_source_id" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                <option value="">-- Chọn nguồn --</option>
-                                @foreach($leadSources as $source)
-                                    <option value="{{ $source->id }}" {{ old('lead_source_id', $lead->lead_source_id) == $source->id ? 'selected' : '' }}>{{ $source->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="share-2" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Trạng thái</label>
-                        <div class="relative">
-                            <select name="status_id" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                @foreach($statuses as $st)
-                                    <option value="{{ $st->getId() }}" {{ old('status_id', $lead->status_id) == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="activity" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Chiến dịch</label>
-                        <div class="relative">
-                            <select name="campaign_id" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                <option value="">-- Không có --</option>
-                                @foreach($campaigns as $campaign)
-                                    <option value="{{ $campaign->id }}" {{ old('campaign_id', $lead->campaign_id) == $campaign->id ? 'selected' : '' }}>{{ $campaign->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="megaphone" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nhu cầu (Dịch vụ)</label>
-                        <div class="relative">
-                            <select name="interest_type_id" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                <option value="">-- Chọn nhu cầu --</option>
-                                @foreach($interestTypes as $interest)
-                                    <option value="{{ $interest->id }}" {{ old('interest_type_id', $lead->interest_type_id) == $interest->id ? 'selected' : '' }}>{{ $interest->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="list-todo" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Người phụ trách</label>
-                        <div class="relative">
-                            <select name="assigned_to" class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                <option value="">-- Chưa giao --</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('assigned_to', $lead->assigned_to) == $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="user-check" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-
-                    @if($isGlobalScope)
-                    <div class="space-y-1.5">
-                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-widest ml-1">Cơ sở <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <select name="center_id" required class="w-full pl-11 pr-5 py-3 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm font-bold appearance-none">
-                                <option value="">-- Chọn cơ sở --</option>
-                                @foreach($centers as $center)
-                                    <option value="{{ $center->id }}" {{ old('center_id', $lead->center_id) == $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="building-2" class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        </div>
-                    </div>
-                    @endif
-                </div>
-
-                <div class="mt-8 pt-8 border-t border-slate-100 flex gap-4">
-                    <button type="button" @click="showEditModal = false" class="flex-1 px-8 py-4 bg-slate-50 text-slate-500 font-black rounded-2xl hover:bg-slate-100 transition-all active:scale-95">Huỷ bỏ</button>
-                    <button type="submit" class="flex-1 px-8 py-4 bg-primary-600 text-white font-black rounded-2xl hover:bg-primary-700 shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-                        <i data-lucide="save" class="w-5 h-5"></i>
-                        Lưu thay đổi
+                        <i data-lucide="plus" class="w-5 h-5"></i>
+                        Tạo nhiệm vụ mới
                     </button>
                 </div>
             </form>
@@ -751,7 +583,6 @@
         Alpine.data('leadDetailStore', () => ({
             activeTab: 'info',
             showTaskModal: false,
-            showEditModal: false,
             
             setTab(tab) {
                 this.activeTab = tab;
