@@ -489,7 +489,14 @@ class LeadWebController extends Controller
 
             $handler->handle($command);
         } catch (\Exception $e) {
+            if ($request->input('redirect_to') === 'detail') {
+                return redirect()->route('admin.leads.show', $id)->with('error', 'Update failed: ' . $e->getMessage());
+            }
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found or update failed.');
+        }
+
+        if ($request->input('redirect_to') === 'detail') {
+            return redirect()->route('admin.leads.show', $id)->with('success', 'Lead updated successfully.');
         }
 
         return redirect()->route('admin.leads.index')->with('success', 'Lead updated successfully.');
