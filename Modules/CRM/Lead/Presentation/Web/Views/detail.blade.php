@@ -54,104 +54,89 @@
             {{-- Tab Contents --}}
             <div class="min-h-[400px]">
                 {{-- Lead Info Tab --}}
-                <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="flex flex-col gap-6">
+                <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     {{-- Simple Lead Header --}}
                     <div class="bg-white rounded-[2.5rem] border border-slate-200/60 p-8 shadow-sm">
                         <div class="flex flex-col md:flex-row justify-between items-start gap-8">
-                            <div class="space-y-6 flex-1">
-                                <div class="flex flex-wrap items-center gap-4">
+                            <div class="flex-1">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ và tên</p>
+                                <div class="flex flex-wrap items-center gap-6">
                                      <h2 class="text-3xl font-black text-slate-800 tracking-tight">{{ $lead->name }}</h2>
-                                     @php $st = $lead->leadStatus; @endphp
-                                     <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-slate-100 text-slate-600 border border-slate-200">
-                                        {{ $st ? $st->name : 'N/A' }}
-                                     </span>
-                                     @foreach($lead->tags as $tag)
-                                        <span class="px-3 py-1 rounded-lg text-[10px] font-bold border border-slate-100 bg-slate-50 text-slate-400">
+                                     <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
+                                     <div class="flex items-center gap-3">
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Trạng thái:</span>
+                                        @php $st = $lead->leadStatus; @endphp
+                                        <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-primary-50 text-primary-600 border border-primary-100">
+                                            {{ $st ? $st->name : 'N/A' }}
+                                        </span>
+                                     </div>
+                                </div>
+                                
+                                <div class="mt-6 flex flex-wrap items-center gap-3">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-1">Phân loại thẻ:</span>
+                                    @foreach($lead->tags as $tag)
+                                        <span class="px-3 py-1 rounded-lg text-[10px] font-bold border border-slate-100 bg-slate-50 text-slate-500 shadow-sm">
                                             #{{ $tag->name }}
                                         </span>
                                     @endforeach
-                                </div>
-                                
-                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-12">
-                                    <div class="flex items-center gap-4 text-slate-600 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
-                                            <i data-lucide="phone" class="w-5 h-5"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Điện thoại</p>
-                                            <p class="text-base font-black text-slate-800">{{ $lead->phone }}</p>
-                                        </div>
-                                    </div>
-                                    @if($lead->email)
-                                    <div class="flex items-center gap-4 text-slate-600 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
-                                            <i data-lucide="mail" class="w-5 h-5"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Email</p>
-                                            <p class="text-base font-black text-slate-800">{{ $lead->email }}</p>
-                                        </div>
-                                    </div>
+                                    @if($lead->tags->isEmpty())
+                                        <span class="text-[10px] text-slate-300 italic">Chưa gán thẻ</span>
                                     @endif
-                                    <div class="flex items-center gap-4 text-slate-600 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
-                                            <i data-lucide="calendar" class="w-5 h-5"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Ngày gia nhập</p>
-                                            <p class="text-base font-black text-slate-800">{{ $lead->created_at?->format('d/m/Y') }}</p>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
 
-                            <div class="flex flex-col gap-3 min-w-[180px]">
+                            <div class="flex flex-col sm:flex-row md:flex-col gap-3 min-w-full sm:min-w-0">
                                  @can('leads.update')
-                                 <button @click="showEditModal = true; $dispatch('refresh-icons')" class="px-8 py-3 bg-slate-100 text-slate-700 rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200">
+                                 <button @click="showEditModal = true; $dispatch('refresh-icons')" class="flex-1 px-8 py-3.5 bg-slate-50 text-slate-700 rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-slate-200 transition-all active:scale-95 border border-slate-200">
                                     <i data-lucide="edit-3" class="w-4 h-4"></i> Chỉnh sửa
                                  </button>
                                  @endcan
-                                 <a href="{{ route('admin.leads.convert', $lead->id) }}" class="px-8 py-4 bg-primary-600 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-primary-700 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
+                                 <a href="{{ route('admin.leads.convert', $lead->id) }}" class="flex-1 px-8 py-3.5 bg-primary-600 text-white rounded-2xl font-black text-sm flex items-center justify-center gap-3 hover:bg-primary-700 transition-all shadow-xl shadow-primary-500/20 active:scale-95">
                                     <i data-lucide="user-plus" class="w-4 h-4"></i> Chuyển đổi
                                  </a>
                             </div>
                         </div>
                     </div>
+
+                    {{-- Main Info & Quick Actions --}}
+                    <div class="bg-white rounded-[2.5rem] border border-slate-200/60 p-10 shadow-sm relative overflow-hidden">
+                        {{-- Lead Background Detail Card --}}
+                        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12 relative z-10">
                             {{-- Contact Section --}}
-                            <div class="space-y-6">
-                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <div class="space-y-8">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
                                     <div class="w-1.5 h-4 bg-primary-500 rounded-full"></div>
                                     Thông tin liên hệ
                                 </h4>
-                                <div class="space-y-5">
-                                    <div class="flex items-center gap-4 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <i data-lucide="phone" class="w-6 h-6"></i>
+                                <div class="space-y-6">
+                                    <div class="flex items-center gap-5 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all shadow-sm">
+                                            <i data-lucide="phone" class="w-5 h-5"></i>
                                         </div>
                                         <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Điện thoại</p>
-                                            <p class="text-[15px] font-black text-slate-800">{{ $lead->phone }}</p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Điện thoại</p>
+                                            <p class="text-base font-black text-slate-800 tabular-nums">{{ $lead->phone }}</p>
                                         </div>
                                     </div>
                                     @if($lead->email)
-                                    <div class="flex items-center gap-4 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <i data-lucide="mail" class="w-6 h-6"></i>
+                                    <div class="flex items-center gap-5 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
+                                            <i data-lucide="mail" class="w-5 h-5"></i>
                                         </div>
                                         <div class="min-w-0">
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</p>
-                                            <p class="text-[15px] font-black text-slate-800 truncate" title="{{ $lead->email }}">{{ $lead->email }}</p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Email</p>
+                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $lead->email }}">{{ $lead->email }}</p>
                                         </div>
                                     </div>
                                     @endif
                                     @if($lead->dob)
-                                    <div class="flex items-center gap-4 group">
-                                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                            <i data-lucide="cake" class="w-6 h-6"></i>
+                                    <div class="flex items-center gap-5 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
+                                            <i data-lucide="cake" class="w-5 h-5"></i>
                                         </div>
                                         <div>
-                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ngày sinh</p>
-                                            <p class="text-[15px] font-black text-slate-800">{{ \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') }}</p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Ngày sinh</p>
+                                            <p class="text-base font-black text-slate-800">{{ \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') }}</p>
                                         </div>
                                     </div>
                                     @endif
@@ -159,23 +144,27 @@
                             </div>
 
                             {{-- Marketing Section --}}
-                            <div class="space-y-6">
-                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <div class="space-y-8">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
                                     <div class="w-1.5 h-4 bg-orange-500 rounded-full"></div>
                                     Marketing & Nguồn
                                 </h4>
-                                <div class="grid grid-cols-1 gap-4">
-                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-orange-200 transition-colors">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nguồn khách hàng</p>
-                                        <div class="flex items-center gap-2">
-                                            <i data-lucide="share-2" class="w-4 h-4 text-orange-400"></i>
+                                <div class="grid grid-cols-1 gap-5">
+                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-orange-200 transition-all hover:bg-white hover:shadow-lg hover:shadow-orange-500/5">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Nguồn khách hàng</p>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                                                <i data-lucide="share-2" class="w-4 h-4"></i>
+                                            </div>
                                             <span class="text-sm font-black text-slate-800">{{ $lead->leadSource?->name ?? '—' }}</span>
                                         </div>
                                     </div>
-                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-violet-200 transition-colors">
-                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Phân loại nhu cầu</p>
-                                        <div class="flex items-center gap-2">
-                                            <i data-lucide="list-todo" class="w-4 h-4 text-violet-400"></i>
+                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:border-violet-200 transition-all hover:bg-white hover:shadow-lg hover:shadow-violet-500/5">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 px-1">Phân loại nhu cầu</p>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-xl bg-violet-100 flex items-center justify-center text-violet-600">
+                                                <i data-lucide="list-todo" class="w-4 h-4"></i>
+                                            </div>
                                             <span class="text-sm font-black text-slate-800">{{ $lead->interestType?->name ?? '—' }}</span>
                                         </div>
                                     </div>
@@ -183,82 +172,82 @@
                             </div>
 
                             {{-- System Section --}}
-                            <div class="space-y-6">
-                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                            <div class="space-y-8">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-3">
                                     <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
                                     Vận hành hệ thống
                                 </h4>
                                 <div class="space-y-4">
-                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-emerald-50/20 transition-colors">
-                                        <span class="text-xs font-bold text-slate-500">Cơ sở vận hành</span>
+                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-emerald-200 hover:shadow-lg hover:shadow-emerald-500/5 transition-all">
+                                        <span class="text-xs font-bold text-slate-500 group-hover:text-emerald-600 transition-colors">Cơ sở vận hành</span>
                                         <span class="text-xs font-black text-slate-800">
                                             @if($lead->center) [{{ $lead->center->code }}] {{ $lead->center->name }} @else — @endif
                                         </span>
                                     </div>
-                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-primary-50/20 transition-colors">
-                                        <span class="text-xs font-bold text-slate-500">Người phụ trách</span>
+                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-primary-200 hover:shadow-lg hover:shadow-primary-500/5 transition-all">
+                                        <span class="text-xs font-bold text-slate-500 group-hover:text-primary-600 transition-colors">Người phụ trách</span>
                                         <span class="text-xs font-black text-primary-600">
                                             {{ $lead->assignTo->name ?? 'Chưa gán' }}
                                         </span>
                                     </div>
-                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
-                                        <span class="text-xs font-bold text-slate-500">Thời gian tạo</span>
-                                        <span class="text-xs font-black text-slate-800">{{ $lead->created_at?->format('H:i - d/m/Y') }}</span>
+                                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-slate-300 hover:shadow-lg hover:shadow-slate-500/5 transition-all">
+                                        <span class="text-xs font-bold text-slate-500 group-hover:text-slate-800 transition-colors">Thời gian tạo</span>
+                                        <span class="text-xs font-black text-slate-800 tabular-nums">{{ $lead->created_at?->format('H:i - d/m/Y') }}</span>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        </div>
-
-                        {{-- Quick Activity Grid --}}
-                        <div class="mt-12 pt-12 border-t border-slate-100">
-                            <h4 class="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-8 flex items-center gap-2">
+                        {{-- Quick Activity Grid (Nested for better scope visibility) --}}
+                        <div class="mt-16 pt-12 border-t border-slate-100">
+                            <h4 class="text-[11px] font-black text-slate-800 uppercase tracking-[0.2em] mb-10 flex items-center gap-3">
                                 <div class="w-1.5 h-4 bg-primary-500 rounded-full"></div>
                                 Ghi nhận nhanh các hoạt động chăm sóc
                             </h4>
-                            <form action="{{ route('admin.leads.activities.store', $lead->id) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <form action="{{ route('admin.leads.activities.store', $lead->id) }}" method="POST" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                 @csrf
-                                <button type="submit" name="activity_type" value="call" class="flex items-center gap-4 p-5 rounded-3xl bg-blue-50/50 border border-blue-100 hover:border-blue-300 hover:bg-blue-50 transition-all group active:scale-95 text-left">
-                                    <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/30">
-                                        <i data-lucide="phone-call" class="w-6 h-6"></i>
+                                <button type="submit" name="activity_type" value="call" class="flex items-center gap-5 p-6 rounded-3xl bg-blue-50/40 border border-blue-100 hover:border-blue-300 hover:bg-white hover:shadow-2xl hover:shadow-blue-500/10 transition-all group active:scale-95 text-left">
+                                    <div class="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-blue-500/30">
+                                        <i data-lucide="phone-call" class="w-7 h-7"></i>
                                     </div>
                                     <div>
-                                        <span class="block text-xs font-black text-blue-900 uppercase tracking-tight">Gọi điện</span>
-                                        <span class="text-[10px] text-blue-600 font-bold opacity-70">Ghi nhận cuộc gọi</span>
+                                        <span class="block text-sm font-black text-blue-900 uppercase tracking-tight">Gọi điện</span>
+                                        <span class="text-xs text-blue-600 font-bold opacity-60">Ghi nhận cuộc gọi</span>
                                     </div>
                                 </button>
-                                <button type="submit" name="activity_type" value="meeting" class="flex items-center gap-4 p-5 rounded-3xl bg-purple-50/50 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 transition-all group active:scale-95 text-left">
-                                    <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-purple-500/30">
-                                        <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                                <button type="submit" name="activity_type" value="meeting" class="flex items-center gap-5 p-6 rounded-3xl bg-purple-50/40 border border-purple-100 hover:border-purple-300 hover:bg-white hover:shadow-2xl hover:shadow-purple-500/10 transition-all group active:scale-95 text-left">
+                                    <div class="w-14 h-14 rounded-2xl bg-purple-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-purple-500/30">
+                                        <i data-lucide="calendar-days" class="w-7 h-7"></i>
                                     </div>
                                     <div>
-                                        <span class="block text-xs font-black text-purple-900 uppercase tracking-tight">Hẹn gặp</span>
-                                        <span class="text-[10px] text-purple-600 font-bold opacity-70">Lên lịch hẹn mới</span>
+                                        <span class="block text-sm font-black text-purple-900 uppercase tracking-tight">Hẹn gặp</span>
+                                        <span class="text-xs text-purple-600 font-bold opacity-60">Lên lịch hẹn mới</span>
                                     </div>
                                 </button>
-                                <button type="button" @click="setTab('notes')" class="flex items-center gap-4 p-5 rounded-3xl bg-emerald-50/50 border border-emerald-100 hover:border-emerald-300 hover:bg-emerald-50 transition-all group active:scale-95 text-left">
-                                    <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-emerald-500/30">
-                                        <i data-lucide="sticky-note" class="w-6 h-6"></i>
+                                <button type="button" @click="setTab('notes')" class="flex items-center gap-5 p-6 rounded-3xl bg-emerald-50/40 border border-emerald-100 hover:border-emerald-300 hover:bg-white hover:shadow-2xl hover:shadow-emerald-500/10 transition-all group active:scale-95 text-left">
+                                    <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-emerald-500/30">
+                                        <i data-lucide="sticky-note" class="w-7 h-7"></i>
                                     </div>
                                     <div>
-                                        <span class="block text-xs font-black text-emerald-900 uppercase tracking-tight">Ghi chú</span>
-                                        <span class="text-[10px] text-emerald-600 font-bold opacity-70">Viết lời nhắc</span>
+                                        <span class="block text-sm font-black text-emerald-900 uppercase tracking-tight">Ghi chú</span>
+                                        <span class="text-xs text-emerald-600 font-bold opacity-60">Viết lời nhắc</span>
                                     </div>
                                 </button>
-                                <button type="button" @click="setTab('tasks')" class="flex items-center gap-4 p-5 rounded-3xl bg-amber-50/50 border border-amber-100 hover:border-amber-300 hover:bg-amber-50 transition-all group active:scale-95 text-left">
-                                    <div class="w-12 h-12 rounded-2xl bg-amber-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg shadow-amber-500/30">
-                                        <i data-lucide="check-square" class="w-6 h-6"></i>
+                                <button type="button" @click="setTab('tasks')" class="flex items-center gap-5 p-6 rounded-3xl bg-amber-50/40 border border-amber-100 hover:border-amber-300 hover:bg-white hover:shadow-2xl hover:shadow-amber-500/10 transition-all group active:scale-95 text-left">
+                                    <div class="w-14 h-14 rounded-2xl bg-amber-600 text-white flex items-center justify-center group-hover:scale-110 transition-transform shadow-xl shadow-amber-500/30">
+                                        <i data-lucide="check-square" class="w-7 h-7"></i>
                                     </div>
                                     <div>
-                                        <span class="block text-xs font-black text-amber-900 uppercase tracking-tight">Nhiệm vụ</span>
-                                        <span class="text-[10px] text-amber-600 font-bold opacity-70">Giao việc mới</span>
+                                        <span class="block text-sm font-black text-amber-900 uppercase tracking-tight">Nhiệm vụ</span>
+                                        <span class="text-xs text-amber-600 font-bold opacity-60">Giao việc mới</span>
                                     </div>
                                 </button>
                             </form>
                         </div>
                     </div>
                 </div>
+
+                {{-- Timeline --}}
                 <div x-show="activeTab === 'timeline'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     @if($activities->isEmpty())
                         <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100 shadow-sm group">
