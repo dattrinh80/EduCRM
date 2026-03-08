@@ -2,6 +2,12 @@
 
 @section('title', 'Quản lý Khách hàng tiềm năng')
 
+@section('breadcrumb_items')
+    <a href="{{ url('/admin/leads') }}" class="text-slate-400 hover:text-primary-500 transition-colors">CRM</a>
+    <i data-lucide="chevron-right" class="w-2.5 h-2.5 opacity-50"></i>
+    <span class="text-primary-500">Leads Management</span>
+@endsection
+
 @section('content')
 <div class="space-y-6" x-data="leadManagementStore()">
     <!-- Header -->
@@ -279,17 +285,24 @@
                                 </span>
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
-                                <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
-                                    <a href="{{ route('admin.leads.show', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition" title="Xem chi tiết">
+                                <div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform group-hover:translate-x-0 translate-x-4">
+                                    <button @click="showToast('Tính năng gọi điện đang được kết nối...', 'info')" class="p-2 text-emerald-500 hover:bg-emerald-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Gọi điện">
+                                        <i data-lucide="phone-forwarded" class="w-4 h-4"></i>
+                                    </button>
+                                    <button @click="showToast('Tính năng gửi tin nhắn nhanh...', 'info')" class="p-2 text-blue-500 hover:bg-blue-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Gửi Zalo/SMS">
+                                        <i data-lucide="message-square" class="w-4 h-4"></i>
+                                    </button>
+                                    <div class="w-px h-4 bg-slate-200 mx-1"></div>
+                                    <a href="{{ route('admin.leads.show', $lead->id) }}" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Xem chi tiết">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
                                     @can('leads.update')
-                                    <a href="{{ route('admin.leads.convert', $lead->id) }}" class="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition" title="Chuyển đổi thành Học viên">
+                                    <a href="{{ route('admin.leads.convert', $lead->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Chuyển đổi thành Học viên">
                                         <i data-lucide="user-plus" class="w-4 h-4"></i>
                                     </a>
                                     @endcan
                                     @can('leads.update')
-                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition cursor-pointer" title="Edit">
+                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Sửa">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
                                     @endcan

@@ -17,6 +17,9 @@
     
     <!-- Alpine.js -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <script>
         tailwind.config = {
@@ -152,6 +155,23 @@
         .sidebar-link:hover i {
             transform: scale(1.15) rotate(3deg);
         }
+
+        /* Chart Tooltip Customization */
+        .chart-tooltip { 
+            opacity: 0; 
+            position: absolute; 
+            background: rgba(15, 23, 42, 0.9); 
+            border-radius: 12px; 
+            color: white; 
+            transition: all .1s ease; 
+            pointer-events: none; 
+            transform: translate(-50%, 0); 
+            z-index: 100; 
+            padding: 8px 12px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            backdrop-filter: blur(8px); 
+        }
+        .chart-container { position: relative; height: 300px; width: 100%; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen" x-data="{ sidebarOpen: false }">

@@ -83,8 +83,42 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
-        <!-- Main Content Area: Recent Leads -->
+    <!-- Charts Row -->
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+        <!-- Revenue Trend Chart -->
+        <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm p-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="font-bold text-slate-800">Doanh thu & Lead dự kiến</h3>
+                    <p class="text-xs text-slate-500 mt-1">Dữ liệu cập nhật theo thời gian thực</p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="px-3 py-1.5 text-[10px] font-bold bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition">7 ngày</button>
+                    <button class="px-3 py-1.5 text-[10px] font-bold bg-primary-600 text-white rounded-lg transition shadow-md shadow-primary-500/20">30 ngày</button>
+                </div>
+            </div>
+            <div class="h-[300px] w-full">
+                <canvas id="revenueChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Funnel / Activity Chart -->
+        <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm p-8">
+            <div class="flex items-center justify-between mb-8">
+                <div>
+                    <h3 class="font-bold text-slate-800">Tỷ lệ chuyển đổi</h3>
+                    <p class="text-xs text-slate-500 mt-1">Phân tích phễu khách hàng</p>
+                </div>
+                <i data-lucide="more-horizontal" class="w-5 h-5 text-slate-400 cursor-pointer"></i>
+            </div>
+            <div class="h-[300px] w-full">
+                <canvas id="funnelChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details Row -->
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8 mt-12">
         <div class="xl:col-span-2 space-y-6">
             <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden">
                 <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
@@ -198,4 +232,105 @@
         </div>
     </div>
 </div>
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Revenue & Leads Chart ---
+        const ctxRevenue = document.getElementById('revenueChart').getContext('2d');
+        const revenueGradient = ctxRevenue.createLinearGradient(0, 0, 0, 300);
+        revenueGradient.addColorStop(0, 'rgba(37, 99, 235, 0.2)');
+        revenueGradient.addColorStop(1, 'rgba(37, 99, 235, 0.02)');
+
+        new Chart(ctxRevenue, {
+            type: 'line',
+            data: {
+                labels: ['01/03', '02/03', '03/03', '04/03', '05/03', '06/03', '07/03'],
+                datasets: [
+                    {
+                        label: 'Doanh thu',
+                        data: [650, 780, 720, 950, 880, 1100, 1050],
+                        borderColor: '#2563eb',
+                        borderWidth: 3,
+                        backgroundColor: revenueGradient,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 6,
+                        pointHoverBackgroundColor: '#2563eb',
+                        pointHoverBorderColor: '#fff',
+                        pointHoverBorderWidth: 2
+                    },
+                    {
+                        label: 'Leads mới',
+                        data: [45, 52, 48, 70, 65, 80, 75],
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderDash: [5, 5],
+                        fill: false,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        padding: 12,
+                        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                        titleFont: { size: 10, weight: '700' },
+                        bodyFont: { size: 12 },
+                        cornerRadius: 10
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { borderDash: [2, 2], color: 'rgba(0,0,0,0.05)' },
+                        ticks: { font: { size: 10 }, color: '#94a3b8' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, color: '#94a3b8' }
+                    }
+                }
+            }
+        });
+
+        // --- Funnel Chart ---
+        const ctxFunnel = document.getElementById('funnelChart').getContext('2d');
+        new Chart(ctxFunnel, {
+            type: 'doughnut',
+            data: {
+                labels: ['Mới', 'Đang chăm sóc', 'Đã chốt', 'Thất bại'],
+                datasets: [{
+                    data: [450, 320, 180, 90],
+                    backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f43f5e'],
+                    borderWidth: 0,
+                    hoverOffset: 15
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: { size: 11, weight: '600' }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

@@ -2,6 +2,12 @@
 
 @section('title', 'Quản lý Học viên')
 
+@section('breadcrumb_items')
+    <a href="{{ route('admin.students.index') }}" class="text-slate-400 hover:text-primary-500 transition-colors">Học vụ</a>
+    <i data-lucide="chevron-right" class="w-2.5 h-2.5 opacity-50"></i>
+    <span class="text-primary-500">Student Profiles</span>
+@endsection
+
 @section('content')
 <div class="space-y-6">
     <!-- Header -->
