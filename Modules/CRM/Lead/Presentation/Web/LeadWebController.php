@@ -97,6 +97,40 @@ class LeadWebController extends Controller
     }
 
     /**
+     * Edit Lead Page
+     */
+    public function edit(
+        string $id,
+        GetActiveCentersHandler $centersHandler,
+        GetLeadSourcesHandler $leadSourcesHandler,
+        GetInterestTypesHandler $interestTypesHandler,
+        GetCampaignsHandler $campaignsHandler,
+        GetAllUsersHandler $usersHandler
+    ) {
+        $lead = LeadReadModel::with(['tags'])->find($id);
+
+        if (!$lead) {
+            return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
+        }
+
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
+        $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
+        $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
+        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $statuses = $this->statusRepository->getAllActive();
+        $allTags = $this->tagRepository->getAll();
+
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        return view('lead::edit', compact(
+            'lead', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+            'isGlobalScope'
+        ));
+    }
+
+    /**
      * Store a note for a lead
      */
     public function storeNote(Request $request, string $id, AddLeadNoteHandler $handler)
