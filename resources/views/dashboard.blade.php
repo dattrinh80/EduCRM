@@ -1,34 +1,194 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard')
+@section('title', 'Bảng điều khiển')
 
 @section('content')
-<div class="space-y-6">
-    <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+<div class="space-y-8">
+    <!-- Header with Welcome -->
+    <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Dashboard</h1>
-            <p class="text-slate-500 mt-1">Chào mừng bạn quay trở lại Edu CRM</p>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Chào buổi sáng, {{ explode(' ', auth()->user()->name)[0] }}! 👋</h1>
+            <p class="text-slate-500 mt-1">Dưới đây là tổng quan hoạt động tại trung tâm của bạn hôm nay.</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <button class="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50 transition-all shadow-sm flex items-center gap-2 text-sm">
+                <i data-lucide="download" class="w-4 h-4 text-slate-400"></i> Xuất báo cáo
+            </button>
+            <button class="px-4 py-2.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-all shadow-lg shadow-primary-500/20 flex items-center gap-2 text-sm">
+                <i data-lucide="plus" class="w-4 h-4"></i> Thêm Lead mới
+            </button>
         </div>
     </div>
 
-    <!-- Welcome Content -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-8 text-center sm:text-left flex flex-col sm:flex-row items-center gap-8">
-        <div class="w-32 h-32 bg-primary-50 rounded-full flex items-center justify-center shrink-0">
-            <i data-lucide="layout-dashboard" class="w-12 h-12 text-primary-500"></i>
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <!-- Stat Card 1 -->
+        <div class="glass p-6 rounded-3xl border border-slate-200/60 shadow-sm group hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="contact" class="w-6 h-6"></i>
+                </div>
+                <span class="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                    <i data-lucide="trending-up" class="w-3 h-3"></i> 12%
+                </span>
+            </div>
+            <h3 class="text-slate-500 text-sm font-medium">Tổng số Leads</h3>
+            <p class="text-2xl font-bold text-slate-800 mt-1">1,284</p>
         </div>
-        <div>
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Xin chào, {{ auth()->user()->name }}! 👋</h3>
-            <p class="text-slate-500 max-w-xl">
-                Đây là giao diện tổng quan của hệ thống Edu CRM. Tại đây bạn sẽ có thể theo dõi nhanh các chỉ số về Lead, Chiến dịch, và tổng quan hiệu suất làm việc. 
-                Các widget và báo cáo chi tiết đang trong quá trình phát triển và sẽ được cập nhật sớm.
-            </p>
-            <div class="mt-6 flex flex-wrap gap-3 justify-center sm:justify-start">
-                <a href="{{ route('admin.leads.index') }}" class="px-5 py-2.5 bg-primary-50 text-primary-600 font-medium rounded-xl hover:bg-primary-100 transition flex items-center gap-2 text-sm">
-                    <i data-lucide="users" class="w-4 h-4"></i> Xem danh sách Leads
+
+        <!-- Stat Card 2 -->
+        <div class="glass p-6 rounded-3xl border border-slate-200/60 shadow-sm group hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                </div>
+                <span class="flex items-center gap-1 text-xs font-bold text-slate-400 bg-slate-100 px-2 py-1 rounded-lg">
+                    +5 tháng này
+                </span>
+            </div>
+            <h3 class="text-slate-500 text-sm font-medium">Học viên đang học</h3>
+            <p class="text-2xl font-bold text-slate-800 mt-1">452</p>
+        </div>
+
+        <!-- Stat Card 3 -->
+        <div class="glass p-6 rounded-3xl border border-slate-200/60 shadow-sm group hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="target" class="w-6 h-6"></i>
+                </div>
+                <span class="flex items-center gap-1 text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">
+                    <i data-lucide="trending-up" class="w-3 h-3"></i> 8%
+                </span>
+            </div>
+            <h3 class="text-slate-500 text-sm font-medium">Tỷ lệ chuyển đổi</h3>
+            <p class="text-2xl font-bold text-slate-800 mt-1">24.5%</p>
+        </div>
+
+        <!-- Stat Card 4 -->
+        <div class="glass p-6 rounded-3xl border border-slate-200/60 shadow-sm group hover:shadow-md transition-all">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <i data-lucide="dollar-sign" class="w-6 h-6"></i>
+                </div>
+                <span class="flex items-center gap-1 text-xs font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-lg">
+                    <i data-lucide="trending-down" class="w-3 h-3"></i> 2%
+                </span>
+            </div>
+            <h3 class="text-slate-500 text-sm font-medium">Doanh thu dự kiến</h3>
+            <p class="text-2xl font-bold text-slate-800 mt-1">1.25B</p>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <!-- Main Content Area: Recent Leads -->
+        <div class="xl:col-span-2 space-y-6">
+            <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden">
+                <div class="px-8 py-6 border-b border-slate-100 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">Khách hàng tiềm năng mới nhất</h3>
+                    <a href="{{ url('/admin/leads') }}" class="text-primary-600 text-sm font-semibold hover:underline">Xem tất cả</a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-[11px] uppercase tracking-widest text-slate-400 font-bold bg-slate-50/50">
+                                <th class="px-8 py-4">Khách hàng</th>
+                                <th class="px-6 py-4">Ngày tạo</th>
+                                <th class="px-6 py-4">Nguồn</th>
+                                <th class="px-6 py-4 text-right">Trạng thái</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            <!-- Template Row 1 -->
+                            <tr class="hover:bg-slate-50 transition-colors group">
+                                <td class="px-8 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-xs">NL</div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-700">Nguyễn Lan Anh</p>
+                                            <p class="text-[11px] text-slate-400">0987 123 456</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Hôm nay, 08:30</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-600 text-[11px] font-bold">Facebook Ads</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-600 text-[11px] font-bold">Mới</span>
+                                </td>
+                            </tr>
+                            <!-- Template Row 2 -->
+                            <tr class="hover:bg-slate-50 transition-colors group">
+                                <td class="px-8 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-xs">TV</div>
+                                        <div>
+                                            <p class="text-sm font-bold text-slate-700">Trần Văn Tú</p>
+                                            <p class="text-[11px] text-slate-400">0912 345 678</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-sm text-slate-500">Hôm qua, 17:45</td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-600 text-[11px] font-bold">Hotline</span>
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-600 text-[11px] font-bold">Đang chăm sóc</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Area: Quick Tools -->
+        <div class="space-y-6">
+            <div class="bg-gradient-to-br from-slate-800 to-slate-900 rounded-[2.5rem] p-8 text-white shadow-xl relative overflow-hidden group">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-primary-500/20 rounded-full blur-3xl group-hover:bg-primary-500/30 transition-all"></div>
+                <h4 class="text-lg font-bold mb-2">Thống kê nhanh</h4>
+                <p class="text-slate-400 text-sm mb-6">Bạn đã xử lý 15 leads trong tuần này. Tuyệt vời!</p>
+                <div class="space-y-4 relative z-10">
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-emerald-400"></i>
+                            <span class="text-sm font-medium">Đã hoàn thành</span>
+                        </div>
+                        <span class="font-bold">12</span>
+                    </div>
+                    <div class="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div class="flex items-center gap-3">
+                            <i data-lucide="clock" class="w-5 h-5 text-amber-400"></i>
+                            <span class="text-sm font-medium">Đang chờ xử lý</span>
+                        </div>
+                        <span class="font-bold">3</span>
+                    </div>
+                </div>
+                <button class="w-full mt-6 py-3 bg-white text-slate-900 font-bold rounded-2xl hover:bg-slate-100 transition-all text-sm">
+                    Xem báo cáo chi tiết
+                </button>
+            </div>
+
+            <!-- Shortcuts -->
+            <div class="space-y-3">
+                <h4 class="px-4 text-[11px] font-bold text-slate-400 uppercase tracking-widest">Truy cập nhanh</h4>
+                <a href="{{ route('admin.leads.index') }}" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:border-primary-500/30 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <i data-lucide="user-plus" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700">Thêm Lead mới</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-primary-500 transition-colors"></i>
                 </a>
-                <a href="{{ route('admin.campaigns.index') }}" class="px-5 py-2.5 bg-white border border-slate-200 text-slate-600 font-medium rounded-xl hover:bg-slate-50 transition flex items-center gap-2 text-sm shadow-sm">
-                    <i data-lucide="megaphone" class="w-4 h-4"></i> Xem Chiến dịch
+                <a href="{{ route('admin.students.index') }}" class="flex items-center justify-between p-4 bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:border-primary-500/30 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                            <i data-lucide="user-check" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700">Ghi danh học viên</span>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-4 h-4 text-slate-300 group-hover:text-primary-500 transition-colors"></i>
                 </a>
             </div>
         </div>

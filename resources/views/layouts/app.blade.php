@@ -118,18 +118,7 @@
                 </div>
             </div>
             
-            <!-- User Info -->
-            <div class="p-4 border-b border-white/5 flex-shrink-0 bg-white/5">
-                <div class="flex items-center gap-3">
-                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500/30 to-primary-700/30 flex items-center justify-center text-primary-400 font-bold border border-primary-500/20 shadow-inner">
-                        {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate text-white">{{ Auth::user()->name ?? 'Người dùng' }}</p>
-                        <p class="text-[11px] text-slate-400 truncate opacity-80">{{ Auth::user()->email ?? '' }}</p>
-                    </div>
-                </div>
-            </div>
+
             
             <!-- Navigation -->
             <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto sidebar-menu">
@@ -138,9 +127,8 @@
                     Bảng điều khiển
                 </a>
 
-                <!-- CRM -->
-                @canany(['leads.view'])
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">CRM & Marketing</p>
+                <!-- CRM & Recruitment -->
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">CRM & Tuyển sinh</p>
                 @can('leads.view')
                 <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/leads*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
                     <i data-lucide="contact" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
@@ -149,30 +137,15 @@
                 @endcan
                 <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/customers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
                     <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Khách hàng (PH)
+                    Phụ huynh (CRM)
                 </a>
-                @endcanany
 
                 <!-- Education -->
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Đào tạo</p>
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Đào tạo & Học vụ</p>
+                @can('students.view')
                 <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/students*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
                     <i data-lucide="graduation-cap" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Học viên
-                </a>
-
-                <!-- Management -->
-                @canany(['centers.view', 'lead_sources.view', 'interest_types.view', 'campaigns.view', 'leads.update'])
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Cấu hình & Quản lý</p>
-                @can('centers.view')
-                <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/centers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="building-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Danh sách cơ sở
-                </a>
-                @endcan
-                @can('lead_sources.view')
-                <a href="{{ route('admin.lead-sources.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/lead-sources*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="share-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Nguồn tuyển sinh
+                    Hồ sơ học viên
                 </a>
                 @endcan
                 @can('interest_types.view')
@@ -181,34 +154,32 @@
                     Dịch vụ & Nhu cầu
                 </a>
                 @endcan
-                @can('campaigns.view')
-                <a href="{{ route('admin.campaigns.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/campaigns*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="megaphone" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Chiến dịch Marketing
+
+                <!-- System & Config -->
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Cấu hình & Hệ thống</p>
+                @can('centers.view')
+                <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/centers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="building-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Danh sách cơ sở
                 </a>
                 @endcan
-                @endcanany
-
-                <!-- System -->
-                @canany(['users.view', 'roles.view'])
-                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Hệ thống</p>
                 @can('users.view')
                 <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/users*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    <i data-lucide="user-cog" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                     Nhân sự & Tài khoản
                 </a>
                 @endcan
                 @can('roles.view')
                 <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/roles*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
-                    <i data-lucide="shield" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
-                    Phân quyền (Roles)
+                    <i data-lucide="shield-check" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Quyền hạn (RBAC)
                 </a>
                 <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/permissions*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
                     <i data-lucide="key" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                     Quyền hạn chuyên sâu
                 </a>
                 @endcan
-                @endcanany
+
             </nav>
         </aside>
         
@@ -222,8 +193,42 @@
                     </button>
                     <h1 class="text-xl font-bold text-slate-800 tracking-tight transition-all">@yield('title', 'Bảng điều khiển')</h1>
                 </div>
+
+                <!-- Global Search & Actions -->
+                <div class="hidden md:flex items-center flex-1 max-w-md mx-8">
+                    <div class="relative w-full group">
+                        <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                        </div>
+                        <input type="text" 
+                            class="block w-full pl-10 pr-4 py-2 bg-slate-100/50 border-transparent focus:bg-white focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500/30 rounded-xl text-sm transition-all" 
+                            placeholder="Tìm kiếm nhanh (Ctrl + K)...">
+                    </div>
+                </div>
                 
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-4 lg:gap-6">
+                    <!-- Quick Add Action -->
+                    <div class="relative" x-data="{ open: false }">
+                        <button @click="open = !open" 
+                            class="w-10 h-10 flex items-center justify-center bg-primary-600 text-white rounded-xl shadow-lg shadow-primary-500/20 hover:bg-primary-700 hover:scale-105 active:scale-95 transition-all">
+                            <i data-lucide="plus" class="w-6 h-6"></i>
+                        </button>
+                        
+                        <div x-show="open" @click.away="open = false" 
+                            class="absolute right-0 mt-3 w-56 glass glass-dark rounded-2xl shadow-xl border border-slate-200/60 p-2 z-50 overflow-hidden"
+                            x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 translate-y-2 scale-95"
+                            x-transition:enter-end="opacity-100 translate-y-0 scale-100">
+                            <p class="px-3 py-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tạo mới nhanh</p>
+                            <a href="{{ url('/admin/leads') }}?action=create" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all">
+                                <i data-lucide="user-plus" class="w-4 h-4"></i> Khách hàng tiềm năng
+                            </a>
+                            <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 hover:bg-primary-50 hover:text-primary-600 rounded-xl transition-all">
+                                <i data-lucide="graduation-cap" class="w-4 h-4"></i> Hồ sơ học viên
+                            </a>
+                        </div>
+                    </div>
+
                     <span class="hidden xl:inline text-xs font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-widest whitespace-nowrap">
                         <i data-lucide="calendar" class="w-3.5 h-3.5 opacity-60"></i>
                         {{ now()->translatedFormat('l, d/m/Y') }}
