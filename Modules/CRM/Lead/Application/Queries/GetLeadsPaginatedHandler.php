@@ -44,7 +44,7 @@ class GetLeadsPaginatedHandler implements QueryHandler
         }
 
         return $builder
-            ->with(['leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags'])
+            ->with(['leadSource', 'interestType', 'assignTo', 'center', 'leadStatus', 'tags', 'campaign'])
             ->paginate($query->perPage, ['*'], 'page', $query->page);
     }
 }

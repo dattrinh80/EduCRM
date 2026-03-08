@@ -57,10 +57,30 @@ class EloquentCustomerRepository implements CustomerRepositoryInterface
 
     public function getAll(): array
     {
-        return CustomerModel::all()
+        return CustomerModel::latest()
+            ->get()
             ->map(fn($model) => $this->mapToDomain($model))
             ->all();
     }
+
+    public function search(?string $query = null): array
+    {
+        $eloquentQuery = CustomerModel::query();
+
+        if ($query) {
+            $eloquentQuery->where(function ($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                    ->orWhere('phone', 'like', "%{$query}%")
+                    ->orWhere('email', 'like', "%{$query}%");
+            });
+        }
+
+        return $eloquentQuery->latest()
+            ->get()
+            ->map(fn($model) => $this->mapToDomain($model))
+            ->all();
+    }
+
 
     private function mapToDomain(CustomerModel $model): Customer
     {

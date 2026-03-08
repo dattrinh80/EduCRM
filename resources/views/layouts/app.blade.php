@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -22,10 +22,32 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    fontFamily: { 
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    },
                     colors: {
-                        primary: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3699FF', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a' },
-                        dark: { 100: '#1E1E2D', 200: '#151521', 300: '#2D2D3A' }
+                        primary: { 
+                            50: 'hsl(215 100% 97%)', 
+                            100: 'hsl(215 100% 92%)', 
+                            200: 'hsl(215 100% 85%)', 
+                            300: 'hsl(215 100% 75%)', 
+                            400: 'hsl(215 100% 60%)', 
+                            500: 'hsl(215 94% 48%)',  // Premium Blue
+                            600: 'hsl(215 100% 40%)', 
+                            700: 'hsl(215 100% 30%)', 
+                            800: 'hsl(215 100% 20%)', 
+                            900: 'hsl(215 100% 12%)' 
+                        },
+                        dark: { 
+                            100: 'hsl(222 47% 11%)', // Richer Dark
+                            200: 'hsl(222 47% 15%)', 
+                            300: 'hsl(222 47% 25%)' 
+                        }
+                    },
+                    boxShadow: {
+                        'premium': '0 20px 40px -15px rgba(0, 114, 255, 0.2)',
+                        'glass': '0 8px 32px 0 rgba(15, 23, 42, 0.08)',
                     }
                 }
             }
@@ -33,148 +55,157 @@
     </script>
     
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar-link.active { background: linear-gradient(90deg, rgba(54,153,255,0.15) 0%, transparent 100%); border-left: 3px solid #3699FF; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px -8px rgba(0,0,0,0.15); }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-        .slide-down { animation: slideDown 0.3s ease-out; }
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+        .sidebar-link.active { 
+            background: linear-gradient(90deg, hsla(215, 100%, 50%, 0.1) 0%, transparent 100%); 
+            border-left: 3px solid hsl(215, 94%, 48%);
+            color: hsl(215, 100%, 75%) !important;
+            box-shadow: inset 4px 0 10px -5px hsla(215, 100%, 50%, 0.3);
+        }
+        .glass { 
+            background: rgba(255, 255, 255, 0.82); 
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .glass-dark {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+        .slide-down { animation: slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
         [x-cloak] { display: none !important; }
 
-        /* Custom Scrollbar for Sidebar */
-        .sidebar-menu::-webkit-scrollbar { width: 5px; }
-        .sidebar-menu::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-menu::-webkit-scrollbar-thumb { background: transparent; border-radius: 20px; }
-        .sidebar-menu:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
-        .sidebar-menu::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
 
-        /* Toast */
-        @keyframes toastIn { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
+        .sidebar-menu::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+        .sidebar-menu:hover::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); }
+
+        /* Toast & Modal */
+        @keyframes toastIn { from { opacity: 0; transform: translateX(100%) scale(0.9); } to { opacity: 1; transform: translateX(0) scale(1); } }
         @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(100%); } }
-        .toast-enter { animation: toastIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+        .toast-enter { animation: toastIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         .toast-leave { animation: toastOut 0.3s ease-in forwards; }
 
-        /* Confirm modal */
-        @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        .modal-enter { animation: modalIn 0.25s cubic-bezier(0.21, 1.02, 0.73, 1) forwards; }
+        @keyframes modalIn { from { opacity: 0; transform: scale(0.9) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-enter { animation: modalIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* General Utilities */
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        .text-balance { text-wrap: balance; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen" x-data="{ sidebarOpen: false }">
     <div class="flex">
         <!-- Sidebar -->
-        <aside class="w-64 bg-dark-100 h-screen fixed left-0 top-0 text-white z-40 transition-transform duration-300 transform flex flex-col"
+        <aside class="w-72 bg-dark-100 h-screen fixed left-0 top-0 text-white z-40 transition-transform duration-300 transform flex flex-col border-r border-white/5 shadow-2xl"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
             <!-- Logo -->
-            <div class="h-16 flex items-center px-6 border-b border-dark-300 flex-shrink-0">
+            <div class="h-20 flex items-center px-6 border-b border-white/5 flex-shrink-0">
                 <div class="flex items-center gap-3">
-                    <div class="w-9 h-9 rounded-lg bg-primary-500 flex items-center justify-center">
-                        <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                        <i data-lucide="graduation-cap" class="w-6 h-6 text-white"></i>
                     </div>
-                    <span class="font-semibold text-lg">Edu CRM</span>
+                    <span class="font-bold text-xl tracking-tight text-white">Edu <span class="text-primary-400">CRM</span></span>
                 </div>
             </div>
             
             <!-- User Info -->
-            <div class="p-4 border-b border-dark-300 flex-shrink-0">
+            <div class="p-4 border-b border-white/5 flex-shrink-0 bg-white/5">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-primary-500/20 flex items-center justify-center text-primary-400 font-semibold">
+                    <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-primary-500/30 to-primary-700/30 flex items-center justify-center text-primary-400 font-bold border border-primary-500/20 shadow-inner">
                         {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                     </div>
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-medium truncate">{{ Auth::user()->name ?? 'User' }}</p>
-                        <p class="text-xs text-slate-400">{{ Auth::user()->email ?? '' }}</p>
+                        <p class="text-sm font-semibold truncate text-white">{{ Auth::user()->name ?? 'Người dùng' }}</p>
+                        <p class="text-[11px] text-slate-400 truncate opacity-80">{{ Auth::user()->email ?? '' }}</p>
                     </div>
                 </div>
             </div>
             
             <!-- Navigation -->
-            <nav class="p-4 space-y-1 flex-1 overflow-y-auto sidebar-menu">
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/dashboard') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-                    Dashboard
+            <nav class="p-4 space-y-1.5 flex-1 overflow-y-auto sidebar-menu">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/dashboard') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="layout-dashboard" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Bảng điều khiển
                 </a>
 
                 <!-- CRM -->
                 @canany(['leads.view'])
-                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">CRM</p>
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">CRM & Marketing</p>
                 @can('leads.view')
-                <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/leads*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="contact" class="w-5 h-5"></i>
-                    Leads (Tiềm năng)
+                <a href="{{ url('/admin/leads') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/leads*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="contact" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Khách hàng tiềm năng
                 </a>
                 @endcan
-                <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/customers*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="users" class="w-5 h-5"></i>
+                <a href="{{ route('admin.customers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/customers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                     Khách hàng (PH)
                 </a>
                 @endcanany
 
                 <!-- Education -->
-                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Đào tạo</p>
-                <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/students*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="graduation-cap" class="w-5 h-5"></i>
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Đào tạo</p>
+                <a href="{{ route('admin.students.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/students*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                     Học viên
                 </a>
 
                 <!-- Management -->
                 @canany(['centers.view', 'lead_sources.view', 'interest_types.view', 'campaigns.view', 'leads.update'])
-                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">Quản lý</p>
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Cấu hình & Quản lý</p>
                 @can('centers.view')
-                <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/centers*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="building-2" class="w-5 h-5"></i>
-                    Cơ sở
+                <a href="{{ route('admin.centers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/centers*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="building-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Danh sách cơ sở
                 </a>
                 @endcan
                 @can('lead_sources.view')
-                <a href="{{ route('admin.lead-sources.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/lead-sources*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="share-2" class="w-5 h-5"></i>
-                    Nguồn
+                <a href="{{ route('admin.lead-sources.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/lead-sources*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="share-2" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Nguồn tuyển sinh
                 </a>
                 @endcan
                 @can('interest_types.view')
-                <a href="{{ route('admin.interest-types.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/interest-types*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="list-todo" class="w-5 h-5"></i>
-                    Dịch vụ (Nhu cầu)
+                <a href="{{ route('admin.interest-types.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/interest-types*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="list-todo" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Dịch vụ & Nhu cầu
                 </a>
                 @endcan
                 @can('campaigns.view')
-                <a href="{{ route('admin.campaigns.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/campaigns*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="megaphone" class="w-5 h-5"></i>
+                <a href="{{ route('admin.campaigns.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/campaigns*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="megaphone" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
                     Chiến dịch Marketing
-                </a>
-                @endcan
-                
-                @can('leads.update')
-                <a href="{{ route('admin.lead-statuses.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/lead-statuses*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="list-checks" class="w-5 h-5"></i>
-                    Trạng thái Lead
-                </a>
-                <a href="{{ route('admin.lead-tags.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/lead-tags*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="tags" class="w-5 h-5"></i>
-                    Nhãn (Tag) Lead
                 </a>
                 @endcan
                 @endcanany
 
                 <!-- System -->
                 @canany(['users.view', 'roles.view'])
-                <p class="px-3 pt-4 pb-1 text-[10px] uppercase tracking-widest text-slate-500 font-semibold">System</p>
+                <p class="px-4 pt-6 pb-2 text-[10px] uppercase tracking-[0.2em] text-slate-500 font-bold opacity-70">Hệ thống</p>
                 @can('users.view')
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/users*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="users" class="w-5 h-5"></i>
-                    Users
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/users*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="users" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Nhân sự & Tài khoản
                 </a>
                 @endcan
                 @can('roles.view')
-                <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/roles*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="shield" class="w-5 h-5"></i>
-                    Roles
+                <a href="{{ route('admin.roles.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/roles*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="shield" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Phân quyền (Roles)
                 </a>
-                @endcan
-                @can('roles.view')
-                <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-3 py-2 text-sm font-medium {{ request()->is('admin/permissions*') ? 'text-primary-400 bg-dark-200 sidebar-link active' : 'text-slate-300 hover:text-white rounded-lg hover:bg-dark-200' }} transition-colors">
-                    <i data-lucide="key" class="w-5 h-5"></i>
-                    Permissions
+                <a href="{{ route('admin.permissions.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium {{ request()->is('admin/permissions*') ? 'bg-primary-500/10 text-primary-400 sidebar-link active' : 'text-slate-400 hover:text-white rounded-xl hover:bg-white/5' }} transition-all duration-200 group">
+                    <i data-lucide="key" class="w-5 h-5 group-hover:scale-110 transition-transform"></i>
+                    Quyền hạn chuyên sâu
                 </a>
                 @endcan
                 @endcanany
@@ -182,18 +213,21 @@
         </aside>
         
         <!-- Main Content -->
-        <main class="flex-1 lg:ml-64 min-w-0 transition-all duration-300">
+        <main class="flex-1 lg:ml-72 min-w-0 transition-all duration-300">
             <!-- Top Header -->
-            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-4 lg:px-6 sticky top-0 z-30">
+            <header class="h-20 glass border-b border-slate-200/60 flex items-center justify-between px-6 lg:px-8 sticky top-0 z-30 shadow-sm">
                 <div class="flex items-center gap-4">
-                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 -ml-2 text-slate-500 hover:text-slate-700 focus:outline-none">
+                    <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2.5 -ml-2 text-slate-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all focus:outline-none">
                         <i data-lucide="menu" class="w-6 h-6"></i>
                     </button>
-                    <h1 class="text-xl font-semibold text-slate-800 truncate">@yield('title', 'Dashboard')</h1>
+                    <h1 class="text-xl font-bold text-slate-800 tracking-tight transition-all">@yield('title', 'Bảng điều khiển')</h1>
                 </div>
                 
-                <div class="flex items-center gap-4">
-                    <span class="hidden sm:inline text-sm text-slate-500">{{ now()->format('l, d/m/Y') }}</span>
+                <div class="flex items-center gap-6">
+                    <span class="hidden xl:inline text-xs font-semibold text-slate-400 flex items-center gap-2 uppercase tracking-widest whitespace-nowrap">
+                        <i data-lucide="calendar" class="w-3.5 h-3.5 opacity-60"></i>
+                        {{ now()->translatedFormat('l, d/m/Y') }}
+                    </span>
                     
                     <!-- Center Context Indicator & Switcher -->
                     @auth
@@ -217,20 +251,21 @@
                     
                     @if(($hasGlobalScope ? 1 : 0) + $availableCenters->count() > 1)
                     <div class="relative" x-data="{ openCenter: false }" @click.away="openCenter = false">
-                        <button @click="openCenter = !openCenter" class="flex items-center gap-2 px-3 py-1.5 rounded-xl border transition text-sm font-medium {{ ($hasGlobalScope && !$currentCenter) ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100' : 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100' }}">
+                        <button @click="openCenter = !openCenter" class="flex items-center gap-2 px-4 py-2 rounded-xl border transition-all text-sm font-semibold shadow-sm hover:shadow-md {{ ($hasGlobalScope && !$currentCenter) ? 'bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100 hover:border-emerald-300' : 'bg-primary-50 border-primary-200 text-primary-700 hover:bg-primary-100 hover:border-primary-300' }}">
                             <i data-lucide="{{ ($hasGlobalScope && !$currentCenter) ? 'globe' : 'building-2' }}" class="w-4 h-4"></i>
                             @if($hasGlobalScope && !$currentCenter)
-                                <span class="hidden sm:inline">Hệ thống (Toàn bộ cơ sở)</span>
-                                <span class="sm:hidden">ALL</span>
+                                <span class="hidden lg:inline">Toàn hệ thống</span>
+                                <span class="lg:hidden">ALL</span>
                             @elseif($currentCenter)
-                                <span class="hidden sm:inline">[{{ $currentCenter->code }}] {{ $currentCenter->name }}</span>
-                                <span class="sm:hidden">{{ $currentCenter->code }}</span>
+                                <span class="hidden lg:inline">{{ $currentCenter->name }}</span>
+                                <span class="lg:hidden">{{ $currentCenter->code }}</span>
                             @else
-                                <span class="hidden sm:inline">Chưa chọn Cơ sở</span>
-                                <span class="sm:hidden">N/A</span>
+                                <span class="hidden lg:inline">Chọn cơ sở…</span>
+                                <span class="lg:hidden">N/A</span>
                             @endif
-                            <i data-lucide="chevron-down" class="w-3 h-3 opacity-60"></i>
+                            <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-50 transition-transform" :class="openCenter ? 'rotate-180' : ''"></i>
                         </button>
+
 
                         <!-- Center Dropdown -->
                         <div x-show="openCenter" x-transition x-cloak class="absolute right-0 top-10 w-64 bg-white rounded-xl shadow-xl py-1.5 border border-slate-100 z-50">
@@ -239,9 +274,9 @@
                             <form action="{{ route('auth.switch-center') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="center_id" value="">
-                                <button type="submit" class="w-full text-left px-4 py-2 text-sm hover:bg-emerald-50 flex items-center gap-2 transition {{ !$currentCenterId ? 'text-emerald-600 font-semibold bg-emerald-50' : 'text-slate-700' }}">
+                                <button type="submit" class="w-full text-left px-4 py-2.5 text-sm hover:bg-emerald-50 flex items-center gap-3 transition-colors {{ !$currentCenterId ? 'text-emerald-700 font-bold bg-emerald-50/50' : 'text-slate-600' }}">
                                     <i data-lucide="globe" class="w-4 h-4 {{ !$currentCenterId ? 'text-emerald-500' : 'text-slate-400' }}"></i> 
-                                    Hệ thống (Toàn bộ cơ sở)
+                                    Toàn hệ thống
                                     @if(!$currentCenterId)
                                     <i data-lucide="check" class="w-4 h-4 ml-auto text-emerald-500"></i>
                                     @endif
@@ -282,27 +317,33 @@
                      <!-- Separator -->
                      <div class="h-8 w-px bg-slate-200 mx-2"></div>
 
-                    <!-- User Dropdown -->
-                    <div class="relative flex items-center gap-3 cursor-pointer" x-data="{ open: false }" @click.away="open = false">
-                        <div class="hidden sm:block text-right" @click="open = !open">
-                            <p class="text-sm font-medium text-slate-700">{{ Auth::user()->name ?? 'User' }}</p>
-                            <p class="text-xs text-slate-500">{{ Auth::user()->email ?? '' }}</p>
+                    <!-- User Menu -->
+                    <div class="relative flex items-center gap-3" x-data="{ open: false }" @click.away="open = false">
+                        <div class="hidden sm:flex flex-col items-end cursor-pointer" @click="open = !open">
+                            <p class="text-sm font-bold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Người dùng' }}</p>
+                            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider opacity-70">{{ Auth::user()->roles->first()?->name ?? 'Staff' }}</p>
                         </div>
                         
-                        <div class="w-9 h-9 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-semibold text-sm border border-indigo-200" @click="open = !open">
+                        <div @click="open = !open" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm border border-indigo-200 shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-95">
                             {{ strtoupper(substr(Auth::user()->name ?? 'U', 0, 1)) }}
                         </div>
                         
-                         <!-- Dropdown Menu -->
-                         <div x-show="open" x-transition x-cloak class="absolute right-0 top-12 w-48 bg-white rounded-lg shadow-lg py-1 border border-slate-100 z-50">
-                            <a href="#" class="block px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2">
-                                <i data-lucide="user" class="w-4 h-4"></i> Profile
+                         <!-- User Dropdown -->
+                         <div x-show="open" x-transition x-cloak class="absolute right-0 top-14 w-56 bg-white rounded-2xl shadow-xl py-2 border border-slate-100 z-50 slide-down">
+                            <div class="px-4 py-2 border-b border-slate-50 mb-1">
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tài khoản</p>
+                            </div>
+                            <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                <i data-lucide="user-cog" class="w-4 h-4 opacity-70"></i> Hồ sơ cá nhân
                             </a>
-                            <div class="border-t border-slate-100 my-1"></div>
+                            <a href="#" class="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
+                                <i data-lucide="settings" class="w-4 h-4 opacity-70"></i> Cài đặt
+                            </a>
+                            <div class="border-t border-slate-50 my-2"></div>
                             <form action="{{ route('logout') }}" method="POST">
                                 @csrf
-                                <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2">
-                                    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+                                <button type="submit" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors font-medium">
+                                    <i data-lucide="log-out" class="w-4 h-4"></i> Đăng xuất
                                 </button>
                             </form>
                         </div>

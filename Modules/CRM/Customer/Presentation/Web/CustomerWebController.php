@@ -13,9 +13,12 @@ class CustomerWebController extends Controller
         private CustomerRepositoryInterface $customerRepository
     ) {}
 
-    public function index()
+    public function index(\Illuminate\Http\Request $request)
     {
-        $customers = $this->customerRepository->getAll();
+        $search = $request->get('search');
+        $customers = $this->customerRepository->search($search);
+        
         return view('customer::index', compact('customers'));
     }
+
 }

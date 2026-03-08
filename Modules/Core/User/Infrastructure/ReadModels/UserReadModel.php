@@ -23,9 +23,15 @@ class UserReadModel extends Authenticatable
         return $this->hasMany(UserRoleReadModel::class, 'user_id', 'id');
     }
 
+    public function roles(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(RoleReadModel::class, 'user_roles', 'user_id', 'role_id');
+    }
+
     /**
      * Check if this user has the given role name.
      */
+
     public function hasRole(string $roleName): bool
     {
         return $this->userRoles()

@@ -41,6 +41,11 @@ class LeadReadModel extends Model
         return $this->belongsTo(\Modules\Marketing\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel::class, 'lead_source_id');
     }
 
+    public function campaign()
+    {
+        return $this->belongsTo(\Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel::class, 'campaign_id');
+    }
+
     public function interestType()
     {
         return $this->belongsTo(\Modules\Marketing\InterestType\Infrastructure\ReadModels\InterestTypeReadModel::class, 'interest_type_id');

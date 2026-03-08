@@ -1,22 +1,25 @@
 @extends('layouts.app')
 
-@section('title', 'Leads Management')
+@section('title', 'Quản lý Khách hàng tiềm năng')
 
 @section('content')
 <div class="space-y-6" x-data="leadManagementStore()">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Leads Management</h1>
-            <p class="text-slate-500 mt-1">Manage and track all leads</p>
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Khách hàng Tiềm năng</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý và theo dõi danh sách khách hàng tiềm năng toàn diện
+            </p>
         </div>
         <div class="flex gap-2">
             @can('leads.export')
             <div x-data="{ open: false }" class="relative">
-                <button type="button" @click="open = !open" @click.away="open = false" class="px-4 py-2 bg-emerald-50 text-emerald-700 hover:text-emerald-800 rounded-lg hover:bg-emerald-100 transition flex items-center gap-2 border border-emerald-200 font-medium whitespace-nowrap">
-                    <i data-lucide="download" class="w-4 h-4"></i>
-                    <span class="hidden sm:inline">Export Leads</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4"></i>
+                <button type="button" @click="open = !open" @click.away="open = false" class="px-5 py-2.5 bg-white text-emerald-700 hover:text-white rounded-xl hover:bg-emerald-600 transition-all duration-300 flex items-center gap-2 border border-emerald-100 shadow-sm hover:shadow-emerald-200/50 font-bold whitespace-nowrap active:scale-95 group">
+                    <i data-lucide="download" class="w-4 h-4 group-hover:bounce"></i>
+                    <span class="hidden sm:inline">Xuất dữ liệu</span>
+                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''"></i>
                 </button>
                 <div x-show="open" x-cloak 
                      x-transition:enter="transition ease-out duration-100"
@@ -26,25 +29,25 @@
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
                      class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-50">
-                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-emerald-600 transition">
-                        <i data-lucide="sheet" class="w-4 h-4"></i>
-                        Export to Excel
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                        <i data-lucide="sheet" class="w-4 h-4 opacity-70"></i>
+                        Xuất file Excel
                     </a>
-                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-2 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 hover:text-red-600 transition">
-                        <i data-lucide="file-text" class="w-4 h-4"></i>
-                        Export to PDF
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition-colors">
+                        <i data-lucide="file-text" class="w-4 h-4 opacity-70"></i>
+                        Xuất file PDF
                     </a>
                 </div>
             </div>
             @endcan
             @can('leads.create')
-            <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-slate-100 text-slate-700 hover:text-slate-900 rounded-lg hover:bg-slate-200 transition flex items-center gap-2 border border-slate-200 font-medium whitespace-nowrap">
-                <i data-lucide="file-down" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Import Excel</span>
+            <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-5 py-2.5 bg-slate-50 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-all duration-300 flex items-center gap-2 border border-slate-200 font-bold shadow-sm whitespace-nowrap active:scale-95">
+                <i data-lucide="file-down" class="w-4 h-4 opacity-70"></i>
+                <span class="hidden sm:inline">Nhập Excel</span>
             </button>
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 whitespace-nowrap font-medium">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>New Lead</span>
+            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary-500/25 whitespace-nowrap font-bold active:scale-95 group">
+                <i data-lucide="plus-circle" class="w-5 h-5 group-hover:rotate-90 transition-transform"></i>
+                <span>Thêm Lead mới</span>
             </button>
             @endcan
         </div>
@@ -54,47 +57,47 @@
     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
         <form action="{{ route('admin.leads.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
             <div class="w-full md:w-1/4">
-                <label for="search" class="block text-sm font-medium text-slate-700 mb-1">Name</label>
-                <div class="relative w-full">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" name="search" id="search" placeholder="Search by name..." value="{{ request('search') }}"
-                           class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                <label for="search" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ tên</label>
+                <div class="relative w-full group">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                    <input type="text" name="search" id="search" placeholder="Số điện thoại, họ tên…" value="{{ request('search') }}"
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
                 </div>
             </div>
             <div class="w-full md:w-1/4">
-                <label for="phone" class="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-                <div class="relative w-full">
-                    <i data-lucide="phone" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" name="phone" id="phone" placeholder="Search by phone..." value="{{ request('phone') }}"
-                           class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                <label for="phone" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Số điện thoại</label>
+                <div class="relative w-full group">
+                    <i data-lucide="phone" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                    <input type="text" name="phone" id="phone" placeholder="Số điện thoại…" value="{{ request('phone') }}"
+                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none tabular-nums">
                 </div>
             </div>
             @if($isGlobalScope)
             <div class="w-full md:w-1/4">
-                <label for="center_id" class="block text-sm font-medium text-slate-700 mb-1">Center</label>
-                <div class="relative w-full">
-                    <i data-lucide="building-2" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <select name="center_id" id="center_id" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
-                        <option value="">All Centers</option>
+                <label for="center_id" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cơ sở</label>
+                <div class="relative w-full group">
+                    <i data-lucide="building-2" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                    <select name="center_id" id="center_id" class="w-full pl-10 pr-8 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none">
+                        <option value="">Tất cả cơ sở</option>
                         @foreach($centers as $c)
                             <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
                         @endforeach
                     </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none opacity-60"></i>
                 </div>
             </div>
             @endif
             <div class="w-full md:w-1/4">
-                <label for="status_id" class="block text-sm font-medium text-slate-700 mb-1">Status</label>
-                <div class="relative w-full">
-                    <i data-lucide="tag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <select name="status_id" id="status_id" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
-                        <option value="">All Statuses</option>
+                <label for="status_id" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Trạng thái</label>
+                <div class="relative w-full group">
+                    <i data-lucide="list-checks" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                    <select name="status_id" id="status_id" class="w-full pl-10 pr-8 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none">
+                        <option value="">Tất cả trạng thái</option>
                         @foreach($statuses as $st)
                             <option value="{{ $st->getId() }}" {{ request('status_id') == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
                         @endforeach
                     </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none opacity-60"></i>
                 </div>
             </div>
             <div class="flex gap-2 w-full md:w-auto">
@@ -113,14 +116,16 @@
     <!-- Data List -->
     <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
         @if($leads->isEmpty())
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
+        <div class="p-16 text-center">
+            <div class="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-6 transform rotate-3 group-hover:rotate-0 transition-all duration-500 shadow-inner">
+                <i data-lucide="users-2" class="w-12 h-12 text-slate-300"></i>
             </div>
-            <p class="text-slate-500 mb-4">No leads found</p>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Chưa có khách hàng tiềm năng</h3>
+            <p class="text-slate-500 max-w-sm mx-auto mb-8 font-medium italic">Hệ thống chưa ghi nhận dữ liệu Lead nào khớp với bộ lọc của bạn.</p>
             @can('leads.create')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Create new lead
+            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl font-bold hover:bg-primary-600 transition shadow-lg shadow-primary-500/25 active:scale-95">
+                <i data-lucide="plus" class="w-5 h-5"></i> 
+                Tạo Lead mới ngay
             </button>
             @endcan
         </div>
@@ -128,19 +133,21 @@
         <div class="overflow-x-auto">
             <!-- Bulk Action Header -->
             <div x-show="selectedItems.length > 0" x-cloak class="bg-primary-50 px-6 py-3 border-b border-primary-100 flex items-center justify-between transition-all">
-                <div class="text-sm font-medium text-primary-800">
-                    <span x-text="selectedItems.length"></span> lead(s) selected
+                <div class="text-sm font-bold text-primary-800 flex items-center gap-2">
+                    <span class="bg-primary-200 text-primary-700 px-2 py-0.5 rounded-md text-xs" x-text="selectedItems.length"></span>
+                    <span>lead đã chọn</span>
                 </div>
                 <div class="flex items-center gap-2">
                     @can('leads.update')
                     <button type="button" @click="showMassEditModal = true; $dispatch('refresh-icons')" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
-                        <i data-lucide="edit-3" class="w-4 h-4"></i> Mass Edit
+                    <button type="button" x-show="selectedItems.length > 0" @click="showMassEditModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                        <i data-lucide="edit-3" class="w-3.5 h-3.5"></i> Sửa hàng loạt
                     </button>
-                    <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
-                        <i data-lucide="merge" class="w-4 h-4"></i> Merge
+                    <button type="button" x-show="selectedItems.length > 1" @click="showMergeModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                        <i data-lucide="merge" class="w-3.5 h-3.5"></i> Gộp Lead
                     </button>
-                    <button type="button" @click="showAssignModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-lg text-sm font-medium hover:bg-primary-100 transition flex items-center gap-1 shadow-sm">
-                        <i data-lucide="user-check" class="w-4 h-4"></i> Assign Selected
+                    <button type="button" x-show="selectedItems.length > 0" @click="showAssignModal = true" class="px-3 py-1.5 bg-white border border-primary-200 text-primary-600 rounded-xl text-xs font-bold hover:bg-primary-50 transition flex items-center gap-1.5 shadow-sm active:scale-95">
+                        <i data-lucide="user-check" class="w-3.5 h-3.5"></i> Giao nhân sự
                     </button>
                     @endcan
                 </div>
@@ -154,8 +161,8 @@
                         </th>
                         @php
                             $sortableHeaders = [
-                                'name' => 'Name',
-                                'phone' => 'Phone',
+                                'name' => 'Họ tên',
+                                'phone' => 'Số điện thoại',
                             ];
                         @endphp
                         @foreach($sortableHeaders as $col => $label)
@@ -165,34 +172,35 @@
                                 {{ $label }}
                                 @if($sortBy === $col)
                                     @if($sortDir === 'asc')
-                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                        <i data-lucide="arrow-up" class="w-3 h-3 text-primary-500"></i>
                                     @else
-                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                        <i data-lucide="arrow-down" class="w-3 h-3 text-primary-500"></i>
                                     @endif
                                 @else
-                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                    <i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition"></i>
                                 @endif
                             </a>
                         </th>
                         @endforeach
-                        <th class="p-4 px-6">Center</th>
-                        <th class="p-4 px-6">Assigned To</th>
+                        <th class="p-4 px-6">Cơ sở</th>
+                        <th class="p-4 px-6 text-center">Nguồn / Campaign</th>
+                        <th class="p-4 px-6 text-center">Nhân sự</th>
                         <th class="p-4 px-6">
                             <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['sort_by' => 'status_id', 'sort_dir' => ($sortBy === 'status_id' && $sortDir === 'asc') ? 'desc' : 'asc', 'page' => 1])) }}"
                                class="inline-flex items-center gap-1.5 hover:text-primary-600 transition group/sort cursor-pointer select-none">
-                                Status
+                                Trạng thái
                                 @if($sortBy === 'status_id')
                                     @if($sortDir === 'asc')
-                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 19V5m0 0l-5 5m5-5 5 5"/></svg>
+                                        <i data-lucide="arrow-up" class="w-3 h-3 text-primary-500"></i>
                                     @else
-                                        <svg class="w-3.5 h-3.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 5v14m0 0l5-5m-5 5-5-5"/></svg>
+                                        <i data-lucide="arrow-down" class="w-3 h-3 text-primary-500"></i>
                                     @endif
                                 @else
-                                    <svg class="w-3.5 h-3.5 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M7 16l5 5 5-5M7 8l5-5 5 5"/></svg>
+                                    <i data-lucide="chevrons-up-down" class="w-3 h-3 text-slate-300 opacity-0 group-hover/sort:opacity-100 transition"></i>
                                 @endif
                             </a>
                         </th>
-                        <th class="p-4 px-6 text-right">Actions</th>
+                        <th class="p-4 px-6 text-right">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -211,9 +219,9 @@
                                 </div>
                                 @endif
                             </td>
-                            <td class="p-4 px-6 whitespace-nowrap text-slate-600">
+                            <td class="p-4 px-6 whitespace-nowrap text-slate-600 tabular-nums">
                                 <div class="flex items-center gap-2">
-                                    <i data-lucide="phone" class="w-4 h-4 text-slate-400"></i>
+                                    <i data-lucide="phone" class="w-3.5 h-3.5 text-slate-400"></i>
                                     {{ $lead->phone }}
                                 </div>
                             </td>
@@ -231,18 +239,32 @@
                                 @endif
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
+                                <div class="flex flex-col gap-1.5 items-center">
+                                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-50 border border-slate-100 group-hover:border-slate-200 transition-colors">
+                                        <i data-lucide="share-2" class="w-3 h-3 text-slate-400"></i>
+                                        <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{{ $lead->leadSource->name ?? 'N/A' }}</span>
+                                    </div>
+                                    @if($lead->campaign)
+                                    <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-primary-50 border border-primary-100 group-hover:bg-primary-100/50 transition-colors">
+                                        <i data-lucide="megaphone" class="w-3 h-3 text-primary-500"></i>
+                                        <span class="text-[10px] text-primary-600 font-bold uppercase tracking-widest">{{ $lead->campaign->name }}</span>
+                                    </div>
+                                    @endif
+                                </div>
+                            </td>
+                            <td class="p-4 px-6 whitespace-nowrap text-center">
                                 @php
                                     $assignedUser = $lead->assigned_to ? $users->firstWhere('id', $lead->assigned_to) : null;
                                 @endphp
                                 @if($assignedUser)
-                                    <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-xs font-semibold text-slate-600 uppercase border border-slate-200">
+                                    <div class="inline-flex items-center gap-2 px-2 py-1 rounded-lg border border-slate-100 bg-slate-50/50">
+                                        <div class="w-5 h-5 rounded-full bg-primary-500 flex items-center justify-center text-[10px] font-bold text-white uppercase">
                                             {{ substr($assignedUser->name, 0, 1) }}
                                         </div>
-                                        <span class="text-sm font-medium text-slate-700">{{ $assignedUser->name }}</span>
+                                        <span class="text-xs font-semibold text-slate-700">{{ $assignedUser->name }}</span>
                                     </div>
                                 @else
-                                    <span class="text-slate-400 text-sm italic">Unassigned</span>
+                                    <span class="text-slate-300 text-[11px] italic">Chưa giao</span>
                                 @endif
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
@@ -251,7 +273,8 @@
                                     $statusName = $st ? $st->name : 'N/A';
                                     $statusColor = $st ? $st->color : '#94a3b8';
                                 @endphp
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium" style="background-color: {{ $statusColor }}20; color: {{ $statusColor }}">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border" style="background-color: {{ $statusColor }}10; color: {{ $statusColor }}; border-color: {{ $statusColor }}30">
+                                    <span class="w-1.5 h-1.5 rounded-full mr-1.5" style="background-color: {{ $statusColor }}"></span>
                                     {{ $statusName }}
                                 </span>
                             </td>
@@ -316,10 +339,10 @@
                                                 <div class="space-y-4">
                                                     <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Name <span class="text-red-500">*</span></label>
+                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
                                                             <div class="relative">
                                                                 <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('name') : $lead->name }}">
+                                                                <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('name') : $lead->name }}">
                                                             </div>
                                                             @if(old('lead_id') == $lead->id)
                                                                 @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
@@ -327,10 +350,10 @@
                                                         </div>
 
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Phone <span class="text-red-500">*</span></label>
+                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
                                                             <div class="relative">
                                                                 <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('phone') : $lead->phone }}">
+                                                                <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ old('lead_id') == $lead->id ? old('phone') : $lead->phone }}">
                                                             </div>
                                                             @if(old('lead_id') == $lead->id)
                                                                 @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
@@ -455,10 +478,10 @@
                                                         </div>
                                                         
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Status <span class="text-red-500">*</span></label>
+                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Trạng thái <span class="text-red-500">*</span></label>
                                                             <div class="relative">
                                                                 <i data-lucide="tag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="status_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                <select name="status_id" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                                                     @foreach($statuses as $st)
                                                                         <option value="{{ $st->getId() }}" {{ (old('lead_id') == $lead->id ? old('status_id') : $lead->status_id) === $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
                                                                     @endforeach
@@ -546,10 +569,10 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Name <span class="text-red-500">*</span></label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('name') : '' }}">
+                                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('name') : '' }}">
                                 </div>
                                 @if(!old('_method'))
                                     @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
@@ -557,10 +580,10 @@
                             </div>
 
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Phone <span class="text-red-500">*</span></label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('phone') : '' }}">
+                                    <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ !old('_method') ? old('phone') : '' }}">
                                 </div>
                                 @if(!old('_method'))
                                     @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
@@ -685,10 +708,10 @@
                             </div>
                             
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Status</label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Trạng thái</label>
                                 <div class="relative">
                                     <i data-lucide="tag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="status_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <select name="status_id" class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                         <option value="">-- Mặc định (New) --</option>
                                         @foreach($statuses as $st)
                                             <option value="{{ $st->getId() }}" {{ (!old('_method') && old('status_id') === $st->getId()) ? 'selected' : '' }}>{{ $st->name }}</option>
