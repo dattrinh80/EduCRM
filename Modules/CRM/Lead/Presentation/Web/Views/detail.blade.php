@@ -28,13 +28,14 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {{-- Left Column: Profile Card --}}
-        <div class="lg:col-span-4 space-y-6">
-            <div class="glass overflow-hidden rounded-[2.5rem] border border-white/40 shadow-xl shadow-slate-200/50">
-                <div class="bg-gradient-to-br from-primary-500/10 to-transparent p-8 text-center border-b border-slate-100">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {{-- Left Column: Profile Card & Quick Actions --}}
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            {{-- Profile Summary Card --}}
+            <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40 overflow-hidden">
+                <div class="bg-gradient-to-br from-primary-500/10 via-primary-500/5 to-transparent p-8 text-center border-b border-slate-100">
                     <div class="relative inline-block mb-4">
-                        <div class="w-24 h-24 rounded-3xl bg-white shadow-xl shadow-primary-500/10 flex items-center justify-center text-4xl font-extrabold text-primary-600 border-2 border-primary-100">
+                        <div class="w-24 h-24 rounded-3xl bg-white shadow-xl shadow-primary-500/10 flex items-center justify-center text-4xl font-extrabold text-primary-600 border-2 border-primary-100 transform transition-transform hover:scale-105">
                             {{ strtoupper(substr($lead->name, 0, 1)) }}
                         </div>
                         @php
@@ -52,7 +53,7 @@
                     @if($lead->tags->isNotEmpty())
                     <div class="mt-4 flex flex-wrap justify-center gap-1.5">
                         @foreach($lead->tags as $tag)
-                            <span class="px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-sm transition-transform hover:scale-110" style="background-color: {{ $tag->color ?: 'gray' }}">
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-bold text-white shadow-sm" style="background-color: {{ $tag->color ?: 'gray' }}">
                                 {{ $tag->name }}
                             </span>
                         @endforeach
@@ -60,161 +61,189 @@
                     @endif
                 </div>
 
-                <div class="p-8 space-y-8">
-                    {{-- Contact Group --}}
-                    <div>
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Thông tin liên hệ</h4>
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-4 group">
-                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                                    <i data-lucide="phone" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Điện thoại</p>
-                                    <p class="text-sm font-bold text-slate-700">{{ $lead->phone }}</p>
-                                </div>
-                            </div>
-                            @if($lead->email)
-                            <div class="flex items-center gap-4 group">
-                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                                    <i data-lucide="mail" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</p>
-                                    <p class="text-sm font-bold text-slate-700 truncate max-w-[180px]">{{ $lead->email }}</p>
-                                </div>
-                            </div>
-                            @endif
-                            @if($lead->dob)
-                            <div class="flex items-center gap-4 group">
-                                <div class="w-10 h-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-primary-50 group-hover:text-primary-600 transition-colors">
-                                    <i data-lucide="cake" class="w-5 h-5"></i>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ngày sinh</p>
-                                    <p class="text-sm font-bold text-slate-700">{{ \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') }}</p>
-                                </div>
-                            </div>
-                            @endif
+                <div class="p-6 bg-slate-50/50">
+                    <div class="grid grid-cols-2 gap-3 text-center">
+                        <div class="p-4 bg-white rounded-2xl border border-white shadow-sm group hover:border-primary-200 transition-colors">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Nguồn</p>
+                            <p class="text-xs font-bold text-slate-700 truncate" title="{{ $lead->leadSource?->name }}">{{ $lead->leadSource?->name ?? '--' }}</p>
                         </div>
-                    </div>
-
-                    {{-- Marketing Group --}}
-                    <div class="pt-6 border-t border-slate-100">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Marketing & Nhu cầu</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="p-4 bg-orange-50/50 rounded-2xl border border-orange-100">
-                                <i data-lucide="share-2" class="w-4 h-4 text-orange-400 mb-2"></i>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nguồn</p>
-                                <p class="text-xs font-bold text-slate-700 mt-0.5">{{ $lead->leadSource?->name ?? '—' }}</p>
-                            </div>
-                            <div class="p-4 bg-violet-50/50 rounded-2xl border border-violet-100">
-                                <i data-lucide="list-todo" class="w-4 h-4 text-violet-400 mb-2"></i>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Nhu cầu</p>
-                                <p class="text-xs font-bold text-slate-700 mt-0.5">{{ $lead->interestType?->name ?? '—' }}</p>
-                            </div>
-                            <div class="col-span-2 p-4 bg-pink-50/50 rounded-2xl border border-pink-100">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <i data-lucide="megaphone" class="w-4 h-4 text-pink-400"></i>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Chiến dịch</p>
-                                </div>
-                                @php
-                                    $campaign = $lead->campaign_id ? $campaigns->firstWhere('id', $lead->campaign_id) : null;
-                                @endphp
-                                <p class="text-xs font-bold text-slate-700">{{ $campaign?->name ?? '—' }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Management Group --}}
-                    <div class="pt-6 border-t border-slate-100">
-                        <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Quản lý hệ thống</h4>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center">
-                                        <i data-lucide="building-2" class="w-4 h-4"></i>
-                                    </div>
-                                    <span class="text-xs font-semibold text-slate-600">Cơ sở vận hành</span>
-                                </div>
-                                <span class="text-xs font-bold text-slate-800">
-                                    @if($lead->center)
-                                        [{{ $lead->center->code }}] {{ $lead->center->name }}
-                                    @else — @endif
-                                </span>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
-                                        <i data-lucide="user-check" class="w-4 h-4"></i>
-                                    </div>
-                                    <span class="text-xs font-semibold text-slate-600">Phụ trách viên</span>
-                                </div>
-                                <span class="text-xs font-bold text-slate-800">
-                                    @if($lead->assignTo)
-                                        {{ $lead->assignTo->name }}
-                                    @else
-                                        <span class="text-slate-400 italic">Chưa gán</span>
-                                    @endif
-                                </span>
-                            </div>
+                        <div class="p-4 bg-white rounded-2xl border border-white shadow-sm group hover:border-primary-200 transition-colors">
+                            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ngày tạo</p>
+                            <p class="text-xs font-bold text-slate-700">{{ $lead->created_at?->format('d/m/Y') }}</p>
                         </div>
                     </div>
                 </div>
-                
-                <div class="px-8 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-between">
-                    <span class="text-[10px] font-medium text-slate-400">ID: {{ substr($lead->id, -8) }}</span>
-                    <span class="text-[10px] font-medium text-slate-400">Tạo: {{ $lead->created_at?->format('d/m/Y') }}</span>
+
+                <div class="px-8 py-4 bg-slate-100/30 border-t border-slate-100 flex items-center justify-between">
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Lead ID: {{ substr($lead->id, -8) }}</span>
+                    <button class="text-[10px] font-black text-primary-600 uppercase tracking-widest hover:underline">Sao chép</button>
                 </div>
             </div>
 
-            {{-- Activity Recorder --}}
-            <div class="bg-white rounded-[2rem] border border-slate-200/60 shadow-sm p-8">
-                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
-                    <i data-lucide="zap" class="w-4 h-4 text-primary-500"></i> Ghi nhận nhanh
+            {{-- Quick Activity Recorder --}}
+            <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-lg shadow-slate-200/30 p-8">
+                <h3 class="text-[11px] font-black text-slate-800 uppercase tracking-widest mb-6 flex items-center gap-2">
+                    <div class="w-1.5 h-4 bg-primary-500 rounded-full"></div>
+                    Ghi nhận nhanh
                 </h3>
-                <form action="{{ route('admin.leads.activities.store', $lead->id) }}" method="POST">
+                <form action="{{ route('admin.leads.activities.store', $lead->id) }}" method="POST" class="grid grid-cols-2 gap-4">
                     @csrf
-                    <div class="grid grid-cols-2 gap-3">
-                        <button type="submit" name="activity_type" value="call" class="p-4 rounded-2xl border border-slate-100 bg-slate-50/30 hover:border-blue-200 hover:bg-blue-50/50 hover:shadow-md transition-all group">
-                            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><i data-lucide="phone-call" class="w-5 h-5"></i></div>
-                            <p class="text-xs font-bold text-slate-600">Cuộc gọi</p>
-                        </button>
-                        <button type="submit" name="activity_type" value="meeting" class="p-4 rounded-2xl border border-slate-100 bg-slate-50/30 hover:border-purple-200 hover:bg-purple-50/50 hover:shadow-md transition-all group">
-                            <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-2 group-hover:scale-110 transition-transform"><i data-lucide="calendar-days" class="w-5 h-5"></i></div>
-                            <p class="text-xs font-bold text-slate-600">Cuộc hẹn</p>
-                        </button>
-                    </div>
+                    <button type="submit" name="activity_type" value="call" class="flex flex-col items-center gap-2 p-4 rounded-3xl border border-slate-100 bg-slate-50/50 hover:border-blue-200 hover:bg-blue-50 transition-all group active:scale-95">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="phone-call" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[11px] font-black text-slate-600 uppercase tracking-tight">Cuộc gọi</span>
+                    </button>
+                    <button type="submit" name="activity_type" value="meeting" class="flex flex-col items-center gap-2 p-4 rounded-3xl border border-slate-100 bg-slate-50/50 hover:border-purple-200 hover:bg-purple-50 transition-all group active:scale-95">
+                        <div class="w-12 h-12 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i data-lucide="calendar-days" class="w-6 h-6"></i>
+                        </div>
+                        <span class="text-[11px] font-black text-slate-600 uppercase tracking-tight">Cuộc hẹn</span>
+                    </button>
                 </form>
             </div>
         </div>
 
-        {{-- Right Column: Main Feed --}}
-        <div class="lg:col-span-8 space-y-6">
-            {{-- Tab Controls --}}
-            <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-sm overflow-hidden p-2">
-                <div class="flex gap-1">
-                    <button @click="setTab('timeline')" :class="activeTab === 'timeline' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+        {{-- Right Column: Dynamic Feed --}}
+        <div class="lg:col-span-8 flex flex-col gap-6">
+            {{-- Sticky Tab Navigation --}}
+            <div class="bg-white/80 backdrop-blur-md rounded-[2rem] border border-slate-200/60 shadow-lg shadow-slate-200/20 p-2 sticky top-24 z-20">
+                <div class="flex flex-wrap md:flex-nowrap gap-1">
+                    <button @click="setTab('info')" :class="activeTab === 'info' ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/25' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 min-w-[120px] py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="user-circle" class="w-4 h-4"></i> Hồ sơ Lead
+                    </button>
+                    <button @click="setTab('timeline')" :class="activeTab === 'timeline' ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/25' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 min-w-[120px] py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
                         <i data-lucide="history" class="w-4 h-4"></i> Timeline
-                        <span :class="activeTab === 'timeline' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $activities->total() }}</span>
+                        <span :class="activeTab === 'timeline' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter">{{ $activities->total() }}</span>
                     </button>
-                    <button @click="setTab('notes')" :class="activeTab === 'notes' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <button @click="setTab('notes')" :class="activeTab === 'notes' ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/25' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 min-w-[120px] py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
                         <i data-lucide="sticky-note" class="w-4 h-4"></i> Ghi chú
-                        <span :class="activeTab === 'notes' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $notes->total() }}</span>
+                        <span :class="activeTab === 'notes' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter">{{ $notes->total() }}</span>
                     </button>
-                    <button @click="setTab('assignments')" :class="activeTab === 'assignments' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <button @click="setTab('assignments')" :class="activeTab === 'assignments' ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/25' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 min-w-[120px] py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
                         <i data-lucide="repeat" class="w-4 h-4"></i> Bàn giao
-                        <span :class="activeTab === 'assignments' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $lead->assignments->count() }}</span>
+                        <span :class="activeTab === 'assignments' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter">{{ $lead->assignments?->count() ?? 0 }}</span>
                     </button>
-                    <button @click="setTab('tasks')" :class="activeTab === 'tasks'" :class="activeTab === 'tasks' ? 'bg-primary-600 text-white shadow-lg shadow-primary-500/20' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 py-3 text-sm font-bold rounded-2xl transition-all flex items-center justify-center gap-2">
+                    <button @click="setTab('tasks')" :class="activeTab === 'tasks' ? 'bg-primary-600 text-white shadow-xl shadow-primary-500/25' : 'text-slate-500 hover:bg-slate-50'" class="flex-1 min-w-[120px] py-3 text-sm font-black rounded-xl transition-all flex items-center justify-center gap-2">
                         <i data-lucide="check-square" class="w-4 h-4"></i> Nhiệm vụ
-                        <span :class="activeTab === 'tasks' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[10px]">{{ $tasks->count() }}</span>
+                        <span :class="activeTab === 'tasks' ? 'bg-white/20' : 'bg-slate-100'" class="px-2 py-0.5 rounded-full text-[9px] font-black tracking-tighter">{{ $tasks?->count() ?? 0 }}</span>
                     </button>
                 </div>
             </div>
 
             {{-- Tab Contents --}}
             <div class="min-h-[400px]">
+                {{-- Lead Info Tab --}}
+                <div x-show="activeTab === 'info'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
+                    <div class="bg-white rounded-[2.5rem] border border-slate-200/60 shadow-xl shadow-slate-200/40 p-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                            {{-- Contact Section --}}
+                            <div class="space-y-6">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-primary-500 rounded-full"></div>
+                                    Thông tin liên hệ
+                                </h4>
+                                <div class="space-y-5">
+                                    <div class="flex items-center gap-4 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                            <i data-lucide="phone" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Điện thoại</p>
+                                            <p class="text-[15px] font-black text-slate-800">{{ $lead->phone }}</p>
+                                        </div>
+                                    </div>
+                                    @if($lead->email)
+                                    <div class="flex items-center gap-4 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                            <i data-lucide="mail" class="w-6 h-6"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Email</p>
+                                            <p class="text-[15px] font-black text-slate-800 truncate" title="{{ $lead->email }}">{{ $lead->email }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @if($lead->dob)
+                                    <div class="flex items-center gap-4 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                            <i data-lucide="cake" class="w-6 h-6"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Ngày sinh</p>
+                                            <p class="text-[15px] font-black text-slate-800">{{ \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+
+                            {{-- Marketing Section --}}
+                            <div class="space-y-6">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-orange-500 rounded-full"></div>
+                                    Marketing & Nguồn
+                                </h4>
+                                <div class="grid grid-cols-1 gap-4">
+                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-orange-200 transition-colors">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Nguồn khách hàng</p>
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="share-2" class="w-4 h-4 text-orange-400"></i>
+                                            <span class="text-sm font-black text-slate-800">{{ $lead->leadSource?->name ?? '—' }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="p-6 bg-slate-50 rounded-3xl border border-slate-100 hover:border-violet-200 transition-colors">
+                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Phân loại nhu cầu</p>
+                                        <div class="flex items-center gap-2">
+                                            <i data-lucide="list-todo" class="w-4 h-4 text-violet-400"></i>
+                                            <span class="text-sm font-black text-slate-800">{{ $lead->interestType?->name ?? '—' }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- System Section --}}
+                            <div class="space-y-6">
+                                <h4 class="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] flex items-center gap-2">
+                                    <div class="w-1.5 h-4 bg-emerald-500 rounded-full"></div>
+                                    Vận hành hệ thống
+                                </h4>
+                                <div class="space-y-4">
+                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-emerald-50/20 transition-colors">
+                                        <span class="text-xs font-bold text-slate-500">Cơ sở vận hành</span>
+                                        <span class="text-xs font-black text-slate-800">
+                                            @if($lead->center) [{{ $lead->center->code }}] {{ $lead->center->name }} @else — @endif
+                                        </span>
+                                    </div>
+                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-primary-50/20 transition-colors">
+                                        <span class="text-xs font-bold text-slate-500">Người phụ trách</span>
+                                        <span class="text-xs font-black text-primary-600">
+                                            {{ $lead->assignTo->name ?? 'Chưa gán' }}
+                                        </span>
+                                    </div>
+                                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-slate-50 transition-colors">
+                                        <span class="text-xs font-bold text-slate-500">Thời gian tạo</span>
+                                        <span class="text-xs font-black text-slate-800">{{ $lead->created_at?->format('H:i - d/m/Y') }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Campaign Banner --}}
+                        <div class="mt-8 p-6 bg-gradient-to-r from-primary-600 to-indigo-700 rounded-[2rem] text-white flex items-center justify-between shadow-lg shadow-primary-500/20">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+                                    <i data-lucide="megaphone" class="w-8 h-8"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-0.5">Chiến dịch Marketing hiện tại</p>
+                                    @php $campaign = $lead->campaign_id ? $campaigns->firstWhere('id', $lead->campaign_id) : null; @endphp
+                                    <h5 class="text-xl font-black">{{ $campaign?->name ?? 'Chưa tham gia chiến dịch nào' }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div x-show="activeTab === 'timeline'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     @if($activities->isEmpty())
                         <div class="bg-white rounded-[2.5rem] p-12 text-center border border-slate-100 shadow-sm group">
@@ -550,7 +579,7 @@
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('leadDetailStore', () => ({
-            activeTab: 'timeline',
+            activeTab: 'info',
             showTaskModal: false,
             
             setTab(tab) {
