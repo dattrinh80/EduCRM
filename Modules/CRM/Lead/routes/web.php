@@ -17,6 +17,7 @@ Route::prefix('admin/leads')
         Route::post('/bulk-update', [LeadWebController::class, 'bulkUpdate'])->name('bulk-update')->middleware('permission:leads.update');
         Route::post('/merge', [LeadWebController::class, 'merge'])->name('merge')->middleware('permission:leads.update');
         Route::get('/export', [LeadWebController::class, 'export'])->name('export')->middleware('permission:leads.export');
+        Route::patch('/update-status', [LeadWebController::class, 'updateStatus'])->name('update-status')->middleware('permission:leads.update');
 
         // Lead Detail + sub-resources
         Route::get('/{id}', [LeadWebController::class, 'show'])->name('show')->middleware('permission:leads.view');

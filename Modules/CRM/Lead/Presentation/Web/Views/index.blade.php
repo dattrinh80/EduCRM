@@ -46,6 +46,18 @@
                 </div>
             </div>
             @endcan
+            <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
+                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'list'])) }}" 
+                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                    <i data-lucide="list" class="w-4 h-4"></i>
+                    Danh sách
+                </a>
+                <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'kanban'])) }}" 
+                   class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'kanban' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
+                    <i data-lucide="layout-kanban" class="w-4 h-4"></i>
+                    Kanban
+                </a>
+            </div>
             @can('leads.create')
             <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-5 py-2.5 bg-slate-50 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-all duration-300 flex items-center gap-2 border border-slate-200 font-bold shadow-sm whitespace-nowrap active:scale-95">
                 <i data-lucide="file-down" class="w-4 h-4 opacity-70"></i>
@@ -62,6 +74,7 @@
     <!-- Filter/Search -->
     <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
         <form action="{{ route('admin.leads.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
+            <input type="hidden" name="view" value="{{ $view }}">
             <div class="w-full md:w-1/4">
                 <label for="search" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ tên</label>
                 <div class="relative w-full group">
@@ -119,9 +132,11 @@
         </form>
     </div>
 
-    <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-        @if($leads->isEmpty())
+    <!-- Data List / Kanban -->
+    <div class="{{ $view === 'list' ? 'bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden' : '' }}">
+        @if($view === 'kanban')
+            @include('lead::kanban')
+        @elseif($leads->isEmpty())
         <div class="p-16 text-center">
             <div class="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-6 transform rotate-3 group-hover:rotate-0 transition-all duration-500 shadow-inner">
                 <i data-lucide="users-2" class="w-12 h-12 text-slate-300"></i>

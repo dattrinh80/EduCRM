@@ -16,6 +16,10 @@ use Modules\CRM\Lead\Application\Queries\GetLeadByIdQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadByIdHandler;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedQuery;
 use Modules\CRM\Lead\Application\Queries\GetLeadsPaginatedHandler;
+use Modules\CRM\Lead\Application\Queries\GetLeadsForKanbanQuery;
+use Modules\CRM\Lead\Application\Queries\GetLeadsForKanbanHandler;
+use Modules\CRM\Lead\Application\Commands\UpdateLeadStatusCommand;
+use Modules\CRM\Lead\Application\Commands\UpdateLeadStatusHandler;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 use Modules\Marketing\LeadSource\Application\Queries\GetLeadSourcesQuery;
@@ -176,6 +180,7 @@ class LeadWebController extends Controller
     public function index(
         Request $request, 
         GetLeadsPaginatedHandler $handler, 
+        GetLeadsForKanbanHandler $kanbanHandler,
         GetActiveCentersHandler $centersHandler,
         GetLeadSourcesHandler $leadSourcesHandler,
         GetInterestTypesHandler $interestTypesHandler,
@@ -184,6 +189,7 @@ class LeadWebController extends Controller
         GetLeadStatusesHandler $statusesHandler,
         GetLeadTagsHandler $tagsHandler
     ) {
+        $view = $request->query('view', 'list');
         $perPage = PaginationHelper::resolvePerPage((int) $request->query('per_page'));
         $page = (int) $request->query('page', 1);
 
@@ -195,8 +201,15 @@ class LeadWebController extends Controller
         $sortBy = $request->query('sort_by');
         $sortDir = PaginationHelper::resolveSortDirection($request->query('sort_dir'));
 
-        $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $statusId, $sortBy, $sortDir);
-        $leads = $handler->handle($query);
+        if ($view === 'kanban') {
+            $kanbanQuery = new GetLeadsForKanbanQuery($search, $phone, $centerId, $statusId);
+            $kanbanData = $kanbanHandler->handle($kanbanQuery);
+            $leads = collect(); // Dummy for list pagination compatibility
+        } else {
+            $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $statusId, $sortBy, $sortDir);
+            $leads = $handler->handle($query);
+            $kanbanData = collect();
+        }
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
         $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
@@ -210,10 +223,26 @@ class LeadWebController extends Controller
         try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::index', compact(
-            'leads', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+            'leads', 'kanbanData', 'view',
+            'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
             'isGlobalScope', 'search', 'phone', 'centerId', 'statusId',
             'sortBy', 'sortDir', 'perPage'
         ));
+    }
+
+    public function updateStatus(Request $request, UpdateLeadStatusHandler $handler)
+    {
+        try {
+            $handler->handle(new UpdateLeadStatusCommand(
+                (string) $request->lead_id,
+                (string) $request->status_id,
+                (string) auth()->id()
+            ));
+
+            return response()->json(['success' => true, 'message' => 'Cập nhật trạng thái thành công']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
+        }
     }
 
     public function export(
