@@ -21,7 +21,7 @@ class UpdateLeadStatusHandler implements CommandHandler
     ) {
     }
 
-    public function handle(Command $command): void
+    public function handle(Command $command): mixed
     {
         /** @var UpdateLeadStatusCommand $command */
         
@@ -32,7 +32,7 @@ class UpdateLeadStatusHandler implements CommandHandler
 
         $oldStatusId = $lead->statusId;
         if ($oldStatusId === $command->statusId) {
-            return;
+            return null;
         }
 
         $newStatus = $this->statusRepository->findById($command->statusId);
@@ -43,10 +43,10 @@ class UpdateLeadStatusHandler implements CommandHandler
         $oldStatus = $this->statusRepository->findById($oldStatusId);
 
         // Update the domain object
-        $lead->updateStatus($command->statusId, $newStatus->stage);
+        $lead->setStatus($command->statusId, $newStatus->stage, $oldStatus?->stage);
         
         // Persist
-        $this->repository->save($lead);
+        $this->repository->update($lead);
 
         // Log the change
         $activity = LeadActivity::create(
@@ -57,5 +57,6 @@ class UpdateLeadStatusHandler implements CommandHandler
             $command->updatedBy
         );
         $this->activityRepository->save($activity);
+        return null;
     }
 }
