@@ -84,6 +84,7 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
     
     public function getCurrentScopeRoles(string $userId, string $scopeLevel = 'SYSTEM', ?string $scopeId = null): array
     {
+        // 1. Get roles specific to the current scope level and ID
         $query = DB::table('user_roles')
             ->join('roles', 'user_roles.role_id', '=', 'roles.id')
             ->where('user_roles.user_id', $userId)
@@ -93,6 +94,18 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
             $query->where('user_roles.scope_id', $scopeId);
         }
 
-        return $query->pluck('roles.name')->toArray();
+        $specificRoles = $query->pluck('roles.name')->toArray();
+
+        // 2. If we have specific roles for this scope, return them (e.g., "Manager" in a center)
+        if (!empty($specificRoles)) {
+            return array_unique($specificRoles);
+        }
+
+        // 3. If no specific roles found, fall back to SYSTEM (Global) roles
+        if ($scopeLevel !== 'SYSTEM') {
+            return $this->getCurrentScopeRoles($userId, 'SYSTEM');
+        }
+
+        return [];
     }
 }
