@@ -288,8 +288,8 @@ class LeadWebController extends Controller
 
         $format = $request->query('format', 'excel');
 
-        $centers = $centersHandler->handle(new GetActiveCentersQuery());
-        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $centers = $centersHandler->handle(new GetActiveCentersQuery())->pluck('name', 'id')->toArray();
+        $users = $usersHandler->handle(new GetAllUsersQuery())->pluck('name', 'id')->toArray();
 
         if ($format === 'pdf') {
             $pdf = Pdf::loadView('lead::exports.pdf', [

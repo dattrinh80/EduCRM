@@ -107,7 +107,7 @@
                 <td class="col-phone">{{ $lead->phone }}</td>
                 <td class="col-email">{{ $lead->email }}</td>
                 <td class="col-dob">{{ $lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('d/m/Y') : '' }}</td>
-                <td class="col-source">{{ $lead->source?->name ?? '' }}</td>
+                <td class="col-source">{{ $lead->leadSource?->name ?? '' }}</td>
                 <td class="col-interest">{{ $lead->interestType?->name ?? '' }}</td>
                 <td class="col-status">
                     {{ $lead->leadStatus?->name ?? 'N/A' }}
