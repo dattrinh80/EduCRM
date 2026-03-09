@@ -81,4 +81,18 @@ class DatabaseAuthorizationService implements AuthorizationServiceInterface
             ->where('role_id', $systemOwnerRole)
             ->exists();
     }
+    
+    public function getCurrentScopeRoles(string $userId, string $scopeLevel = 'SYSTEM', ?string $scopeId = null): array
+    {
+        $query = DB::table('user_roles')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+            ->where('user_roles.user_id', $userId)
+            ->where('user_roles.scope_type', $scopeLevel);
+
+        if ($scopeLevel !== 'SYSTEM' && $scopeId !== null) {
+            $query->where('user_roles.scope_id', $scopeId);
+        }
+
+        return $query->pluck('roles.name')->toArray();
+    }
 }

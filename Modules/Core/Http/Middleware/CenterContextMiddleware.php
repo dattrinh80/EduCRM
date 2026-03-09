@@ -70,6 +70,15 @@ class CenterContextMiddleware
         app()->instance('has_global_scope', $hasGlobalScope);
         app()->instance('allowed_center_ids', $allowedCenterIds);
 
+        // Fetch current roles for the active scope
+        $currentRoles = [];
+        try {
+            $scopeLevel = session('active_scope_level', 'SYSTEM');
+            $scopeId = session('active_scope_id');
+            $currentRoles = $authService->getCurrentScopeRoles($user->id, $scopeLevel, $scopeId);
+        } catch (\Exception $e) {}
+        app()->instance('current_scope_roles', $currentRoles);
+
         return $next($request);
     }
 }

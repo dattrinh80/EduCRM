@@ -487,7 +487,12 @@
                     <div class="relative flex items-center gap-3" x-data="{ open: false }" @click.away="open = false">
                         <div class="hidden sm:flex flex-col items-end cursor-pointer" @click="open = !open">
                             <p class="text-sm font-bold text-slate-800 leading-tight">{{ Auth::user()->name ?? 'Người dùng' }}</p>
-                            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider opacity-70">{{ Auth::user()->roles->first()?->name ?? 'Staff' }}</p>
+                            @php
+                                $displayRoles = [];
+                                try { $displayRoles = app('current_scope_roles'); } catch (\Exception $e) {}
+                                $roleDisplay = !empty($displayRoles) ? implode(', ', $displayRoles) : (Auth::user()?->roles->first()?->name ?? 'Staff');
+                            @endphp
+                            <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider opacity-70">{{ $roleDisplay }}</p>
                         </div>
                         
                         <div @click="open = !open" class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-sm border border-indigo-200 shadow-sm cursor-pointer hover:shadow-md transition-all active:scale-95">
