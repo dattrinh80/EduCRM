@@ -137,9 +137,9 @@
                             <i data-lucide="megaphone" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
                             <select name="campaign_id" class="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none appearance-none">
                                 <option value="">-- Không thuộc chiến dịch --</option>
-                                @foreach($campaigns as $campaign)
-                                    <option value="{{ $campaign->id }}" {{ old('campaign_id', $lead->campaign_id) == $campaign->id ? 'selected' : '' }}>{{ $campaign->name }}</option>
-                                @endforeach
+                                <template x-for="c in allCampaigns.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
+                                    <option :value="c.id" x-text="c.name" :selected="c.id == '{{ $lead->campaign_id }}'"></option>
+                                </template>
                             </select>
                             <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
                         </div>
@@ -173,26 +173,12 @@
             <div class="space-y-6">
                 <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em] mb-4">Hệ thống & Phụ trách</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="text-xs font-bold text-slate-600 ml-1">Nhân sự phụ trách</label>
-                        <div class="relative group">
-                            <i data-lucide="user-check" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <select name="assigned_to" class="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none appearance-none">
-                                <option value="">-- Để trống (Chưa bàn giao) --</option>
-                                @foreach($users as $user)
-                                    <option value="{{ $user->id }}" {{ old('assigned_to', $lead->assigned_to) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                                @endforeach
-                            </select>
-                            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                        </div>
-                    </div>
-
                     @if($isGlobalScope)
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-slate-600 ml-1">Cơ sở vận hành <span class="text-red-500">*</span></label>
                         <div class="relative group">
                             <i data-lucide="building-2" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                            <select name="center_id" required class="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none appearance-none">
+                            <select name="center_id" required x-model="selectedCenterId" class="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none appearance-none">
                                 @foreach($centers as $center)
                                     <option value="{{ $center->id }}" {{ old('center_id', $lead->center_id) == $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
                                 @endforeach
@@ -201,6 +187,20 @@
                         </div>
                     </div>
                     @endif
+
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-600 ml-1">Nhân sự phụ trách</label>
+                        <div class="relative group">
+                            <i data-lucide="user-check" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
+                            <select name="assigned_to" class="w-full pl-12 pr-10 py-3 bg-slate-50 border border-slate-100 rounded-2xl text-sm focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all outline-none appearance-none">
+                                <option value="">-- Để trống (Chưa bàn giao) --</option>
+                                <template x-for="u in allUsers.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
+                                    <option :value="u.id" x-text="u.name" :selected="u.id == '{{ $lead->assigned_to }}'"></option>
+                                </template>
+                            </select>
+                            <i data-lucide="chevron-down" class="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -220,7 +220,9 @@
 <script>
     function leadEditStore() {
         return {
-            // Add any form logic if needed
+            selectedCenterId: '{{ old('center_id', $lead->center_id) }}',
+            allCampaigns: {!! json_encode($campaigns->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'center_id' => $c->center_id])) !!},
+            allUsers: {!! json_encode($users->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'center_id' => $u->default_center_id])) !!},
         };
     }
     document.addEventListener('alpine:initialized', () => { setTimeout(() => lucide.createIcons(), 100); });

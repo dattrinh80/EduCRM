@@ -85,11 +85,16 @@ class LeadWebController extends Controller
         $activities = $activitiesHandler->handle(new GetLeadActivitiesQuery($id, 50));
         $notes = $notesHandler->handle(new GetLeadNotesQuery($id, 50));
 
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        $usersQueryCenterId = $isGlobalScope ? null : (app()->has('center_id') ? app('center_id') : null);
+
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
         $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
-        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
         $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
         $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
         
@@ -98,9 +103,6 @@ class LeadWebController extends Controller
             relationId: $id,
             relationType: 'Lead'
         ));
-
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::detail', compact(
             'lead', 'activities', 'notes', 'tasks',
@@ -129,16 +131,18 @@ class LeadWebController extends Controller
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
         }
 
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        $usersQueryCenterId = $isGlobalScope ? null : (app()->has('center_id') ? app('center_id') : null);
+
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
         $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
-        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
         $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
         $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
-
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::edit', compact(
             'lead', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
@@ -218,16 +222,18 @@ class LeadWebController extends Controller
             $kanbanData = collect();
         }
 
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        $usersQueryCenterId = $isGlobalScope ? null : (app()->has('center_id') ? app('center_id') : null);
+        
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
         $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
         $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
         $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
-        $users = $usersHandler->handle(new GetAllUsersQuery());
+        $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
         $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
         $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
-
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
 
         return view('lead::index', compact(
             'leads', 'kanbanData', 'view',

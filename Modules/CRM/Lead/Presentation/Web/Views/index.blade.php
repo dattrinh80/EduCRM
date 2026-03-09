@@ -227,7 +227,7 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($leads as $lead)
-                        <tr class="hover:bg-slate-50 transition group" :class="{ 'bg-primary-50/30': selectedItems.includes('{{ $lead->id }}') }" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }} }">
+                        <tr class="hover:bg-slate-50 transition group" :class="{ 'bg-primary-50/30': selectedItems.includes('{{ $lead->id }}') }" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }}, selectedCenterId: '{{ $lead->center_id }}' }">
                             <td class="p-4 px-6 whitespace-nowrap">
                                 <input type="checkbox" value="{{ $lead->id }}" x-model="selectedItems" class="rounded border-slate-300 text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer">
                             </td>
@@ -451,29 +451,12 @@
                                                     </div>
 
                                                         <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chưa giao --</option>
-                                                                    @foreach($users as $user)
-                                                                        <option value="{{ $user->id }}" {{ (old('lead_id') == $lead->id ? old('assigned_to') : $lead->assigned_to) === $user->id ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
                                                         @if($isGlobalScope)
                                                         <div class="space-y-1">
                                                             <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
                                                             <div class="relative">
                                                                 <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                <select name="center_id" required x-model="selectedCenterId" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                                                     <option value="">-- Chọn cơ sở --</option>
                                                                     @foreach($centers as $center)
                                                                         <option value="{{ $center->id }}" {{ (old('lead_id') == $lead->id ? old('center_id') : $lead->center_id) === $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
@@ -486,7 +469,24 @@
                                                             @endif
                                                         </div>
                                                         @endif
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
+                                                            <div class="relative">
+                                                                <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                                                    <option value="">-- Chưa giao --</option>
+                                                                    <template x-for="u in allUsers.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
+                                                                        <option :value="u.id" x-text="u.name" :selected="u.id == '{{ $lead->assigned_to }}'"></option>
+                                                                    </template>
+                                                                </select>
+                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                                                            </div>
+                                                            @if(old('lead_id') == $lead->id)
+                                                                @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                                                            @endif
                                                         </div>
+                                                    </div>
                                                     
                                                     <div class="grid grid-cols-2 gap-4">
                                                         <div class="space-y-1">
@@ -494,10 +494,10 @@
                                                             <div class="relative">
                                                                 <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                                                 <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn chiến dịch --</option>
-                                                                    @foreach($campaigns as $campaign)
-                                                                        <option value="{{ $campaign->id }}" {{ (old('lead_id') == $lead->id ? old('campaign_id') : $lead->campaign_id) === $campaign->id ? 'selected' : '' }}>{{ $campaign->name }}</option>
-                                                                    @endforeach
+                                                                    <option value="">-- Chọn chiến dịch/category --</option>
+                                                                    <template x-for="c in allCampaigns.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
+                                                                        <option :value="c.id" x-text="c.name" :selected="c.id == '{{ $lead->campaign_id }}'"></option>
+                                                                    </template>
                                                                 </select>
                                                                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                                             </div>
@@ -683,10 +683,10 @@
                         <div class="grid grid-cols-2 gap-4">
                             @if($isGlobalScope)
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Cơ sở <span class="text-red-500">*</span></label>
                                 <div class="relative">
                                     <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
+                                    <select name="center_id" required x-model="createModalCenterId" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                         <option value="">-- Chọn cơ sở --</option>
                                         @foreach($centers as $center)
                                             <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
@@ -701,14 +701,14 @@
                             @endif
 
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Người phụ trách</label>
                                 <div class="relative">
                                     <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                     <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
                                         <option value="">-- Chưa giao --</option>
-                                        @foreach($users as $user)
-                                            <option value="{{ $user->id }}" {{ (!old('_method') && old('assigned_to') === $user->id) ? 'selected' : '' }}>{{ $user->name }} ({{ $user->email }})</option>
-                                        @endforeach
+                                        <template x-for="u in allUsers.filter(i => !createModalCenterId || i.center_id == createModalCenterId || !i.center_id)">
+                                            <option :value="u.id" x-text="u.name" :selected="u.id == '{{ old('assigned_to') }}'"></option>
+                                        </template>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                 </div>
@@ -720,14 +720,14 @@
 
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Chiến dịch</label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Chiến dịch</label>
                                 <div class="relative">
                                     <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                     <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn chiến dịch --</option>
-                                        @foreach($campaigns as $campaign)
-                                            <option value="{{ $campaign->id }}" {{ (!old('_method') && old('campaign_id') === $campaign->id) ? 'selected' : '' }}>{{ $campaign->name }}</option>
-                                        @endforeach
+                                        <option value="">-- Chọn chiến dịch/category --</option>
+                                        <template x-for="c in allCampaigns.filter(i => !createModalCenterId || i.center_id == createModalCenterId || !i.center_id)">
+                                            <option :value="c.id" x-text="c.name" :selected="c.id == '{{ old('campaign_id') }}'"></option>
+                                        </template>
                                     </select>
                                     <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
                                 </div>
@@ -1165,8 +1165,14 @@
 @push('scripts')
 <script>
     window.allLeads = {!! json_encode($leads->map(fn($l) => ['id' => $l->id, 'name' => $l->name, 'phone' => $l->phone])) !!};
+    window.allCampaigns = {!! json_encode($campaigns->map(fn($c) => ['id' => $c->id, 'name' => $c->name, 'center_id' => $c->center_id])) !!};
+    window.allUsers = {!! json_encode($users->map(fn($u) => ['id' => $u->id, 'name' => $u->name, 'center_id' => $u->default_center_id])) !!};
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('leadManagementStore', () => ({
+            allCampaigns: window.allCampaigns,
+            allUsers: window.allUsers,
+            createModalCenterId: '{{ old('center_id') }}',
             showCreateModal: {{ $errors->any() && !old('_method') && !old('import') && !old('assign') && !old('merge') && !old('bulk_update') ? 'true' : 'false' }}, 
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
             showAssignModal: {{ $errors->any() && old('assign') ? 'true' : 'false' }},
