@@ -18,6 +18,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     
     <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <!-- Chart.js -->
@@ -165,6 +166,21 @@
             margin-bottom: 0.5rem;
             padding: 0 1rem;
             opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s;
+        }
+
+        .sidebar-group-title:hover {
+            color: hsl(222, 47%, 70%);
+            opacity: 1;
+        }
+
+        .sidebar-group-title i {
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .sidebar-link {
@@ -262,75 +278,124 @@
                 </a>
 
                 <!-- CRM Section -->
-                <div class="sidebar-group-title">CRM & Tuyển sinh</div>
-                @can('leads.view')
-                <a href="{{ url('/admin/leads') }}" class="sidebar-link {{ request()->is('admin/leads*') ? 'active' : '' }}">
-                    <i data-lucide="contact" class="w-5 h-5 text-emerald-400/80"></i>
-                    <span>Khách hàng tiềm năng</span>
-                </a>
-                <a href="{{ route('admin.tasks.index') }}" class="sidebar-link {{ request()->is('admin/tasks*') ? 'active' : '' }}">
-                    <i data-lucide="check-square" class="w-5 h-5 text-amber-400/80"></i>
-                    <span>Nhiệm vụ & Công việc</span>
-                </a>
-                @endcan
-                <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}">
-                    <i data-lucide="users" class="w-5 h-5 text-blue-400/80"></i>
-                    <span>Phụ huynh & Học sinh</span>
-                </a>
-                <a href="{{ route('admin.lead-tags.index') }}" class="sidebar-link {{ request()->is('admin/lead-tags*') ? 'active' : '' }}">
-                    <i data-lucide="tags" class="w-5 h-5 text-slate-400/80"></i>
-                    <span>Cấu hình Label/Tags</span>
-                </a>
+                @php
+                    $crmActive = request()->is('admin/leads*') || request()->is('admin/tasks*') || request()->is('admin/customers*') || request()->is('admin/lead-tags*');
+                @endphp
+                <div x-data="{ expanded: localStorage.getItem('menu_crm_expanded') === null ? true : localStorage.getItem('menu_crm_expanded') === 'true' || {{ $crmActive ? 'true' : 'false' }} }">
+                    <div @click="expanded = !expanded; localStorage.setItem('menu_crm_expanded', expanded)" class="sidebar-group-title">
+                        <span>CRM & Tuyển sinh</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-50" :class="expanded ? '' : '-rotate-90'"></i>
+                    </div>
+                    <div x-show="expanded" x-collapse>
+                        <div class="space-y-1">
+                            @can('leads.view')
+                            <a href="{{ url('/admin/leads') }}" class="sidebar-link {{ request()->is('admin/leads*') ? 'active' : '' }}">
+                                <i data-lucide="contact" class="w-5 h-5 text-emerald-400/80"></i>
+                                <span>Khách hàng tiềm năng</span>
+                            </a>
+                            <a href="{{ route('admin.tasks.index') }}" class="sidebar-link {{ request()->is('admin/tasks*') ? 'active' : '' }}">
+                                <i data-lucide="check-square" class="w-5 h-5 text-amber-400/80"></i>
+                                <span>Nhiệm vụ & Công việc</span>
+                            </a>
+                            @endcan
+                            <a href="{{ route('admin.customers.index') }}" class="sidebar-link {{ request()->is('admin/customers*') ? 'active' : '' }}">
+                                <i data-lucide="users" class="w-5 h-5 text-blue-400/80"></i>
+                                <span>Phụ huynh & Học sinh</span>
+                            </a>
+                            <a href="{{ route('admin.lead-tags.index') }}" class="sidebar-link {{ request()->is('admin/lead-tags*') ? 'active' : '' }}">
+                                <i data-lucide="tags" class="w-5 h-5 text-slate-400/80"></i>
+                                <span>Cấu hình Label/Tags</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Education Section -->
-                <div class="sidebar-group-title">Đào tạo & Học vụ</div>
-                @can('students.view')
-                <a href="{{ route('admin.students.index') }}" class="sidebar-link {{ request()->is('admin/students*') ? 'active' : '' }}">
-                    <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-400/80"></i>
-                    <span>Hồ sơ học viên</span>
-                </a>
-                @endcan
+                @php
+                    $eduActive = request()->is('admin/students*');
+                @endphp
+                <div x-data="{ expanded: localStorage.getItem('menu_edu_expanded') === null ? true : localStorage.getItem('menu_edu_expanded') === 'true' || {{ $eduActive ? 'true' : 'false' }} }">
+                    <div @click="expanded = !expanded; localStorage.setItem('menu_edu_expanded', expanded)" class="sidebar-group-title">
+                        <span>Đào tạo & Học vụ</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-50" :class="expanded ? '' : '-rotate-90'"></i>
+                    </div>
+                    <div x-show="expanded" x-collapse>
+                        <div class="space-y-1">
+                            @can('students.view')
+                            <a href="{{ route('admin.students.index') }}" class="sidebar-link {{ request()->is('admin/students*') ? 'active' : '' }}">
+                                <i data-lucide="graduation-cap" class="w-5 h-5 text-indigo-400/80"></i>
+                                <span>Hồ sơ học viên</span>
+                            </a>
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+                
                 <!-- Marketing Section -->
-                <div class="sidebar-group-title">Marketing & Thiết lập</div>
-                <a href="{{ route('admin.campaigns.index') }}" class="sidebar-link {{ request()->is('admin/campaigns*') ? 'active' : '' }}">
-                    <i data-lucide="megaphone" class="w-5 h-5 text-indigo-400/80"></i>
-                    <span>Chiến dịch Marketing</span>
-                </a>
-                <a href="{{ route('admin.lead-sources.index') }}" class="sidebar-link {{ request()->is('admin/lead-sources*') ? 'active' : '' }}">
-                    <i data-lucide="external-link" class="w-5 h-5 text-sky-400/80"></i>
-                    <span>Nguồn khách hàng</span>
-                </a>
-                @can('interest_types.view')
-                <a href="{{ route('admin.interest-types.index') }}" class="sidebar-link {{ request()->is('admin/interest-types*') ? 'active' : '' }}">
-                    <i data-lucide="list-todo" class="w-5 h-5 text-amber-400/80"></i>
-                    <span>Dịch vụ & Nhu cầu</span>
-                </a>
-                @endcan
+                @php
+                    $mktActive = request()->is('admin/campaigns*') || request()->is('admin/lead-sources*') || request()->is('admin/interest-types*');
+                @endphp
+                <div x-data="{ expanded: localStorage.getItem('menu_mkt_expanded') === null ? true : localStorage.getItem('menu_mkt_expanded') === 'true' || {{ $mktActive ? 'true' : 'false' }} }">
+                    <div @click="expanded = !expanded; localStorage.setItem('menu_mkt_expanded', expanded)" class="sidebar-group-title">
+                        <span>Marketing & Thiết lập</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-50" :class="expanded ? '' : '-rotate-90'"></i>
+                    </div>
+                    <div x-show="expanded" x-collapse>
+                        <div class="space-y-1">
+                            <a href="{{ route('admin.campaigns.index') }}" class="sidebar-link {{ request()->is('admin/campaigns*') ? 'active' : '' }}">
+                                <i data-lucide="megaphone" class="w-5 h-5 text-indigo-400/80"></i>
+                                <span>Chiến dịch Marketing</span>
+                            </a>
+                            <a href="{{ route('admin.lead-sources.index') }}" class="sidebar-link {{ request()->is('admin/lead-sources*') ? 'active' : '' }}">
+                                <i data-lucide="external-link" class="w-5 h-5 text-sky-400/80"></i>
+                                <span>Nguồn khách hàng</span>
+                            </a>
+                            @can('interest_types.view')
+                            <a href="{{ route('admin.interest-types.index') }}" class="sidebar-link {{ request()->is('admin/interest-types*') ? 'active' : '' }}">
+                                <i data-lucide="list-todo" class="w-5 h-5 text-amber-400/80"></i>
+                                <span>Dịch vụ & Nhu cầu</span>
+                            </a>
+                            @endcan
+                        </div>
+                    </div>
+                </div>
 
                 <!-- System Section -->
-                <div class="sidebar-group-title">Cấu hình & Hệ thống</div>
-                @can('centers.view')
-                <a href="{{ route('admin.centers.index') }}" class="sidebar-link {{ request()->is('admin/centers*') ? 'active' : '' }}">
-                    <i data-lucide="building-2" class="w-5 h-5 text-slate-400/80"></i>
-                    <span>Danh sách cơ sở</span>
-                </a>
-                @endcan
-                @can('users.view')
-                <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->is('admin/users*') ? 'active' : '' }}">
-                    <i data-lucide="user-cog" class="w-5 h-5 text-slate-400/80"></i>
-                    <span>Nhân sự & Tài khoản</span>
-                </a>
-                @endcan
-                @can('roles.view')
-                <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->is('admin/roles*') ? 'active' : '' }}">
-                    <i data-lucide="shield-check" class="w-5 h-5 text-rose-400/80"></i>
-                    <span>Quyền hạn hệ thống</span>
-                </a>
-                @endcan
-                <a href="{{ route('admin.permissions.index') }}" class="sidebar-link {{ request()->is('admin/permissions*') ? 'active' : '' }}">
-                    <i data-lucide="key" class="w-5 h-5 text-slate-400/80"></i>
-                    <span>Danh sách Permission</span>
-                </a>
+                @php
+                    $sysActive = request()->is('admin/centers*') || request()->is('admin/users*') || request()->is('admin/roles*') || request()->is('admin/permissions*');
+                @endphp
+                <div x-data="{ expanded: localStorage.getItem('menu_sys_expanded') === null ? true : localStorage.getItem('menu_sys_expanded') === 'true' || {{ $sysActive ? 'true' : 'false' }} }">
+                    <div @click="expanded = !expanded; localStorage.setItem('menu_sys_expanded', expanded)" class="sidebar-group-title">
+                        <span>Cấu hình & Hệ thống</span>
+                        <i data-lucide="chevron-down" class="w-3.5 h-3.5 opacity-50" :class="expanded ? '' : '-rotate-90'"></i>
+                    </div>
+                    <div x-show="expanded" x-collapse>
+                        <div class="space-y-1">
+                            @can('centers.view')
+                            <a href="{{ route('admin.centers.index') }}" class="sidebar-link {{ request()->is('admin/centers*') ? 'active' : '' }}">
+                                <i data-lucide="building-2" class="w-5 h-5 text-slate-400/80"></i>
+                                <span>Danh sách cơ sở</span>
+                            </a>
+                            @endcan
+                            @can('users.view')
+                            <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->is('admin/users*') ? 'active' : '' }}">
+                                <i data-lucide="user-cog" class="w-5 h-5 text-slate-400/80"></i>
+                                <span>Nhân sự & Tài khoản</span>
+                            </a>
+                            @endcan
+                            @can('roles.view')
+                            <a href="{{ route('admin.roles.index') }}" class="sidebar-link {{ request()->is('admin/roles*') ? 'active' : '' }}">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-rose-400/80"></i>
+                                <span>Quyền hạn hệ thống</span>
+                            </a>
+                            @endcan
+                            <a href="{{ route('admin.permissions.index') }}" class="sidebar-link {{ request()->is('admin/permissions*') ? 'active' : '' }}">
+                                <i data-lucide="key" class="w-5 h-5 text-slate-400/80"></i>
+                                <span>Danh sách Permission</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
             </nav>
         </aside>
