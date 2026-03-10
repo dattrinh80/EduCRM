@@ -7,55 +7,56 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Quản lý Người dùng</h1>
-            <p class="text-slate-500 mt-1">Quản lý tài khoản, phân quyền và phạm vi truy cập</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Quản lý Người dùng</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý tài khoản, phân quyền và phạm vi truy cập
+            </p>
         </div>
         @can('users.create')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Tạo Tài khoản</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Tạo Tài khoản
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Search & Filter Bar -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+    <x-ui.card bodyClass="p-4">
         <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div class="relative flex-1">
-                <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Tìm theo tên hoặc email..." class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition">
-            </div>
-            <select name="role_id" class="px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition min-w-[180px] bg-white text-slate-700">
+            <x-ui.input name="search" id="search" placeholder="Tìm theo tên hoặc email..." value="{{ $search ?? '' }}" icon="search" containerClass="flex-1" />
+            
+            <x-ui.select name="role_id" id="role_id" containerClass="sm:w-64">
                 <option value="">Tất cả các quyền</option>
                 @foreach ($roles as $role)
                     <option value="{{ $role->id }}" {{ ($roleId ?? '') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
                 @endforeach
-            </select>
-            <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
-                <i data-lucide="filter" class="w-4 h-4"></i> Filter
-            </button>
-            @if (!empty($search) || !empty($roleId))
-                <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
-                    <i data-lucide="x" class="w-4 h-4"></i> Clear
-                </a>
-            @endif
+            </x-ui.select>
+
+            <div class="flex gap-2">
+                <x-ui.button type="submit" variant="secondary" icon="filter">
+                    Filter
+                </x-ui.button>
+                @if (!empty($search) || !empty($roleId))
+                    <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.users.index'), 'tag' => 'a'])">
+                        Clear
+                    </x-ui.button>
+                @endif
+            </div>
         </form>
-    </div>
+    </x-ui.card>
+
 
     <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if($users->isEmpty())
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="users" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500 mb-4">Không tìm thấy người dùng nào</p>
-            @can('users.create')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Tạo người dùng mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Không tìm thấy người dùng"
+                description="Hệ thống không tìm thấy bất kỳ tài khoản người dùng nào khớp với tiêu chí tìm kiếm."
+                icon="users"
+                actionText="Tạo người dùng mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -299,7 +300,7 @@
         </div>
         @endif
         @endif
-    </div>
+    </x-ui.card>
 
     <!-- Create Modal -->
     @can('users.create')

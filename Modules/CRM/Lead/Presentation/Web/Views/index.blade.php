@@ -13,13 +13,14 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Khách hàng Tiềm năng</h1>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Khách hàng Tiềm năng</h1>
             <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
                 <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
                 Quản lý và theo dõi danh sách khách hàng tiềm năng toàn diện
             </p>
         </div>
-        <div class="flex gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- View Switcher -->
             <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-xl">
                 <a href="{{ route('admin.leads.index', array_merge(request()->query(), ['view' => 'list'])) }}" 
                    class="px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 {{ $view === 'list' ? 'bg-white text-primary-600 shadow-sm' : 'text-slate-500 hover:text-slate-700' }}">
@@ -35,11 +36,9 @@
 
             @can('leads.export')
             <div x-data="{ open: false }" class="relative">
-                <button type="button" @click="open = !open" @click.away="open = false" class="px-5 py-2.5 bg-white text-emerald-700 hover:text-white rounded-xl hover:bg-emerald-600 transition-all duration-300 flex items-center gap-2 border border-emerald-100 shadow-sm hover:shadow-emerald-200/50 font-bold whitespace-nowrap active:scale-95 group">
-                    <i data-lucide="download" class="w-4 h-4 group-hover:bounce"></i>
+                <x-ui.button variant="secondary" icon="download" @click="open = !open" @click.away="open = false" iconRight="chevron-down" ::class="open ? 'ring-2 ring-primary-500/20' : ''">
                     <span class="hidden sm:inline">Xuất dữ liệu</span>
-                    <i data-lucide="chevron-down" class="w-4 h-4 transition-transform" :class="open ? 'rotate-180' : ''"></i>
-                </button>
+                </x-ui.button>
                 <div x-show="open" x-cloak 
                      x-transition:enter="transition ease-out duration-100"
                      x-transition:enter-start="transform opacity-0 scale-95"
@@ -47,12 +46,12 @@
                      x-transition:leave="transition ease-in duration-75"
                      x-transition:leave-start="transform opacity-100 scale-100"
                      x-transition:leave-end="transform opacity-0 scale-95"
-                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-100 py-1 z-50">
-                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
+                     class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-slate-100 py-1 z-50">
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'excel'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-emerald-50 hover:text-emerald-700 transition-colors">
                         <i data-lucide="sheet" class="w-4 h-4 opacity-70"></i>
                         Xuất file Excel
                     </a>
-                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-red-50 hover:text-red-700 transition-colors">
+                    <a href="{{ route('admin.leads.export', array_merge(request()->query(), ['format' => 'pdf'])) }}" class="flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-slate-700 hover:bg-red-50 hover:text-red-700 transition-colors">
                         <i data-lucide="file-text" class="w-4 h-4 opacity-70"></i>
                         Xuất file PDF
                     </a>
@@ -61,97 +60,68 @@
             @endcan
 
             @can('leads.create')
-            <button type="button" @click="showImportModal = true; $dispatch('refresh-icons')" class="px-5 py-2.5 bg-slate-50 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition-all duration-300 flex items-center gap-2 border border-slate-200 font-bold shadow-sm whitespace-nowrap active:scale-95">
-                <i data-lucide="file-down" class="w-4 h-4 opacity-70"></i>
+            <x-ui.button variant="secondary" icon="file-down" @click="showImportModal = true; $dispatch('refresh-icons')">
                 <span class="hidden sm:inline">Nhập Excel</span>
-            </button>
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary-500/25 whitespace-nowrap font-bold active:scale-95 group">
-                <i data-lucide="plus-circle" class="w-5 h-5 group-hover:rotate-90 transition-transform"></i>
-                <span>Thêm Lead mới</span>
-            </button>
+            </x-ui.button>
+            <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+                <span>Thêm Lead</span>
+            </x-ui.button>
             @endcan
         </div>
     </div>
 
+
     <!-- Filter/Search -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
+    <x-ui.card bodyClass="p-4">
         <form action="{{ route('admin.leads.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
             <input type="hidden" name="view" value="{{ $view }}">
-            <div class="w-full md:w-1/4">
-                <label for="search" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Họ tên</label>
-                <div class="relative w-full group">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                    <input type="text" name="search" id="search" placeholder="Số điện thoại, họ tên…" value="{{ request('search') }}"
-                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
-                </div>
-            </div>
-            <div class="w-full md:w-1/4">
-                <label for="phone" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Số điện thoại</label>
-                <div class="relative w-full group">
-                    <i data-lucide="phone" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                    <input type="text" name="phone" id="phone" placeholder="Số điện thoại…" value="{{ request('phone') }}"
-                           class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none tabular-nums">
-                </div>
-            </div>
+            
+            <x-ui.input label="Họ tên" name="search" id="search" placeholder="Số điện thoại, họ tên…" value="{{ request('search') }}" icon="search" containerClass="w-full md:w-1/4" />
+            
+            <x-ui.input label="Số điện thoại" name="phone" id="phone" placeholder="Số điện thoại…" value="{{ request('phone') }}" icon="phone" containerClass="w-full md:w-1/4" :uppercase="true" />
+
             @if($isGlobalScope)
-            <div class="w-full md:w-1/4">
-                <label for="center_id" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cơ sở</label>
-                <div class="relative w-full group">
-                    <i data-lucide="building-2" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                    <select name="center_id" id="center_id" class="w-full pl-10 pr-8 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none">
-                        <option value="">Tất cả cơ sở</option>
-                        @foreach($centers as $c)
-                            <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
-                        @endforeach
-                    </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none opacity-60"></i>
-                </div>
-            </div>
+                <x-ui.select label="Cơ sở" name="center_id" id="center_id" icon="building-2" containerClass="w-full md:w-1/4">
+                    <option value="">Tất cả cơ sở</option>
+                    @foreach($centers as $c)
+                        <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                    @endforeach
+                </x-ui.select>
             @endif
-            <div class="w-full md:w-1/4">
-                <label for="status_id" class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Trạng thái</label>
-                <div class="relative w-full group">
-                    <i data-lucide="list-checks" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                    <select name="status_id" id="status_id" class="w-full pl-10 pr-8 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none">
-                        <option value="">Tất cả trạng thái</option>
-                        @foreach($statuses as $st)
-                            <option value="{{ $st->getId() }}" {{ request('status_id') == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
-                        @endforeach
-                    </select>
-                    <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none opacity-60"></i>
-                </div>
-            </div>
+
+            <x-ui.select label="Trạng thái" name="status_id" id="status_id" icon="list-checks" containerClass="w-full md:w-1/4">
+                <option value="">Tất cả trạng thái</option>
+                @foreach($statuses as $st)
+                    <option value="{{ $st->getId() }}" {{ request('status_id') == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
+                @endforeach
+            </x-ui.select>
+
             <div class="flex gap-2 w-full md:w-auto">
-                <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap">
-                    <i data-lucide="filter" class="w-4 h-4"></i> Lọc
-                </button>
+                <x-ui.button type="submit" variant="secondary" icon="filter">
+                    Lọc
+                </x-ui.button>
                 @if(request()->hasAny(['search', 'phone', 'center_id', 'status_id']))
-                <a href="{{ route('admin.leads.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
-                    <i data-lucide="x-circle" class="w-4 h-4 font-bold"></i> Xoá
-                </a>
+                    <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.leads.index'), 'tag' => 'a'])">
+                        Xoá
+                    </x-ui.button>
                 @endif
             </div>
         </form>
-    </div>
+    </x-ui.card>
+
 
     <!-- Data List / Kanban -->
     <div class="{{ $view === 'list' ? 'bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden' : '' }}">
         @if($view === 'kanban')
             @include('lead::kanban')
         @elseif($leads->isEmpty())
-        <div class="p-16 text-center">
-            <div class="w-24 h-24 rounded-3xl bg-slate-50 flex items-center justify-center mx-auto mb-6 transform rotate-3 group-hover:rotate-0 transition-all duration-500 shadow-inner">
-                <i data-lucide="users-2" class="w-12 h-12 text-slate-300"></i>
-            </div>
-            <h3 class="text-xl font-bold text-slate-800 mb-2">Chưa có khách hàng tiềm năng</h3>
-            <p class="text-slate-500 max-w-sm mx-auto mb-8 font-medium italic">Hệ thống chưa ghi nhận dữ liệu Lead nào khớp với bộ lọc của bạn.</p>
-            @can('leads.create')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 px-6 py-3 bg-primary-500 text-white rounded-xl font-bold hover:bg-primary-600 transition shadow-lg shadow-primary-500/25 active:scale-95">
-                <i data-lucide="plus" class="w-5 h-5"></i> 
-                Tạo Lead mới ngay
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có khách hàng tiềm năng"
+                description="Hệ thống chưa ghi nhận dữ liệu Lead nào khớp với bộ lọc của bạn."
+                icon="users-2"
+                actionText="Tạo Lead mới ngay"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
         <div class="overflow-x-auto">
             <!-- Bulk Action Header -->
