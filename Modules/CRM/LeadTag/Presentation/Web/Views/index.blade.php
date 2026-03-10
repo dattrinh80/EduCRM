@@ -7,32 +7,32 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Nhãn (Tag) Lead</h1>
-            <p class="text-slate-500 mt-1">Phân loại khách hàng bằng nhãn màu sắc</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Thẻ (Tag) Lead</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Phân loại khách hàng bằng hệ thống nhãn màu sắc
+            </p>
         </div>
         @can('leads.update')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Thêm Nhãn Mới</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Thêm Nhãn Mới
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if(empty($tags))
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="tag" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500 mb-4">Chưa có nhãn nào</p>
-            @can('leads.update')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Thêm nhãn mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có nhãn nào"
+                description="Hệ thống chưa có danh mục nhãn lead. Hãy bắt đầu bằng cách thêm nhãn đầu tiên."
+                icon="tag"
+                actionText="Thêm nhãn mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
+
         <div class="p-6">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 @foreach ($tags as $tag)
@@ -116,7 +116,8 @@
             </div>
         </div>
         @endif
-    </div>
+    </x-ui.card>
+
 
     <!-- Create Modal -->
     @can('leads.update')

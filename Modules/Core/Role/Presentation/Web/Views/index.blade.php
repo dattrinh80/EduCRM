@@ -4,36 +4,39 @@
 
 @section('content')
 <div class="space-y-6" x-data="{ showCreateModal: {{ $errors->any() && !old('_method') ? 'true' : 'false' }} }">
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Quản lý Phân quyền</h1>
-            <p class="text-slate-500 mt-1">Quản lý các nhóm quyền (Roles) và chi tiết quyền (Permissions)</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Quản lý Phân quyền</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý các nhóm quyền (Roles) và chi tiết quyền (Permissions) của hệ thống
+            </p>
         </div>
         @can('roles.create')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Thêm Role mới</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Thêm Role mới
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Search -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-4">
+    <x-ui.card bodyClass="p-4">
         <form action="{{ route('admin.roles.index') }}" method="GET" class="flex items-center gap-3">
-            <div class="relative flex-1">
-                <i data-lucide="search" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Tìm kiếm tên role..." class="w-full pl-10 pr-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition bg-white text-slate-700">
-            </div>
-            <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
-                <i data-lucide="filter" class="w-4 h-4"></i> Filter
-            </button>
+            <x-ui.input name="search" id="search" placeholder="Tìm kiếm tên role..." value="{{ $search ?? '' }}" icon="search" containerClass="flex-1" />
+            
+            <x-ui.button type="submit" variant="secondary" icon="filter">
+                Filter
+            </x-ui.button>
             @if (!empty($search))
-                <a href="{{ route('admin.roles.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
-                    <i data-lucide="x" class="w-4 h-4"></i> Clear
-                </a>
+                <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.roles.index'), 'tag' => 'a'])">
+                    Clear
+                </x-ui.button>
             @endif
         </form>
-    </div>
+    </x-ui.card>
+
 
     @php
         // Prepare global data once for Alpine JS
@@ -47,20 +50,17 @@
     @endphp
 
     <!-- Roles Grid -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if($roles->isEmpty())
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="shield" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500">Chưa có Role nào hiện có</p>
-            @can('roles.create')
-            <button type="button" @click="showCreateModal = true" class="inline-flex items-center gap-2 mt-4 text-primary-500 hover:text-primary-600 font-medium">
-                <i data-lucide="plus" class="w-4 h-4"></i> Bấm để tạo Role mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có Role nào"
+                description="Hệ thống chưa có nhóm quyền nào được định nghĩa."
+                icon="shield"
+                actionText="Tạo Role mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -237,13 +237,9 @@
             </table>
         </div>
         
-        @if($roles->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
-            {{ $roles->appends(request()->query())->links() }}
-        </div>
         @endif
-        @endif
-    </div>
+    </x-ui.card>
+
 
     <!-- Create Modal -->
     @can('roles.create')

@@ -13,70 +13,61 @@
     <!-- Header Actions -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Trung tâm Nhiệm vụ</h1>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Trung tâm Nhiệm vụ</h1>
             <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
                 <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
                 Theo dõi và xử lý các đầu việc cần thực hiện
             </p>
         </div>
         <div class="flex gap-2">
-            <button type="button" @click="showCreateModal = true" class="px-6 py-2.5 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl hover:from-primary-600 hover:to-primary-700 transition-all duration-300 flex items-center gap-2 shadow-lg shadow-primary-500/25 whitespace-nowrap font-bold active:scale-95 group">
-                <i data-lucide="plus-circle" class="w-5 h-5 group-hover:rotate-90 transition-transform"></i>
-                <span>Giao việc mới</span>
-            </button>
+            <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+                Giao việc mới
+            </x-ui.button>
         </div>
     </div>
 
+
     <!-- Filters -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row gap-4 items-end">
-        <form action="{{ route('admin.tasks.index') }}" method="GET" class="w-full grid grid-cols-1 md:grid-cols-{{ $isGlobalScope ? 5 : 4 }} gap-4">
-            <div class="md:col-span-2">
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Tiêu đề</label>
-                <div class="relative group">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-500 transition-colors"></i>
-                    <input type="text" name="search" placeholder="Tìm kiếm nhiệm vụ…" value="{{ $search }}"
-                           class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
-                </div>
-            </div>
-            @if($isGlobalScope)
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Cơ sở</label>
-                <select name="center_id" class="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none">
+    <x-ui.card bodyClass="p-4">
+        <form action="{{ route('admin.tasks.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+            <div class="flex-1 grid grid-cols-1 md:grid-cols-{{ $isGlobalScope ? 3 : 2 }} gap-4">
+                <x-ui.input name="search" label="Tiêu đề" placeholder="Tìm kiếm nhiệm vụ…" value="{{ $search }}" icon="search" />
+                
+                @if($isGlobalScope)
+                <x-ui.select name="center_id" label="Cơ sở">
                     <option value="">Tất cả cơ sở</option>
                     @foreach($centers as $c)
                         <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
                     @endforeach
-                </select>
-            </div>
-            @endif
-            <div>
-                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Trạng thái</label>
-                <select name="status" class="w-full px-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none">
+                </x-ui.select>
+                @endif
+
+                <x-ui.select name="status" label="Trạng thái">
                     <option value="">Tất cả</option>
                     <option value="TODO" {{ $status == 'TODO' ? 'selected' : '' }}>Chưa làm (Todo)</option>
                     <option value="DOING" {{ $status == 'DOING' ? 'selected' : '' }}>Đang làm</option>
                     <option value="DONE" {{ $status == 'DONE' ? 'selected' : '' }}>Hoàn thành</option>
-                </select>
+                </x-ui.select>
             </div>
-            <div class="flex items-end flex-1">
-                <button type="submit" class="w-full md:w-auto px-6 py-2.5 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-xl transition font-bold text-sm flex items-center justify-center gap-2">
-                    <i data-lucide="filter" class="w-4 h-4"></i> Lọc dữ liệu
-                </button>
+            <div class="shrink-0">
+                <x-ui.button type="submit" variant="secondary" icon="filter">
+                    Lọc dữ liệu
+                </x-ui.button>
             </div>
         </form>
-    </div>
+    </x-ui.card>
+
 
     <!-- Task List -->
     <div class="grid grid-cols-1 gap-4">
         @if($tasks->isEmpty())
-        <div class="bg-white rounded-3xl p-12 text-center border border-slate-100 shadow-sm">
-            <div class="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-100 shadow-inner">
-                <i data-lucide="clipboard-list" class="w-10 h-10 text-slate-300"></i>
-            </div>
-            <h3 class="font-bold text-slate-800 text-lg">Danh sách trống</h3>
-            <p class="text-slate-500 mt-1 max-w-xs mx-auto">Chưa có nhiệm vụ nào được phân bổ hoặc không tìm thấy kết quả phù hợp.</p>
-        </div>
+            <x-ui.empty-state 
+                title="Danh sách trống"
+                description="Chưa có nhiệm vụ nào được phân bổ hoặc không tìm thấy kết quả phù hợp."
+                icon="clipboard-list"
+            />
         @else
+
         @foreach($tasks as $task)
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all p-4 flex flex-col md:flex-row gap-4 items-center group">
             <div class="flex-shrink-0">

@@ -7,32 +7,32 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Trạng thái Lead</h1>
-            <p class="text-slate-500 mt-1">Quản lý quy trình xử lý Lead (Pipeline)</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Trạng thái Lead</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý quy trình xử lý Lead (Pipeline) trong hệ thống
+            </p>
         </div>
         @can('leads.update')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Thêm Trạng Thái</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Thêm Trạng Thái
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if(empty($statuses))
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="list" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500 mb-4">Chưa có trạng thái nào</p>
-            @can('leads.update')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Thêm mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có trạng thái nào"
+                description="Hệ thống chưa có cấu hình trạng thái lead. Hãy bắt đầu bằng cách thêm trạng thái đầu tiên."
+                icon="list"
+                actionText="Thêm mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -62,12 +62,11 @@
                                 </span>
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
-                                @if($status->isActive)
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Hoạt động</span>
-                                @else
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Đã khóa</span>
-                                @endif
+                                <x-ui.badge :variant="$status->isActive ? 'success' : 'danger'" dot>
+                                    {{ $status->isActive ? 'Hoạt động' : 'Đã khóa' }}
+                                </x-ui.badge>
                             </td>
+
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
                                     @can('leads.update')
@@ -168,7 +167,8 @@
             </table>
         </div>
         @endif
-    </div>
+    </x-ui.card>
+
 
     <!-- Create Modal -->
     @can('leads.update')

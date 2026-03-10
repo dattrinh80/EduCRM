@@ -7,19 +7,22 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Chiến dịch (Campaigns)</h1>
-            <p class="text-slate-500 mt-1">Quản lý danh sách các chiến dịch Marketing</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Chiến dịch Marketing</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý và theo dõi hiệu quả các chiến dịch Marketing
+            </p>
         </div>
         @can('campaigns.create')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Thêm Chiến Dịch</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Thêm Chiến Dịch
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Filter/Search -->
-    <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+    <x-ui.card bodyClass="p-4">
         <form action="{{ route('admin.campaigns.index') }}" method="GET" class="space-y-4">
             <!-- Keep existing sort query params hidden -->
             @if(request('sort_by')) <input type="hidden" name="sort_by" value="{{ request('sort_by') }}"> @endif
@@ -27,56 +30,31 @@
             @if(request('per_page')) <input type="hidden" name="per_page" value="{{ request('per_page') }}"> @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 items-end">
-                <!-- Search -->
-                <div>
-                    <label for="search" class="block text-sm font-medium text-slate-700 mb-1">Chiến dịch</label>
-                    <div class="relative w-full">
-                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" name="search" id="search" placeholder="Tên hoặc mã..." value="{{ request('search') }}"
-                               class="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
-                    </div>
-                </div>
+                <x-ui.input name="search" label="Chiến dịch" placeholder="Tên hoặc mã..." value="{{ request('search') }}" icon="search" />
 
-                <!-- Center -->
                 @if($isGlobalScope)
-                <div>
-                    <label for="center_id" class="block text-sm font-medium text-slate-700 mb-1">Cơ sở</label>
-                    <div class="relative w-full">
-                        <i data-lucide="building-2" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <select name="center_id" id="center_id" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
-                            <option value="">Tất cả cơ sở</option>
-                            @foreach($centers as $c)
-                                <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
-                            @endforeach
-                        </select>
-                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
+                <x-ui.select name="center_id" label="Cơ sở" icon="building-2">
+                    <option value="">Tất cả cơ sở</option>
+                    @foreach($centers as $c)
+                        <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                    @endforeach
+                </x-ui.select>
                 @endif
 
-                <!-- Status -->
-                <div>
-                    <label for="is_active" class="block text-sm font-medium text-slate-700 mb-1">Trạng thái</label>
-                    <div class="relative w-full">
-                        <i data-lucide="tag" class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <select name="is_active" id="is_active" class="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none appearance-none">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Hoạt động</option>
-                            <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Đã khóa</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                    </div>
-                </div>
+                <x-ui.select name="is_active" label="Trạng thái" icon="tag">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="1" {{ request('is_active') === '1' ? 'selected' : '' }}>Hoạt động</option>
+                    <option value="0" {{ request('is_active') === '0' ? 'selected' : '' }}>Đã khóa</option>
+                </x-ui.select>
 
-                <!-- Actions -->
                 <div class="flex gap-2 w-full md:w-auto">
-                    <button type="submit" class="px-4 py-2 bg-primary-50 text-primary-600 hover:bg-primary-100 rounded-lg transition font-medium text-sm flex items-center gap-2 whitespace-nowrap border border-primary-100">
-                        <i data-lucide="filter" class="w-4 h-4"></i> Filter
-                    </button>
+                    <x-ui.button type="submit" variant="secondary" icon="filter">
+                        Filter
+                    </x-ui.button>
                     @if(request()->hasAny(['search', 'center_id', 'budget_from', 'budget_to', 'date_from', 'date_to', 'is_active']))
-                    <a href="{{ route('admin.campaigns.index') }}" class="px-4 py-2 bg-slate-50 text-slate-600 hover:bg-slate-100 rounded-lg transition font-medium text-sm flex items-center gap-2 border border-slate-200 whitespace-nowrap">
-                        <i data-lucide="x" class="w-4 h-4"></i> Clear
-                    </a>
+                    <x-ui.button variant="ghost" icon="x" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.campaigns.index'), 'tag' => 'a'])">
+                        Clear
+                    </x-ui.button>
                     @endif
                 </div>
             </div>
@@ -86,42 +64,36 @@
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Ngân sách (Từ - Đến)</label>
                     <div class="flex items-center gap-2">
-                        <div class="relative flex-1">
-                            <input type="number" name="budget_from" value="{{ request('budget_from') }}" placeholder="Min" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
-                        </div>
+                        <x-ui.input type="number" name="budget_from" value="{{ request('budget_from') }}" placeholder="Min" containerClass="flex-1" />
                         <span class="text-slate-300">-</span>
-                        <div class="relative flex-1">
-                            <input type="number" name="budget_to" value="{{ request('budget_to') }}" placeholder="Max" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
-                        </div>
+                        <x-ui.input type="number" name="budget_to" value="{{ request('budget_to') }}" placeholder="Max" containerClass="flex-1" />
                     </div>
                 </div>
                 <div class="lg:col-span-2">
                     <label class="block text-sm font-medium text-slate-700 mb-1">Thời gian (Từ - Đến)</label>
                     <div class="flex items-center gap-2">
-                        <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                        <x-ui.input type="date" name="date_from" value="{{ request('date_from') }}" containerClass="flex-1" />
                         <span class="text-slate-300">-</span>
-                        <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500 transition outline-none">
+                        <x-ui.input type="date" name="date_to" value="{{ request('date_to') }}" containerClass="flex-1" />
                     </div>
                 </div>
             </div>
         </form>
-    </div>
+    </x-ui.card>
+
 
     <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if($campaigns->isEmpty() && !$search && !request()->hasAny(['center_id', 'budget_from', 'budget_to', 'date_from', 'date_to', 'is_active']))
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="megaphone" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500 mb-4">Chưa có chiến dịch nào</p>
-            @can('campaigns.create')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Thêm chiến dịch mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có chiến dịch nào"
+                description="Hệ thống chưa có dữ liệu chiến dịch. Hãy bắt đầu bằng cách thêm chiến dịch đầu tiên."
+                icon="megaphone"
+                actionText="Thêm chiến dịch mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -238,12 +210,11 @@
                                 <div>{{ $campaign->end_date ? \Carbon\Carbon::parse($campaign->end_date)->format('d/m/Y') : '—' }}</div>
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
-                                @if($campaign->is_active)
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">Hoạt động</span>
-                                @else
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Đã khóa</span>
-                                @endif
+                                <x-ui.badge :variant="$campaign->is_active ? 'success' : 'danger'" dot>
+                                    {{ $campaign->is_active ? 'Hoạt động' : 'Đã khóa' }}
+                                </x-ui.badge>
                             </td>
+
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
                                     @can('campaigns.update')
@@ -428,9 +399,9 @@
                 </tbody>
             </table>
         </div>
-        @include('partials.pagination', ['paginator' => $campaigns])
         @endif
-    </div>
+    </x-ui.card>
+
 
     <!-- Create Modal -->
     @can('campaigns.create')

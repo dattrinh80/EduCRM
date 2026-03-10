@@ -7,32 +7,32 @@
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-slate-800">Quản lý Cơ sở</h1>
-            <p class="text-slate-500 mt-1">Quản lý danh sách các cơ sở / chi nhánh</p>
+            <h1 class="text-2xl font-display font-bold text-slate-800 tracking-tight">Quản lý Cơ sở</h1>
+            <p class="text-slate-500 mt-1 flex items-center gap-1.5 text-sm">
+                <i data-lucide="info" class="w-3.5 h-3.5 opacity-60"></i>
+                Quản lý danh sách các cơ sở / chi nhánh trong hệ thống
+            </p>
         </div>
         @can('centers.create')
-        <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition flex items-center gap-2 shadow-lg shadow-primary-500/30 w-fit">
-            <i data-lucide="plus" class="w-4 h-4"></i>
-            <span>Thêm Cơ sở</span>
-        </button>
+        <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            Thêm Cơ sở
+        </x-ui.button>
         @endcan
     </div>
 
+
     <!-- Data List -->
-    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+    <x-ui.card bodyClass="p-0">
         @if($centers->isEmpty())
-        <div class="p-12 text-center">
-            <div class="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <i data-lucide="building-2" class="w-8 h-8 text-slate-400"></i>
-            </div>
-            <p class="text-slate-500 mb-4">Chưa có cơ sở nào</p>
-            @can('centers.create')
-            <button type="button" @click="showCreateModal = true; $dispatch('refresh-icons')" class="inline-flex items-center gap-2 text-primary-500 hover:text-primary-600 font-medium cursor-pointer">
-                <i data-lucide="plus" class="w-4 h-4"></i> Thêm cơ sở mới
-            </button>
-            @endcan
-        </div>
+            <x-ui.empty-state 
+                title="Chưa có cơ sở nào"
+                description="Hệ thống chưa có dữ liệu cơ sở. Hãy bắt đầu bằng cách thêm cơ sở đầu tiên."
+                icon="building-2"
+                actionText="Thêm cơ sở mới"
+                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            />
         @else
+
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -81,21 +81,20 @@
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
                                 @php
-                                    $statusColor = match(strtolower($center->status)) {
-                                        'active' => 'bg-emerald-100 text-emerald-700',
-                                        'inactive' => 'bg-red-100 text-red-700',
-                                        default => 'bg-slate-100 text-slate-700'
+                                    $variant = match(strtolower($center->status)) {
+                                        'active' => 'success',
+                                        'inactive' => 'danger',
+                                        default => 'warning'
                                     };
-                                    $statusLabel = match(strtolower($center->status)) {
+                                    $label = match(strtolower($center->status)) {
                                         'active' => 'Hoạt động',
                                         'inactive' => 'Ngừng hoạt động',
                                         default => ucfirst($center->status)
                                     };
                                 @endphp
-                                <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $statusColor }}">
-                                    {{ $statusLabel }}
-                                </span>
+                                <x-ui.badge :variant="$variant" dot>{{ $label }}</x-ui.badge>
                             </td>
+
                             <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
                                     @can('centers.update')
@@ -239,13 +238,9 @@
             </table>
         </div>
         
-        @if($centers->hasPages())
-        <div class="px-6 py-4 border-t border-slate-100 bg-slate-50">
-            {{ $centers->links() }}
-        </div>
         @endif
-        @endif
-    </div>
+    </x-ui.card>
+
 
     <!-- Create Modal -->
     @can('centers.create')
