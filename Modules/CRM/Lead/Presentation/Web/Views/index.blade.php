@@ -221,7 +221,14 @@
                                 <input type="checkbox" value="{{ $lead->id }}" x-model="selectedItems" class="rounded border-slate-300 text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer">
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
-                                <a href="{{ route('admin.leads.show', $lead->id) }}" class="font-medium text-slate-800 hover:text-primary-600 transition">{{ $lead->name }}</a>
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ route('admin.leads.show', $lead->id) }}" class="font-medium text-slate-800 hover:text-primary-600 transition">{{ $lead->name }}</a>
+                                    @if($lead->gender)
+                                    <x-ui.badge variant="{{ $lead->gender === 'MALE' ? 'info' : ($lead->gender === 'FEMALE' ? 'danger' : 'secondary') }}" class="text-[9px] px-1.5 py-0">
+                                        {{ $lead->gender === 'MALE' ? 'Nam' : ($lead->gender === 'FEMALE' ? 'Nữ' : 'Khác') }}
+                                    </x-ui.badge>
+                                    @endif
+                                </div>
                                 @if($lead->tags->isNotEmpty())
                                 <div class="flex flex-wrap gap-1 mt-1">
                                     @foreach($lead->tags as $tag)
@@ -392,14 +399,29 @@
                                                         </div>
 
                                                         <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Ngày sinh</label>
+                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
                                                             <div class="relative">
                                                                 <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                                                 <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('dob') : ($lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('Y-m-d') : '') }}">
                                                             </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('dob') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
+                                                        </div>
+
+                                                        <div class="space-y-1">
+                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
+                                                            <div class="grid grid-cols-3 gap-2">
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'MALE' ? 'checked' : '' }}>
+                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
+                                                                </label>
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'FEMALE' ? 'checked' : '' }}>
+                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
+                                                                </label>
+                                                                <label class="cursor-pointer">
+                                                                    <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'OTHER' ? 'checked' : '' }}>
+                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
+                                                                </label>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -622,14 +644,29 @@
                             </div>
 
                             <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Ngày sinh</label>
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
                                 <div class="relative">
                                     <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
                                     <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('dob') : '' }}">
                                 </div>
-                                @if(!old('_method'))
-                                    @error('dob') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
+                            </div>
+
+                            <div class="space-y-1">
+                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'MALE') ? 'checked' : '' }}>
+                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'FEMALE') ? 'checked' : '' }}>
+                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
+                                    </label>
+                                    <label class="cursor-pointer">
+                                        <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (!old('_method') && old('gender') === 'OTHER') ? 'checked' : '' }}>
+                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

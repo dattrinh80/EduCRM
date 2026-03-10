@@ -40,11 +40,11 @@ class ConvertLeadToStudentHandler
                 name: $command->guardianData['name'],
                 phone: $command->guardianData['phone'] ?? null,
                 email: $command->guardianData['email'] ?? null,
-                centerId: $lead->centerId
+                centerId: $lead->centerId,
+                dob: $command->guardianData['dob'] ?? null,
+                gender: $command->guardianData['gender'] ?? null,
+                address: $command->guardianData['address'] ?? null
             );
-            $guardian->dob = $command->guardianData['dob'] ?? null;
-            $guardian->gender = $command->guardianData['gender'] ?? null;
-            $guardian->address = $command->guardianData['address'] ?? null;
             
             $this->customerRepository->save($guardian);
 
@@ -55,10 +55,10 @@ class ConvertLeadToStudentHandler
                 $studentCustomer = Customer::create(
                     id: $studentCustomerId,
                     name: $studentData['name'],
-                    centerId: $lead->centerId
+                    centerId: $lead->centerId,
+                    dob: $studentData['dob'] ?? null,
+                    gender: $studentData['gender'] ?? null
                 );
-                $studentCustomer->dob = $studentData['dob'] ?? null;
-                $studentCustomer->gender = $studentData['gender'] ?? null;
                 
                 $this->customerRepository->save($studentCustomer);
 

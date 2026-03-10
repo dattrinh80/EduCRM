@@ -16,6 +16,7 @@ class Lead extends Entity
         public string $statusId,
         public ?string $centerId,
         public ?string $dob = null,
+        public ?string $gender = null,
         public ?string $leadSourceId = null,
         public ?string $campaignId = null,
         public ?string $interestTypeId = null,
@@ -34,6 +35,7 @@ class Lead extends Entity
         string $statusId,
         ?string $centerId,
         ?string $dob = null,
+        ?string $gender = null,
         ?string $leadSourceId = null,
         ?string $campaignId = null,
         ?string $interestTypeId = null,
@@ -47,6 +49,7 @@ class Lead extends Entity
             $statusId,
             $centerId,
             $dob,
+            $gender,
             $leadSourceId,
             $campaignId,
             $interestTypeId,
@@ -65,6 +68,7 @@ class Lead extends Entity
         ?string $currentStage = null,
         ?string $centerId = null,
         ?string $dob = null,
+        ?string $gender = null,
         ?string $leadSourceId = null,
         ?string $campaignId = null,
         ?string $interestTypeId = null,
@@ -80,6 +84,7 @@ class Lead extends Entity
 
         $this->centerId = $centerId;
         $this->dob = $dob;
+        $this->gender = $gender;
         $this->leadSourceId = $leadSourceId;
         $this->campaignId = $campaignId;
         $this->interestTypeId = $interestTypeId;

@@ -25,6 +25,7 @@ class LeadReadModel extends Model
         'status_id',
         'center_id',
         'dob',
+        'gender',
         'lead_source_id',
         'campaign_id',
         'interest_type_id',

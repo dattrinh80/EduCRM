@@ -49,6 +49,7 @@ class UpdateLeadHandler implements CommandHandler
             $currentStatus?->stage,
             $command->centerId,
             $command->dob,
+            $command->gender,
             $command->leadSourceId,
             $command->campaignId,
             $command->interestTypeId,

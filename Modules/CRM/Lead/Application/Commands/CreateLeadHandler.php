@@ -38,6 +38,7 @@ class CreateLeadHandler implements CommandHandler
             $statusId,
             $command->centerId,
             $command->dob,
+            $command->gender,
             $command->leadSourceId,
             $command->campaignId,
             $command->interestTypeId,
