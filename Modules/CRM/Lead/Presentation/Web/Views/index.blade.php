@@ -73,38 +73,57 @@
 
     <!-- Filter/Search -->
     <x-ui.card bodyClass="p-4">
-        <form action="{{ route('admin.leads.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
+        <form action="{{ route('admin.leads.index') }}" method="GET" class="space-y-4">
             <input type="hidden" name="view" value="{{ $view }}">
             
-            <x-ui.input label="Họ tên" name="search" id="search" placeholder="Số điện thoại, họ tên…" value="{{ request('search') }}" icon="search" containerClass="w-full md:w-1/4" />
-            
-            <x-ui.input label="Số điện thoại" name="phone" id="phone" placeholder="Số điện thoại…" value="{{ request('phone') }}" icon="phone" containerClass="w-full md:w-1/4" :uppercase="true" />
+            <div class="flex flex-wrap items-end gap-4">
+                <x-ui.input 
+                    label="Họ tên" 
+                    name="search" 
+                    id="search" 
+                    placeholder="Số điện thoại, họ tên…" 
+                    value="{{ request('search') }}" 
+                    icon="search" 
+                    containerClass="w-full sm:w-64 shrink-0"
+                />
+                
+                <x-ui.input 
+                    label="Số điện thoại" 
+                    name="phone" 
+                    id="phone" 
+                    placeholder="Số điện thoại…" 
+                    value="{{ request('phone') }}" 
+                    icon="phone" 
+                    :uppercase="true" 
+                    containerClass="w-full sm:w-48 shrink-0"
+                />
 
-            @if($isGlobalScope)
-                <x-ui.select label="Cơ sở" name="center_id" id="center_id" icon="building-2" containerClass="w-full md:w-1/4">
-                    <option value="">Tất cả cơ sở</option>
-                    @foreach($centers as $c)
-                        <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                @if($isGlobalScope)
+                    <x-ui.select label="Cơ sở" name="center_id" id="center_id" icon="building-2" containerClass="w-full sm:w-64 shrink-0">
+                        <option value="">Tất cả cơ sở</option>
+                        @foreach($centers as $c)
+                            <option value="{{ $c->id }}" {{ request('center_id') == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                        @endforeach
+                    </x-ui.select>
+                @endif
+
+                <x-ui.select label="Trạng thái" name="status_id" id="status_id" icon="list-checks" containerClass="w-full sm:w-48 shrink-0">
+                    <option value="">Tất cả trạng thái</option>
+                    @foreach($statuses as $st)
+                        <option value="{{ $st->getId() }}" {{ request('status_id') == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
                     @endforeach
                 </x-ui.select>
-            @endif
 
-            <x-ui.select label="Trạng thái" name="status_id" id="status_id" icon="list-checks" containerClass="w-full md:w-1/4">
-                <option value="">Tất cả trạng thái</option>
-                @foreach($statuses as $st)
-                    <option value="{{ $st->getId() }}" {{ request('status_id') == $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
-                @endforeach
-            </x-ui.select>
-
-            <div class="flex gap-2 w-full md:w-auto">
-                <x-ui.button type="submit" variant="secondary" icon="filter">
-                    Lọc
-                </x-ui.button>
-                @if(request()->hasAny(['search', 'phone', 'center_id', 'status_id']))
-                    <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.leads.index'), 'tag' => 'a'])">
-                        Xoá
+                <div class="flex gap-2 pb-0.5 shrink-0">
+                    <x-ui.button type="submit" variant="secondary" icon="filter">
+                        Lọc
                     </x-ui.button>
-                @endif
+                    @if(request()->hasAny(['search', 'phone', 'center_id', 'status_id']))
+                        <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.leads.index'), 'tag' => 'a'])">
+                            Xoá lọc
+                        </x-ui.button>
+                    @endif
+                </div>
             </div>
         </form>
     </x-ui.card>

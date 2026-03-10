@@ -23,7 +23,7 @@
 
     <!-- Search & Filter Bar -->
     <x-ui.card bodyClass="p-4">
-        <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+        <form action="{{ route('admin.users.index') }}" method="GET" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
             <x-ui.input name="search" id="search" placeholder="Tìm theo tên hoặc email..." value="{{ $search ?? '' }}" icon="search" containerClass="flex-1" />
             
             <x-ui.select name="role_id" id="role_id" containerClass="sm:w-64">
@@ -35,11 +35,11 @@
 
             <div class="flex gap-2">
                 <x-ui.button type="submit" variant="secondary" icon="filter">
-                    Filter
+                    Lọc
                 </x-ui.button>
                 @if (!empty($search) || !empty($roleId))
                     <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.users.index'), 'tag' => 'a'])">
-                        Clear
+                        Xoá lọc
                     </x-ui.button>
                 @endif
             </div>

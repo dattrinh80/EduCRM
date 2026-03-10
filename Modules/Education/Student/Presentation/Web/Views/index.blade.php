@@ -29,19 +29,19 @@
     <!-- Filter Bar -->
     <x-ui.card bodyClass="p-4">
         <form action="{{ route('admin.students.index') }}" method="GET" class="w-full flex flex-col md:flex-row gap-4 items-end">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            <div class="flex flex-wrap items-end gap-4 w-full">
                 <x-ui.input 
                     name="search" 
                     label="Tìm kiếm" 
                     placeholder="Họ tên, mã học viên…" 
                     value="{{ request('search') }}"
                     icon="search"
-                    containerClass="md:col-span-2"
+                    containerClass="w-full sm:w-80 shrink-0"
                 />
                 
-                <div class="flex gap-2 items-end">
+                <div class="flex gap-2 shrink-0">
                     <x-ui.button type="submit" variant="secondary" icon="filter">
-                        Lọc dữ liệu
+                        Lọc
                     </x-ui.button>
                     @if(request()->has('search'))
                         <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.students.index'), 'tag' => 'a'])">

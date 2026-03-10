@@ -27,11 +27,11 @@
             <x-ui.input name="search" id="search" placeholder="Tìm kiếm tên role..." value="{{ $search ?? '' }}" icon="search" containerClass="flex-1" />
             
             <x-ui.button type="submit" variant="secondary" icon="filter">
-                Filter
+                Lọc
             </x-ui.button>
             @if (!empty($search))
                 <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.roles.index'), 'tag' => 'a'])">
-                    Clear
+                    Xoá lọc
                 </x-ui.button>
             @endif
         </form>

@@ -29,30 +29,34 @@
 
     <!-- Filters -->
     <x-ui.card bodyClass="p-4">
-        <form action="{{ route('admin.tasks.index') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-            <div class="flex-1 grid grid-cols-1 md:grid-cols-{{ $isGlobalScope ? 3 : 2 }} gap-4">
-                <x-ui.input name="search" label="Tiêu đề" placeholder="Tìm kiếm nhiệm vụ…" value="{{ $search }}" icon="search" />
-                
-                @if($isGlobalScope)
-                <x-ui.select name="center_id" label="Cơ sở">
-                    <option value="">Tất cả cơ sở</option>
-                    @foreach($centers as $c)
-                        <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
-                    @endforeach
-                </x-ui.select>
-                @endif
+        <form action="{{ route('admin.tasks.index') }}" method="GET" class="flex flex-wrap items-end gap-x-6 gap-y-4">
+            <x-ui.input name="search" label="Tiêu đề" placeholder="Tìm kiếm nhiệm vụ…" value="{{ $search }}" icon="search" containerClass="w-full sm:w-80 shrink-0" />
+            
+            @if($isGlobalScope)
+            <x-ui.select name="center_id" label="Cơ sở" containerClass="w-full sm:w-72 shrink-0">
+                <option value="">Tất cả cơ sở</option>
+                @foreach($centers as $c)
+                    <option value="{{ $c->id }}" {{ $centerId == $c->id ? 'selected' : '' }}>[{{ $c->code }}] {{ $c->name }}</option>
+                @endforeach
+            </x-ui.select>
+            @endif
 
-                <x-ui.select name="status" label="Trạng thái">
-                    <option value="">Tất cả</option>
-                    <option value="TODO" {{ $status == 'TODO' ? 'selected' : '' }}>Chưa làm (Todo)</option>
-                    <option value="DOING" {{ $status == 'DOING' ? 'selected' : '' }}>Đang làm</option>
-                    <option value="DONE" {{ $status == 'DONE' ? 'selected' : '' }}>Hoàn thành</option>
-                </x-ui.select>
-            </div>
-            <div class="shrink-0">
+            <x-ui.select name="status" label="Trạng thái" containerClass="w-full sm:w-56 shrink-0">
+                <option value="">Tất cả</option>
+                <option value="TODO" {{ $status == 'TODO' ? 'selected' : '' }}>Chưa làm (Todo)</option>
+                <option value="DOING" {{ $status == 'DOING' ? 'selected' : '' }}>Đang làm</option>
+                <option value="DONE" {{ $status == 'DONE' ? 'selected' : '' }}>Hoàn thành</option>
+            </x-ui.select>
+
+            <div class="flex gap-2 pb-0.5 shrink-0">
                 <x-ui.button type="submit" variant="secondary" icon="filter">
-                    Lọc dữ liệu
+                    Lọc
                 </x-ui.button>
+                @if(!empty($search) || !empty($status) || !empty($centerId))
+                    <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.tasks.index'), 'tag' => 'a'])">
+                        Xoá lọc
+                    </x-ui.button>
+                @endif
             </div>
         </form>
     </x-ui.card>

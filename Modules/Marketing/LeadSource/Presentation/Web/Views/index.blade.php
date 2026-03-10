@@ -39,11 +39,11 @@
                 
                 <div class="flex items-center gap-2">
                     <x-ui.button type="submit" variant="secondary" icon="filter">
-                        Filter
+                        Lọc
                     </x-ui.button>
                     @if(!empty($search))
-                    <x-ui.button variant="ghost" icon="x" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.lead-sources.index'), 'tag' => 'a'])">
-                        Clear
+                    <x-ui.button variant="ghost" icon="x-circle" :attributes="new \Illuminate\View\ComponentAttributeBag(['href' => route('admin.lead-sources.index'), 'tag' => 'a'])">
+                        Xoá lọc
                     </x-ui.button>
                     @endif
                 </div>
