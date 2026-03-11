@@ -68,16 +68,23 @@ class LeadConversionWebController extends Controller
         $validated = $request->validate([
             'students' => 'required|array|min:1',
             'students.*.name' => 'required|string|max:255',
+            'students.*.phone' => 'nullable|string|max:20',
             'students.*.dob' => 'nullable|date',
             'students.*.gender' => 'nullable|string|in:MALE,FEMALE,OTHER',
+            'students.*.email' => 'nullable|email|max:255',
+            'students.*.address' => 'nullable|string|max:500',
             'students.*.school' => 'nullable|string|max:255',
             'students.*.grade' => 'nullable|string|max:50',
             'students.*.guardians' => 'required|array|min:1',
             'students.*.guardians.*.name' => 'required|string|max:255',
             'students.*.guardians.*.phone' => 'required|string|max:20',
             'students.*.guardians.*.email' => 'nullable|email|max:255',
+            'students.*.guardians.*.dob' => 'nullable|date',
+            'students.*.guardians.*.gender' => 'nullable|string|in:MALE,FEMALE,OTHER',
+            'students.*.guardians.*.address' => 'nullable|string|max:500',
             'students.*.guardians.*.relationship' => 'required|string|max:50',
             'students.*.guardians.*.is_primary' => 'nullable',
+            'students.*.guardians.*.customer_id' => 'nullable|string',
         ]);
 
         try {

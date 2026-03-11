@@ -42,9 +42,12 @@ class ConvertLeadToStudentHandler
                 $studentCustomer = Customer::create(
                     id: $studentCustomerId,
                     name: $studentData['name'],
-                    centerId: $lead->centerId, // Inherit center from lead
+                    phone: $studentData['phone'] ?? null,
+                    email: $studentData['email'] ?? null,
+                    centerId: $lead->centerId,
                     dob: $studentData['dob'] ?? null,
-                    gender: $studentData['gender'] ?? null
+                    gender: $studentData['gender'] ?? null,
+                    address: $studentData['address'] ?? null
                 );
                 $this->customerRepository->save($studentCustomer);
 
@@ -61,33 +64,43 @@ class ConvertLeadToStudentHandler
                 // 3. Process guardians for this student
                 $guardians = $studentData['guardians'] ?? [];
                 foreach ($guardians as $guardianData) {
-                    $guardianPhone = $guardianData['phone'] ?? null;
+                    $guardianCustomerId = null;
 
-                    // Resolve guardian: reuse by phone or create new
-                    if ($guardianPhone && isset($guardianCache[$guardianPhone])) {
-                        $guardianCustomerId = $guardianCache[$guardianPhone];
+                    // If an existing customer was selected from the picker
+                    if (!empty($guardianData['customer_id'])) {
+                        $guardianCustomerId = $guardianData['customer_id'];
                     } else {
-                        // Check if a customer with this phone already exists in the system
-                        $existingCustomer = $guardianPhone
-                            ? $this->customerRepository->findByPhone($guardianPhone)
-                            : null;
+                        $guardianPhone = $guardianData['phone'] ?? null;
 
-                        if ($existingCustomer) {
-                            $guardianCustomerId = $existingCustomer->id;
+                        // Resolve guardian: reuse by phone or create new
+                        if ($guardianPhone && isset($guardianCache[$guardianPhone])) {
+                            $guardianCustomerId = $guardianCache[$guardianPhone];
                         } else {
-                            $guardianCustomerId = (string) Str::uuid();
-                            $guardian = Customer::create(
-                                id: $guardianCustomerId,
-                                name: $guardianData['name'],
-                                phone: $guardianPhone,
-                                email: $guardianData['email'] ?? null,
-                                centerId: $lead->centerId
-                            );
-                            $this->customerRepository->save($guardian);
-                        }
+                            // Check if a customer with this phone already exists
+                            $existingCustomer = $guardianPhone
+                                ? $this->customerRepository->findByPhone($guardianPhone)
+                                : null;
 
-                        if ($guardianPhone) {
-                            $guardianCache[$guardianPhone] = $guardianCustomerId;
+                            if ($existingCustomer) {
+                                $guardianCustomerId = $existingCustomer->id;
+                            } else {
+                                $guardianCustomerId = (string) Str::uuid();
+                                $guardian = Customer::create(
+                                    id: $guardianCustomerId,
+                                    name: $guardianData['name'],
+                                    phone: $guardianPhone,
+                                    email: $guardianData['email'] ?? null,
+                                    centerId: $lead->centerId,
+                                    dob: $guardianData['dob'] ?? null,
+                                    gender: $guardianData['gender'] ?? null,
+                                    address: $guardianData['address'] ?? null
+                                );
+                                $this->customerRepository->save($guardian);
+                            }
+
+                            if ($guardianPhone) {
+                                $guardianCache[$guardianPhone] = $guardianCustomerId;
+                            }
                         }
                     }
 

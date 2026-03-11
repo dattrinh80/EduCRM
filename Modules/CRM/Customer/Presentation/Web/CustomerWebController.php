@@ -83,4 +83,22 @@ class CustomerWebController extends Controller
 
         return redirect()->route('admin.customers.index')->with('success', 'Khách hàng đã được cập nhật.');
     }
+
+    public function searchJson(Request $request, GetCustomersHandler $handler)
+    {
+        $search = $request->get('q', '');
+        $customers = $handler->handle(new GetCustomersQuery($search ?: null));
+
+        $results = array_map(fn($c) => [
+            'id' => $c->id,
+            'name' => $c->name,
+            'phone' => $c->phone,
+            'email' => $c->email,
+            'dob' => $c->dob,
+            'gender' => $c->gender,
+            'address' => $c->address,
+        ], $customers);
+
+        return response()->json($results);
+    }
 }
