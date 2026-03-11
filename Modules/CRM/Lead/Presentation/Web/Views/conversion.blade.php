@@ -226,11 +226,12 @@
                                         </div>
                                     </div>
 
-                                    {{-- Primary Guardian Checkbox --}}
+                                    {{-- Primary Guardian Radio (only 1 per student) --}}
                                     <div class="mt-3 flex items-center gap-2">
                                         <input type="checkbox" :id="'primary_' + sIndex + '_' + gIndex"
                                             :name="'students[' + sIndex + '][guardians][' + gIndex + '][is_primary]'"
-                                            x-model="guardian.is_primary" value="1"
+                                            :checked="guardian.is_primary" value="1"
+                                            @change="setPrimaryGuardian(sIndex, gIndex)"
                                             class="w-4 h-4 rounded border-slate-300 text-primary-500 focus:ring-primary-500/20">
                                         <label :for="'primary_' + sIndex + '_' + gIndex" class="text-xs text-slate-500 cursor-pointer">
                                             Giám hộ chính <span class="text-slate-400">(có quyền đăng nhập Portal)</span>
@@ -288,8 +289,8 @@
         </button>
 
         {{-- Footer Actions --}}
-        <div class="border-t border-slate-200 pt-5 flex items-center justify-between">
-            <a href="{{ route('admin.leads.index') }}" class="text-sm font-medium text-slate-400 hover:text-slate-600 transition-colors">
+        <div class="border-t border-slate-200 pt-5 flex items-center justify-end gap-4">
+            <a href="{{ route('admin.leads.index') }}" class="px-5 py-3 text-sm font-medium text-slate-500 hover:text-slate-700 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">
                 Hủy bỏ giao dịch
             </a>
             <button type="submit"
@@ -369,8 +370,20 @@ function convertLeadApp() {
 
         removeGuardian(studentIndex, guardianIndex) {
             if (this.students[studentIndex].guardians.length > 1) {
+                const wasPrimary = this.students[studentIndex].guardians[guardianIndex].is_primary;
                 this.students[studentIndex].guardians.splice(guardianIndex, 1);
+                // If removed guardian was primary, make the first one primary
+                if (wasPrimary) {
+                    this.students[studentIndex].guardians[0].is_primary = true;
+                }
             }
+        },
+
+        setPrimaryGuardian(studentIndex, guardianIndex) {
+            // Only one primary guardian per student
+            this.students[studentIndex].guardians.forEach((g, i) => {
+                g.is_primary = (i === guardianIndex);
+            });
         },
 
         useLeadAsGuardian() {
