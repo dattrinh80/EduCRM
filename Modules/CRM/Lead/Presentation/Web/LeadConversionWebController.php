@@ -24,7 +24,38 @@ class LeadConversionWebController extends Controller
             return redirect()->route('admin.leads.index')->with('error', 'Lead không tồn tại.');
         }
 
-        return view('lead::conversion', compact('lead'));
+        // Load lead source name and campaign name for display
+        $leadSourceName = null;
+        if ($lead->leadSourceId) {
+            $source = \Modules\Marketing\LeadSource\Infrastructure\ReadModels\LeadSourceReadModel::find($lead->leadSourceId);
+            $leadSourceName = $source?->name;
+        }
+
+        $campaignName = null;
+        if ($lead->campaignId) {
+            $campaign = \Modules\Marketing\Campaign\Infrastructure\ReadModels\CampaignReadModel::find($lead->campaignId);
+            $campaignName = $campaign?->name;
+        }
+
+        $centerName = null;
+        if ($lead->centerId) {
+            $center = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::find($lead->centerId);
+            $centerName = $center ? ('[' . ($center->code ?? '') . '] ' . $center->name) : null;
+        }
+
+        $assignedToName = null;
+        if ($lead->assignedTo) {
+            $user = \Modules\Core\User\Infrastructure\ReadModels\UserReadModel::find($lead->assignedTo);
+            $assignedToName = $user?->name;
+        }
+
+        return view('lead::conversion', compact(
+            'lead',
+            'leadSourceName',
+            'campaignName',
+            'centerName',
+            'assignedToName'
+        ));
     }
 
     public function convert(Request $request, string $id)
@@ -35,30 +66,30 @@ class LeadConversionWebController extends Controller
         }
 
         $validated = $request->validate([
-            'guardian.name' => 'required|string|max:255',
-            'guardian.phone' => 'nullable|string|max:20',
-            'guardian.email' => 'nullable|email|max:255',
-            'guardian.dob' => 'nullable|date',
-            'guardian.gender' => 'nullable|string|in:MALE,FEMALE,OTHER',
-            'guardian.address' => 'nullable|string',
             'students' => 'required|array|min:1',
             'students.*.name' => 'required|string|max:255',
             'students.*.dob' => 'nullable|date',
             'students.*.gender' => 'nullable|string|in:MALE,FEMALE,OTHER',
-            'students.*.relationship' => 'nullable|string|max:50',
+            'students.*.school' => 'nullable|string|max:255',
+            'students.*.grade' => 'nullable|string|max:50',
+            'students.*.guardians' => 'required|array|min:1',
+            'students.*.guardians.*.name' => 'required|string|max:255',
+            'students.*.guardians.*.phone' => 'required|string|max:20',
+            'students.*.guardians.*.email' => 'nullable|email|max:255',
+            'students.*.guardians.*.relationship' => 'required|string|max:50',
+            'students.*.guardians.*.is_primary' => 'nullable',
         ]);
 
         try {
             $command = new ConvertLeadToStudentCommand(
                 leadId: $id,
-                guardianData: $validated['guardian'],
                 students: $validated['students'],
-                convertedBy: auth()->id()
+                convertedBy: (string) auth()->id()
             );
 
             $this->conversionHandler->handle($command);
 
-            return redirect()->route('admin.leads.index')->with('success', 'Chuyển đổi Lead thành công!');
+            return redirect()->route('admin.leads.index')->with('success', 'Chuyển đổi Lead thành công! Đã tạo ' . count($validated['students']) . ' học viên.');
         } catch (\Exception $e) {
             return back()->withInput()->with('error', 'Lỗi chuyển đổi: ' . $e->getMessage());
         }

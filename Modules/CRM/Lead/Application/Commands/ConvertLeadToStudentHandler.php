@@ -33,36 +33,22 @@ class ConvertLeadToStudentHandler
                 throw new \Exception("Lead not found: {$command->leadId}");
             }
 
-            // 1. Create/Update Guardian
-            $guardianId = (string) Str::uuid();
-            $guardian = Customer::create(
-                id: $guardianId,
-                name: $command->guardianData['name'],
-                phone: $command->guardianData['phone'] ?? null,
-                email: $command->guardianData['email'] ?? null,
-                centerId: $lead->centerId,
-                dob: $command->guardianData['dob'] ?? null,
-                gender: $command->guardianData['gender'] ?? null,
-                address: $command->guardianData['address'] ?? null
-            );
-            
-            $this->customerRepository->save($guardian);
+            // Track created guardians by phone to enable reuse across students
+            $guardianCache = []; // phone => customerId
 
-            // 2. Process Students
             foreach ($command->students as $studentData) {
-                // 2a. Create Customer for student
+                // 1. Create Customer record for the student
                 $studentCustomerId = (string) Str::uuid();
                 $studentCustomer = Customer::create(
                     id: $studentCustomerId,
                     name: $studentData['name'],
-                    centerId: $lead->centerId,
+                    centerId: $lead->centerId, // Inherit center from lead
                     dob: $studentData['dob'] ?? null,
                     gender: $studentData['gender'] ?? null
                 );
-                
                 $this->customerRepository->save($studentCustomer);
 
-                // 2b. Create Student record
+                // 2. Create Student record
                 $studentId = (string) Str::uuid();
                 $studentCode = $this->studentRepository->getNextStudentCode();
                 $student = Student::create(
@@ -70,33 +56,65 @@ class ConvertLeadToStudentHandler
                     customerId: $studentCustomerId,
                     studentCode: $studentCode
                 );
-                
                 $this->studentRepository->save($student);
 
-                // 2c. Link Student to Guardian
-                $this->studentRepository->saveGuardianLink(
-                    studentId: $studentId,
-                    guardianId: $guardianId,
-                    relationship: $studentData['relationship'] ?? 'Parent',
-                    isPrimary: true
-                );
+                // 3. Process guardians for this student
+                $guardians = $studentData['guardians'] ?? [];
+                foreach ($guardians as $guardianData) {
+                    $guardianPhone = $guardianData['phone'] ?? null;
 
-                // 2d. Record Conversion
+                    // Resolve guardian: reuse by phone or create new
+                    if ($guardianPhone && isset($guardianCache[$guardianPhone])) {
+                        $guardianCustomerId = $guardianCache[$guardianPhone];
+                    } else {
+                        // Check if a customer with this phone already exists in the system
+                        $existingCustomer = $guardianPhone
+                            ? $this->customerRepository->findByPhone($guardianPhone)
+                            : null;
+
+                        if ($existingCustomer) {
+                            $guardianCustomerId = $existingCustomer->id;
+                        } else {
+                            $guardianCustomerId = (string) Str::uuid();
+                            $guardian = Customer::create(
+                                id: $guardianCustomerId,
+                                name: $guardianData['name'],
+                                phone: $guardianPhone,
+                                email: $guardianData['email'] ?? null,
+                                centerId: $lead->centerId
+                            );
+                            $this->customerRepository->save($guardian);
+                        }
+
+                        if ($guardianPhone) {
+                            $guardianCache[$guardianPhone] = $guardianCustomerId;
+                        }
+                    }
+
+                    // 4. Link guardian to student
+                    $this->studentRepository->saveGuardianLink(
+                        studentId: $studentId,
+                        guardianId: $guardianCustomerId,
+                        relationship: $guardianData['relationship'] ?? 'Parent',
+                        isPrimary: (bool) ($guardianData['is_primary'] ?? false)
+                    );
+                }
+
+                // 5. Record conversion
                 $conversion = LeadConversion::create(
                     id: (string) Str::uuid(),
                     leadId: $command->leadId,
                     studentId: $studentId,
                     convertedBy: $command->convertedBy
                 );
-                
                 $this->conversionRepository->save($conversion);
             }
 
-            // 3. Update Lead Status
-            $convertedStatus = $this->statusRepository->findByStage(\Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED);
+            // 6. Update Lead Status to Converted
+            $convertedStatus = $this->statusRepository->findByStage(
+                \Modules\CRM\LeadStatus\Domain\LeadStatus::STAGE_CONVERTED
+            );
             if ($convertedStatus) {
-                // Note: We might want to use PARTIALLY_CONVERTED if the logic grows more complex, 
-                // but for now we follow the document's basic conversion flow.
                 $lead->statusId = $convertedStatus->getId();
                 $this->leadRepository->update($lead);
             }
