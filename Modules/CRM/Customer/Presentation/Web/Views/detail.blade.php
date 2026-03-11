@@ -61,9 +61,15 @@
                                      <div class="h-8 w-px bg-slate-200 hidden md:block"></div>
                                      <div class="flex items-center gap-3">
                                         <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Loại khách hàng:</span>
-                                        <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
-                                            Phụ huynh / Người giám hộ
-                                        </span>
+                                        @if($customer->studentProfile)
+                                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-violet-50 text-violet-600 border border-violet-100">
+                                                Học viên
+                                            </span>
+                                        @else
+                                            <span class="px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 border border-emerald-100">
+                                                Phụ huynh / Người giám hộ
+                                            </span>
+                                        @endif
                                      </div>
                                 </div>
                                 
@@ -123,6 +129,30 @@
                                         </div>
                                     </div>
                                     @endif
+                                    @if($customer->gender)
+                                    <div class="flex items-center gap-5 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-sm">
+                                            <i data-lucide="user" class="w-5 h-5"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Giới tính</p>
+                                            <p class="text-base font-black text-slate-800">
+                                                {{ $customer->gender === 'M' ? 'Nam' : ($customer->gender === 'F' ? 'Nữ' : 'Khác') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    @endif
+                                    @if($customer->address)
+                                    <div class="flex items-center gap-5 group">
+                                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
+                                            <i data-lucide="map-pin" class="w-5 h-5"></i>
+                                        </div>
+                                        <div class="min-w-0">
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Địa chỉ</p>
+                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $customer->address }}">{{ $customer->address }}</p>
+                                        </div>
+                                    </div>
+                                    @endif
                                 </div>
                             </div>
 
@@ -143,10 +173,10 @@
                                             <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100 flex items-center justify-between group hover:bg-white hover:border-violet-200 hover:shadow-lg hover:shadow-violet-500/5 transition-all">
                                                 <div class="flex items-center gap-4">
                                                     <div class="w-10 h-10 rounded-xl bg-violet-100 text-violet-600 flex items-center justify-center font-bold shadow-sm">
-                                                        {{ substr($guardianData->student->name ?? 'S', 0, 1) }}
+                                                        {{ substr($guardianData->student->customer->name ?? 'S', 0, 1) }}
                                                     </div>
                                                     <div>
-                                                        <a href="javascript:void(0)" class="text-sm font-black text-slate-800 hover:text-violet-600 transition">{{ $guardianData->student->name ?? 'Học viên không xác định' }}</a>
+                                                        <a href="javascript:void(0)" class="text-sm font-black text-slate-800 hover:text-violet-600 transition">{{ $guardianData->student->customer->name ?? 'Học viên không xác định' }}</a>
                                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
                                                             Vai trò: {{ $guardianData->relationship === 'father' ? 'Bố' : ($guardianData->relationship === 'mother' ? 'Mẹ' : 'Giám hộ') }}
                                                         </p>

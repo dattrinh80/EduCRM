@@ -126,7 +126,7 @@ class CustomerWebController extends Controller
         \Modules\CRM\Task\Application\Queries\GetTasksPaginatedHandler $tasksHandler
     ) {
         $customer = $customerHandler->handle(new \Modules\CRM\Customer\Application\Queries\GetCustomerByIdQuery($id, [
-            'tags', 'studentGuardians.student'
+            'tags', 'studentGuardians.student.customer', 'studentProfile'
         ]));
 
         if (!$customer) {

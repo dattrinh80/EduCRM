@@ -46,4 +46,9 @@ class CustomerModel extends Model
     {
         return $this->hasMany(\Modules\Education\Student\Infrastructure\Persistence\StudentGuardianModel::class, 'guardian_id');
     }
+
+    public function studentProfile()
+    {
+        return $this->hasOne(\Modules\Education\Student\Infrastructure\Persistence\StudentModel::class, 'customer_id');
+    }
 }
