@@ -113,65 +113,65 @@
 
                 {{-- Student Card Body --}}
                 <div x-show="!student.collapsed" x-transition class="p-4 space-y-4">
-                    {{-- Student Info Row 1 --}}
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    {{-- Student Info Row 1: Họ tên, SĐT, Email --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Họ và tên <span class="text-red-500">*</span></label>
                             <input type="text" :name="'students[' + sIndex + '][name]'" x-model="student.name" required
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
                                 placeholder="Nhập họ và tên…">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Số điện thoại</label>
                             <input type="text" :name="'students[' + sIndex + '][phone]'" x-model="student.phone"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none tabular-nums"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none tabular-nums"
                                 placeholder="0901234567">
                         </div>
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Ngày sinh</label>
-                            <input type="date" :name="'students[' + sIndex + '][dob]'" x-model="student.dob"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
-                        </div>
-                        <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Giới tính</label>
-                            <div class="flex items-center gap-1">
-                                <template x-for="g in [{val:'MALE',label:'Nam'},{val:'FEMALE',label:'Nữ'},{val:'OTHER',label:'Khác'}]" :key="g.val">
-                                    <label class="relative cursor-pointer">
-                                        <input type="radio" :name="'students[' + sIndex + '][gender]'" :value="g.val" x-model="student.gender" class="sr-only peer">
-                                        <span class="block px-3 py-2 text-sm font-medium rounded-xl border transition-all
-                                            peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700
-                                            border-slate-200 text-slate-500 hover:bg-slate-50" x-text="g.label"></span>
-                                    </label>
-                                </template>
-                            </div>
-                            <input type="hidden" :name="'students[' + sIndex + '][gender]'" x-model="student.gender">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Email</label>
+                            <input type="email" :name="'students[' + sIndex + '][email]'" x-model="student.email"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                placeholder="email@example.com">
                         </div>
                     </div>
 
-                    {{-- Student Info Row 2 --}}
+                    {{-- Student Info Row 2: Ngày sinh, Giới tính (dropdown), Địa chỉ --}}
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                         <div>
-                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Email</label>
-                            <input type="email" :name="'students[' + sIndex + '][email]'" x-model="student.email"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
-                                placeholder="email@example.com">
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Ngày sinh</label>
+                            <input type="date" :name="'students[' + sIndex + '][dob]'" x-model="student.dob"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none">
                         </div>
                         <div>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Giới tính</label>
+                            <select :name="'students[' + sIndex + '][gender]'" x-model="student.gender"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none">
+                                <option value="">Chọn…</option>
+                                <option value="MALE">Nam</option>
+                                <option value="FEMALE">Nữ</option>
+                                <option value="OTHER">Khác</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Địa chỉ</label>
                             <input type="text" :name="'students[' + sIndex + '][address]'" x-model="student.address"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
                                 placeholder="Số nhà, đường, phường…">
                         </div>
+                    </div>
+
+                    {{-- Student Info Row 3: Trường, Khối/Lớp --}}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Trường đang học</label>
                             <input type="text" :name="'students[' + sIndex + '][school]'" x-model="student.school"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
                                 placeholder="Tên trường học…">
                         </div>
                         <div>
                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Khối / Lớp</label>
                             <input type="text" :name="'students[' + sIndex + '][grade]'" x-model="student.grade"
-                                class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
+                                class="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none"
                                 placeholder="Lớp 3, Khối 12…">
                         </div>
                     </div>
@@ -225,7 +225,7 @@
                                         :name="'students[' + sIndex + '][guardians][' + gIndex + '][customer_id]'"
                                         :value="guardian.customerId">
 
-                                    {{-- Guardian Fields Row 1 --}}
+                                    {{-- Guardian Fields Row 1: Họ tên, SĐT, Email, Quan hệ --}}
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5">
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Họ tên <span class="text-red-500">*</span></label>
@@ -263,7 +263,7 @@
                                         </div>
                                     </div>
 
-                                    {{-- Guardian Fields Row 2 --}}
+                                    {{-- Guardian Fields Row 2: Ngày sinh, Giới tính, Địa chỉ --}}
                                     <div class="grid grid-cols-1 md:grid-cols-4 gap-2.5 mt-2.5">
                                         <div>
                                             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Ngày sinh</label>
@@ -324,19 +324,19 @@
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Chương trình</label>
-                                <select class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
+                                <select class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
                                     <option value="">Chọn chương trình…</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Khóa học</label>
-                                <select class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
+                                <select class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
                                     <option value="">Chọn khóa học…</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 ml-0.5">Lớp học</label>
-                                <select class="w-full px-3 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
+                                <select class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all outline-none appearance-none text-slate-500">
                                     <option value="">Chọn lớp học…</option>
                                 </select>
                             </div>
@@ -368,95 +368,108 @@
     </form>
 
     {{-- ========== Guardian Picker Modal ========== --}}
-    <div x-show="pickerOpen" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
-         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" @click.self="pickerOpen = false" style="display:none;">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[80vh] flex flex-col" @click.stop>
-            {{-- Modal Header --}}
-            <div class="flex items-center justify-between p-5 border-b border-slate-100">
-                <h3 class="text-lg font-bold text-slate-800">Chọn Giám hộ Đã Có</h3>
-                <button type="button" @click="pickerOpen = false" class="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
+    <template x-teleport="body">
+        <div x-show="pickerOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="pickerOpen = false" x-transition.opacity></div>
 
-            {{-- Search Bar --}}
-            <div class="px-5 py-3">
-                <div class="relative">
-                    <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" x-model="pickerSearch" @input.debounce.300ms="searchCustomers()"
-                        class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
-                        placeholder="Tìm kiếm theo tên hoặc số điện thoại...">
-                </div>
-            </div>
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden"
+                 x-show="pickerOpen"
+                 x-transition:enter="transition ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
 
-            {{-- Results List --}}
-            <div class="flex-1 overflow-y-auto px-5 pb-2" style="min-height: 200px;">
-                {{-- Loading --}}
-                <div x-show="pickerLoading" class="flex items-center justify-center py-10">
-                    <div class="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
-                    <span class="ml-2 text-sm text-slate-400">Đang tìm kiếm…</span>
-                </div>
-
-                {{-- Empty --}}
-                <div x-show="!pickerLoading && pickerResults.length === 0 && pickerSearch.length > 0" class="text-center py-10">
-                    <i data-lucide="user-x" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-                    <p class="text-sm text-slate-400">Không tìm thấy khách hàng nào.</p>
-                </div>
-
-                {{-- Prompt --}}
-                <div x-show="!pickerLoading && pickerResults.length === 0 && pickerSearch.length === 0" class="text-center py-10">
-                    <i data-lucide="search" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
-                    <p class="text-sm text-slate-400">Nhập tên hoặc SĐT để tìm khách hàng.</p>
-                </div>
-
-                {{-- Customer Items --}}
-                <template x-for="(cust, cIdx) in pickerResults" :key="cust.id">
-                    <div @click="pickerSelectedId = cust.id"
-                        class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all mb-2"
-                        :class="pickerSelectedId === cust.id ? 'border-primary-500 bg-primary-50/50' : 'border-transparent hover:bg-slate-50'">
-                        {{-- Avatar --}}
-                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
-                            :class="pickerSelectedId === cust.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'"
-                            x-text="cust.name ? cust.name.charAt(0).toUpperCase() : '?'"></div>
-                        {{-- Info --}}
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2">
-                                <span class="font-semibold text-sm text-slate-800 truncate" x-text="cust.name"></span>
-                            </div>
-                            <div class="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
-                                <span x-show="cust.phone" class="flex items-center gap-1">
-                                    <i data-lucide="phone" class="w-3 h-3"></i>
-                                    <span x-text="cust.phone" class="tabular-nums"></span>
-                                </span>
-                                <span x-show="cust.email" class="flex items-center gap-1">
-                                    <i data-lucide="mail" class="w-3 h-3"></i>
-                                    <span x-text="cust.email" class="truncate"></span>
-                                </span>
-                            </div>
+                {{-- Modal Header --}}
+                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                    <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                            <i data-lucide="users" class="w-4 h-4"></i>
                         </div>
-                        {{-- Check --}}
-                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
-                            :class="pickerSelectedId === cust.id ? 'border-primary-500 bg-primary-500' : 'border-slate-300'">
-                            <i data-lucide="check" class="w-3.5 h-3.5 text-white" x-show="pickerSelectedId === cust.id"></i>
-                        </div>
+                        Chọn Giám hộ Đã Có
+                    </h3>
+                    <button type="button" @click="pickerOpen = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                {{-- Search Bar --}}
+                <div class="px-6 py-3 border-b border-slate-100">
+                    <div class="relative">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" x-model="pickerSearch" @input.debounce.300ms="searchCustomers()"
+                            class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all"
+                            placeholder="Tìm kiếm theo tên hoặc số điện thoại...">
                     </div>
-                </template>
-            </div>
+                </div>
 
-            {{-- Modal Footer --}}
-            <div class="flex items-center justify-end gap-3 p-5 border-t border-slate-100">
-                <button type="button" @click="pickerOpen = false" class="px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors">
-                    Huỷ
-                </button>
-                <button type="button" @click="confirmGuardianPick()" :disabled="!pickerSelectedId"
-                    class="px-5 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl text-sm font-bold shadow-lg shadow-primary-500/25 hover:from-primary-600 hover:to-primary-700 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                    <i data-lucide="user-check" class="w-4 h-4"></i>
-                    Chọn Giám hộ
-                </button>
+                {{-- Results List --}}
+                <div class="overflow-y-auto px-6 py-3" style="max-height: 340px; min-height: 200px;">
+                    {{-- Loading --}}
+                    <div x-show="pickerLoading" class="flex items-center justify-center py-10">
+                        <div class="w-6 h-6 border-2 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+                        <span class="ml-2 text-sm text-slate-400">Đang tìm kiếm…</span>
+                    </div>
+
+                    {{-- Empty --}}
+                    <div x-show="!pickerLoading && pickerResults.length === 0 && pickerSearch.length > 0" class="text-center py-10">
+                        <i data-lucide="user-x" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-slate-400">Không tìm thấy khách hàng nào.</p>
+                    </div>
+
+                    {{-- Prompt --}}
+                    <div x-show="!pickerLoading && pickerResults.length === 0 && pickerSearch.length === 0" class="text-center py-10">
+                        <i data-lucide="search" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-sm text-slate-400">Nhập tên hoặc SĐT để tìm khách hàng.</p>
+                    </div>
+
+                    {{-- Customer Items --}}
+                    <template x-for="(cust, cIdx) in pickerResults" :key="cust.id">
+                        <div @click="pickerSelectedId = cust.id"
+                            class="flex items-center gap-3 p-3 rounded-xl border-2 cursor-pointer transition-all mb-2"
+                            :class="pickerSelectedId === cust.id ? 'border-primary-500 bg-primary-50/50' : 'border-transparent hover:bg-slate-50'">
+                            {{-- Avatar --}}
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0"
+                                :class="pickerSelectedId === cust.id ? 'bg-primary-100 text-primary-700' : 'bg-slate-100 text-slate-500'"
+                                x-text="cust.name ? cust.name.charAt(0).toUpperCase() : '?'"></div>
+                            {{-- Info --}}
+                            <div class="flex-1 min-w-0">
+                                <span class="font-semibold text-sm text-slate-800 truncate block" x-text="cust.name"></span>
+                                <div class="flex items-center gap-3 text-xs text-slate-400 mt-0.5">
+                                    <span x-show="cust.phone" class="flex items-center gap-1">
+                                        <i data-lucide="phone" class="w-3 h-3"></i>
+                                        <span x-text="cust.phone" class="tabular-nums"></span>
+                                    </span>
+                                    <span x-show="cust.email" class="flex items-center gap-1">
+                                        <i data-lucide="mail" class="w-3 h-3"></i>
+                                        <span x-text="cust.email" class="truncate"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            {{-- Check --}}
+                            <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all"
+                                :class="pickerSelectedId === cust.id ? 'border-primary-500 bg-primary-500' : 'border-slate-300'">
+                                <i data-lucide="check" class="w-3.5 h-3.5 text-white" x-show="pickerSelectedId === cust.id"></i>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- Modal Footer --}}
+                <div class="px-6 py-4 border-t border-slate-100 flex gap-3 justify-end bg-slate-50/30">
+                    <button type="button" @click="pickerOpen = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">
+                        Huỷ
+                    </button>
+                    <button type="button" @click="confirmGuardianPick()" :disabled="!pickerSelectedId"
+                        class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="user-check" class="w-4 h-4"></i>
+                        Chọn Giám hộ
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+    </template>
 </div>
 @endsection
 
@@ -505,21 +518,32 @@ function convertLeadApp() {
         // ── Student CRUD ───────────────────────────────────────────────
         addStudent() {
             const newStudent = {
-                name: '', phone: '', dob: '', gender: 'MALE', email: '', address: '',
+                name: '', phone: '', dob: '', gender: '', email: '', address: '',
                 school: '', grade: '', collapsed: false,
                 guardians: [
                     { name: '', phone: '', email: '', dob: '', gender: '', address: '', relationship: '', is_primary: true, isLead: false, customerId: null }
                 ]
             };
 
+            // Use system confirm dialog instead of browser default
             if (this.students.length > 0 && this.students[0].guardians.length > 0) {
-                if (confirm('Bạn có muốn sao chép giám hộ từ Học viên #1 không?')) {
-                    newStudent.guardians = this.students[0].guardians.map(g => ({...g}));
-                }
+                const self = this;
+                showConfirm({
+                    title: 'Sao chép giám hộ',
+                    message: 'Bạn có muốn sao chép giám hộ từ Học viên #1 sang học viên mới không?',
+                    confirmText: 'Sao chép',
+                    type: 'info'
+                }).then(ok => {
+                    if (ok) {
+                        newStudent.guardians = self.students[0].guardians.map(g => ({...g}));
+                    }
+                    self.students.push(newStudent);
+                    self.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
+                });
+            } else {
+                this.students.push(newStudent);
+                this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
             }
-
-            this.students.push(newStudent);
-            this.$nextTick(() => { if (window.lucide) lucide.createIcons(); });
         },
 
         removeStudent(index) {
