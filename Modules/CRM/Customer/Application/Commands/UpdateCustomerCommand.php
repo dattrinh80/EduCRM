@@ -16,7 +16,8 @@ class UpdateCustomerCommand implements Command
         public readonly ?string $dob = null,
         public readonly ?string $gender = null,
         public readonly ?string $address = null,
-        public readonly ?string $centerId = null
+        public readonly ?string $centerId = null,
+        public readonly array $tagIds = []
     ) {
     }
 }

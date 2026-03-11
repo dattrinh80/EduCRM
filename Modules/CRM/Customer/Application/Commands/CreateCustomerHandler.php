@@ -8,12 +8,14 @@ use App\Core\CQRS\CommandHandler;
 use App\Core\CQRS\Command;
 use Modules\CRM\Customer\Domain\Customer;
 use Modules\CRM\Customer\Domain\CustomerRepositoryInterface;
+use Modules\CRM\CustomerTag\Domain\CustomerTagRepositoryInterface;
 use Illuminate\Support\Str;
 
 class CreateCustomerHandler implements CommandHandler
 {
     public function __construct(
-        private readonly CustomerRepositoryInterface $repository
+        private readonly CustomerRepositoryInterface $repository,
+        private readonly CustomerTagRepositoryInterface $tagRepository
     ) {
     }
 
@@ -33,6 +35,10 @@ class CreateCustomerHandler implements CommandHandler
         );
 
         $this->repository->save($customer);
+
+        if (!empty($command->tagIds)) {
+            $this->tagRepository->syncTagsForCustomer($customer->id, $command->tagIds);
+        }
 
         return $customer;
     }

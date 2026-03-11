@@ -30,4 +30,14 @@ class StudentGuardianModel extends Model
             }
         });
     }
+
+    public function student()
+    {
+        return $this->belongsTo(StudentModel::class, 'student_id');
+    }
+
+    public function guardian()
+    {
+        return $this->belongsTo(\Modules\CRM\Customer\Infrastructure\Persistence\CustomerModel::class, 'guardian_id');
+    }
 }

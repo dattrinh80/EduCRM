@@ -8,11 +8,13 @@ use App\Core\CQRS\CommandHandler;
 use App\Core\CQRS\Command;
 use Modules\CRM\Customer\Domain\Customer;
 use Modules\CRM\Customer\Domain\CustomerRepositoryInterface;
+use Modules\CRM\CustomerTag\Domain\CustomerTagRepositoryInterface;
 
 class UpdateCustomerHandler implements CommandHandler
 {
     public function __construct(
-        private readonly CustomerRepositoryInterface $repository
+        private readonly CustomerRepositoryInterface $repository,
+        private readonly CustomerTagRepositoryInterface $tagRepository
     ) {
     }
 
@@ -37,6 +39,7 @@ class UpdateCustomerHandler implements CommandHandler
         );
 
         $this->repository->save($customer);
+        $this->tagRepository->syncTagsForCustomer($customer->id, $command->tagIds);
 
         return $customer;
     }

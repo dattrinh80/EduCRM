@@ -29,7 +29,9 @@ class CenterContextMiddleware
             $authService = app(\Modules\Core\User\Application\Services\AuthorizationServiceInterface::class);
             $hasGlobalScope = $authService->hasGlobalScope($user->id);
             $allowedCenterIds = $authService->getAllowedCenterIds($user->id);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('CenterContextMiddleware Auth Error: ' . $e->getMessage());
+        }
 
         // Resolve current center_id: session takes priority
         $centerId = session('current_center_id');
