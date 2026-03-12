@@ -28,10 +28,12 @@ class TaskReadModel extends Model
         'center_id',
         'relation_id',
         'relation_type',
+        'start_date',
     ];
 
     protected $casts = [
         'due_date' => 'date',
+        'start_date' => 'date',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
     ];

@@ -15,7 +15,8 @@ class UpdateTaskCommand implements Command
         public readonly ?string $dueDate,
         public readonly string $status,
         public readonly string $priority,
-        public readonly ?string $assignedTo
+        public readonly ?string $assignedTo,
+        public readonly ?string $startDate = null
     ) {
     }
 }

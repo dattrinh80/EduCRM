@@ -31,6 +31,7 @@ class Task extends Entity
         public string $centerId,
         public ?string $relationId = null,
         public ?string $relationType = null,
+        public ?string $startDate = null,
         public ?DateTimeImmutable $createdAt = null,
         public ?DateTimeImmutable $updatedAt = null
     ) {
@@ -47,7 +48,8 @@ class Task extends Entity
         string $assignedBy,
         string $centerId,
         ?string $relationId = null,
-        ?string $relationType = null
+        ?string $relationType = null,
+        ?string $startDate = null
     ): self {
         return new self(
             $id,
@@ -61,6 +63,7 @@ class Task extends Entity
             $centerId,
             $relationId,
             $relationType,
+            $startDate,
             new DateTimeImmutable(),
             new DateTimeImmutable()
         );
@@ -72,7 +75,8 @@ class Task extends Entity
         ?string $dueDate,
         string $status,
         string $priority,
-        ?string $assignedTo
+        ?string $assignedTo,
+        ?string $startDate = null
     ): void {
         $this->title = $title;
         $this->description = $description;
@@ -80,6 +84,7 @@ class Task extends Entity
         $this->status = $status;
         $this->priority = $priority;
         $this->assignedTo = $assignedTo;
+        $this->startDate = $startDate;
         $this->updatedAt = new DateTimeImmutable();
     }
 

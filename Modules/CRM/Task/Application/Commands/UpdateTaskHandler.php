@@ -31,7 +31,8 @@ class UpdateTaskHandler implements CommandHandler
             $command->dueDate,
             $command->status,
             $command->priority,
-            $command->assignedTo
+            $command->assignedTo,
+            $command->startDate
         );
 
         $this->repository->update($task);

@@ -22,6 +22,8 @@ use Modules\CRM\Task\Application\Commands\ToggleTaskStatusCommand;
 use Modules\CRM\Task\Application\Commands\ToggleTaskStatusHandler;
 use Modules\CRM\Task\Application\Commands\DeleteTaskCommand;
 use Modules\CRM\Task\Application\Commands\DeleteTaskHandler;
+use Modules\CRM\Task\Application\Queries\SearchTaskRelationsQuery;
+use Modules\CRM\Task\Application\Queries\SearchTaskRelationsHandler;
 
 class TaskWebController extends Controller
 {
@@ -63,6 +65,7 @@ class TaskWebController extends Controller
         $rules = [
             'title' => 'required|string|max:255',
             'due_date' => 'nullable|date',
+            'start_date' => 'nullable|date',
             'priority' => 'required|string',
             'assigned_to' => 'nullable|uuid',
         ];
@@ -86,6 +89,7 @@ class TaskWebController extends Controller
                 $request->assigned_to,
                 (string) auth()->id(),
                 $centerId,
+                $request->start_date,
                 $request->relation_id,
                 $request->relation_type
             ));
@@ -115,6 +119,7 @@ class TaskWebController extends Controller
             'title' => 'required|string|max:255',
             'status' => 'required|string',
             'priority' => 'required|string',
+            'start_date' => 'nullable|date',
         ]);
 
         try {
@@ -125,7 +130,8 @@ class TaskWebController extends Controller
                 $request->due_date,
                 $request->status,
                 $request->priority,
-                $request->assigned_to
+                $request->assigned_to,
+                $request->start_date
             ));
 
             if ($request->ajax()) {
@@ -180,5 +186,19 @@ class TaskWebController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 400);
         }
+    }
+
+    public function searchRelations(Request $request, SearchTaskRelationsHandler $handler)
+    {
+        $q = $request->query('q');
+        $type = $request->query('type'); // Lead or Customer
+
+        if (empty($q) || strlen($q) < 2) {
+            return response()->json([]);
+        }
+
+        $results = $handler->handle(new SearchTaskRelationsQuery($q, $type));
+
+        return response()->json($results);
     }
 }

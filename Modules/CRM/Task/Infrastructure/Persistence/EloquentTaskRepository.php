@@ -59,6 +59,7 @@ class EloquentTaskRepository implements TaskRepositoryInterface
         $model->center_id = $task->centerId;
         $model->relation_id = $task->relationId;
         $model->relation_type = $task->relationType;
+        $model->start_date = $task->startDate;
     }
 
     private function mapModelToDomain(TaskReadModel $model): Task
@@ -75,6 +76,7 @@ class EloquentTaskRepository implements TaskRepositoryInterface
             $model->center_id,
             $model->relation_id,
             $model->relation_type,
+            $model->start_date ? $model->start_date->format('Y-m-d') : null,
             $model->created_at ? new \DateTimeImmutable($model->created_at->toDateTimeString()) : null,
             $model->updated_at ? new \DateTimeImmutable($model->updated_at->toDateTimeString()) : null
         );

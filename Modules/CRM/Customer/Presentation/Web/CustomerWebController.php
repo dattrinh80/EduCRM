@@ -16,6 +16,8 @@ use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 use Modules\CRM\CustomerTag\Application\Queries\GetCustomerTagsQuery;
 use Modules\CRM\CustomerTag\Application\Queries\GetCustomerTagsHandler;
+use Modules\Core\User\Application\Queries\GetAllUsersQuery;
+use Modules\Core\User\Application\Queries\GetAllUsersHandler;
 use App\Core\Helpers\PaginationHelper;
 use Modules\CRM\Customer\Application\Exports\CustomersExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -123,7 +125,8 @@ class CustomerWebController extends Controller
         GetCustomerTagsHandler $tagsHandler,
         \Modules\CRM\CustomerActivity\Application\Queries\GetCustomerActivitiesHandler $activitiesHandler,
         \Modules\CRM\CustomerNote\Application\Queries\GetCustomerNotesHandler $notesHandler,
-        \Modules\CRM\Task\Application\Queries\GetTasksPaginatedHandler $tasksHandler
+        \Modules\CRM\Task\Application\Queries\GetTasksPaginatedHandler $tasksHandler,
+        GetAllUsersHandler $usersHandler
     ) {
         $customer = $customerHandler->handle(new \Modules\CRM\Customer\Application\Queries\GetCustomerByIdQuery($id, [
             'tags', 'studentGuardians.student.customer', 'studentProfile'
@@ -148,9 +151,12 @@ class CustomerWebController extends Controller
             relationType: 'Customer'
         ));
 
+        $usersQueryCenterId = $isGlobalScope ? null : (app()->has('center_id') ? app('center_id') : null);
+        $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
+
         return view('customer::detail', compact(
             'customer', 'activities', 'notes', 'tasks',
-            'centers', 'allTags', 'isGlobalScope'
+            'centers', 'allTags', 'isGlobalScope', 'users'
         ));
     }
 

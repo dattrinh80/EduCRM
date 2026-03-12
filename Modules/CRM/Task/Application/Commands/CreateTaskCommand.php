@@ -16,6 +16,7 @@ class CreateTaskCommand implements Command
         public readonly ?string $assignedTo,
         public readonly string $assignedBy,
         public readonly string $centerId,
+        public readonly ?string $startDate = null,
         public readonly ?string $relationId = null,
         public readonly ?string $relationType = null
     ) {

@@ -3,7 +3,16 @@
 @section('title', 'Chi tiết Khách hàng - ' . $customer->name)
 
 @section('content')
-<div class="space-y-8" x-data="customerDetailStore()">
+<div class="space-y-8" x-data="{ 
+    activeTab: 'info', 
+    showTaskModal: false,
+    setTab(tab) {
+        this.activeTab = tab;
+        this.$nextTick(() => {
+            if (window.lucide) { lucide.createIcons(); }
+        });
+    }
+}">
     {{-- Top Title & Context --}}
     <div class="flex flex-col gap-1 mb-8">
         <nav class="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400">
@@ -424,9 +433,11 @@
                 <div x-show="activeTab === 'tasks'" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0" class="space-y-6">
                     <div class="flex items-center justify-between mb-4">
                         <h3 class="font-bold text-slate-800 uppercase text-xs tracking-widest">Danh sách nhiệm vụ</h3>
-                        <button class="px-5 py-2.5 bg-primary-100 text-primary-700 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-primary-200 transition active:scale-95 shadow-sm border border-primary-200">
+                    @can('customers.update')
+                        <button @click="showTaskModal = true; $nextTick(() => { if (window.lucide) { lucide.createIcons(); } })" class="px-5 py-2.5 bg-primary-100 text-primary-700 rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-primary-200 transition active:scale-95 shadow-sm border border-primary-200">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm nhiệm vụ
                         </button>
+                    @endcan
                     </div>
 
                     @if($tasks->isEmpty())
@@ -452,8 +463,13 @@
                                         <div class="w-1.5 h-10 rounded-full {{ $pColor }}" title="Ưu tiên: {{ $t->priority }}"></div>
                                         <div>
                                             <h4 class="font-bold text-slate-800 text-sm {{ $t->status === 'DONE' ? 'line-through opacity-50' : '' }}">{{ $t->title }}</h4>
-                                            <div class="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
-                                                <span class="flex items-center gap-1"><i data-lucide="calendar" class="w-3 h-3"></i> {{ $t->due_date ? \Carbon\Carbon::parse($t->due_date)->format('d/m/Y') : 'Không hạn' }}</span>
+                                             <div class="flex items-center gap-3 mt-1 text-[10px] font-bold text-slate-400 uppercase tracking-tight">
+                                                <span class="flex items-center gap-1">
+                                                    <i data-lucide="calendar" class="w-3 h-3"></i> 
+                                                    {{ $t->start_date ? $t->start_date->format('d/m/Y') : '' }}
+                                                    {!! $t->start_date && $t->due_date ? '<i data-lucide="arrow-right" class="w-2 h-2 mx-0.5 opacity-50"></i>' : '' !!}
+                                                    {{ $t->due_date ? $t->due_date->format('d/m/Y') : ($t->start_date ? 'Chưa rõ hạn' : 'Không hạn') }}
+                                                </span>
                                                 <span class="flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> {{ $t->assignedTo->name ?? 'Tự làm' }}</span>
                                             </div>
                                         </div>
@@ -471,24 +487,125 @@
             </div>
         </div>
     </div>
+@can('customers.update')
+{{-- Task Quick Add Modal --}}
+<template x-teleport="body">
+    <div x-show="showTaskModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showTaskModal = false" x-transition.opacity></div>
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden text-left"
+             x-show="showTaskModal" 
+             x-transition:enter="transition ease-out duration-300 transform"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100">
+            
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-primary-600 to-primary-500">
+                <h3 class="text-lg font-bold text-white flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm text-white flex items-center justify-center border border-white/30 shadow-inner">
+                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                    </div>
+                    Tạo nhiệm vụ cho Khách hàng
+                </h3>
+                <button @click="showTaskModal = false" class="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            
+            <form action="{{ route('admin.tasks.store') }}" method="POST" class="p-6">
+                @csrf
+                <input type="hidden" name="relation_id" value="{{ $customer->id }}">
+                <input type="hidden" name="relation_type" value="Customer">
+                <input type="hidden" name="center_id" value="{{ $customer->center_id }}">
+                
+                <div class="space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Tiêu đề nhiệm vụ <span class="text-red-500">*</span></label>
+                        <div class="relative">
+                            <i data-lucide="flag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                            <input type="text" name="title" required placeholder="Nhập tên nhiệm vụ..." 
+                                   class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all text-sm font-medium text-slate-700">
+                        </div>
+                    </div>
+                    
+                    <div class="space-y-1">
+                        <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Mô tả chi tiết</label>
+                        <textarea name="description" rows="3" placeholder="Ghi chú thêm về nội dung công việc..." 
+                                  class="w-full px-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 outline-none transition-all text-sm font-medium text-slate-600 leading-relaxed"></textarea>
+                    </div>
+
+                    <div class="px-4 py-2 bg-primary-50/50 border border-primary-100 rounded-xl flex items-center gap-2 mt-4">
+                        <i data-lucide="link" class="w-4 h-4 text-primary-500"></i>
+                        <span class="text-sm font-semibold text-primary-700">Đang liên kết: KH {{ $customer->name ?? $customer->full_name }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mt-6">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Ngày bắt đầu</label>
+                            <div class="relative">
+                                <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="date" name="start_date" 
+                                       class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm font-medium text-slate-700">
+                            </div>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block text-primary-600">Hạn chót</label>
+                            <div class="relative">
+                                <i data-lucide="calendar-clock" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="date" name="due_date" 
+                                       class="w-full pl-10 pr-4 py-2.5 bg-primary-50/30 border border-primary-100 rounded-xl focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm font-semibold text-primary-700">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Ưu tiên</label>
+                            <div class="relative">
+                                <i data-lucide="flag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="priority" class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm font-medium text-slate-700 appearance-none bg-white">
+                                    <option value="LOW">Thấp</option>
+                                    <option value="MEDIUM" selected>Trung bình</option>
+                                    <option value="HIGH">Cao</option>
+                                    <option value="URGENT">Khẩn cấp</option>
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="text-xs font-semibold text-slate-500 uppercase tracking-wider block">Giao cho nhân sự</label>
+                            <div class="relative">
+                                <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2.5 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500/20 outline-none transition-all text-sm font-medium text-slate-700 appearance-none bg-white">
+                                    <option value="{{ auth()->id() }}">Giao cho chính tôi</option>
+                                    <option value="">-- Để trống --</option>
+                                    @foreach($users ?? [] as $user)
+                                        @if($user->id !== auth()->id() && $user->default_center_id == $customer->center_id)
+                                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end relative">
+                    <button type="button" @click="showTaskModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
+                    <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Tạo nhiệm vụ
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</template>
+@endcan
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('customerDetailStore', () => ({
-            activeTab: 'info',
-            
-            setTab(tab) {
-                this.activeTab = tab;
-                this.$nextTick(() => {
-                    if (window.lucide) { lucide.createIcons(); }
-                });
-            }
-        }));
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
         if (window.lucide) { lucide.createIcons(); }
     });
