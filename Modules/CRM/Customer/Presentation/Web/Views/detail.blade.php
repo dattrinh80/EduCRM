@@ -107,29 +107,30 @@
                                             <p class="text-base font-black text-slate-800 tabular-nums">{{ $customer->phone }}</p>
                                         </div>
                                     </div>
-                                    @if($customer->email)
                                     <div class="flex items-center gap-5 group">
                                         <div class="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm">
                                             <i data-lucide="mail" class="w-5 h-5"></i>
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Email</p>
-                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $customer->email }}">{{ $customer->email }}</p>
+                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $customer->email ?? 'Chưa cập nhật' }}">
+                                                {{ $customer->email ?? 'Chưa cập nhật' }}
+                                            </p>
                                         </div>
                                     </div>
-                                    @endif
-                                    @if($customer->dob)
+
                                     <div class="flex items-center gap-5 group">
                                         <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-rose-600 group-hover:text-white transition-all shadow-sm">
                                             <i data-lucide="cake" class="w-5 h-5"></i>
                                         </div>
                                         <div>
                                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Ngày sinh</p>
-                                            <p class="text-base font-black text-slate-800">{{ \Carbon\Carbon::parse($customer->dob)->format('d/m/Y') }}</p>
+                                            <p class="text-base font-black text-slate-800">
+                                                {{ $customer->dob ? \Carbon\Carbon::parse($customer->dob)->format('d/m/Y') : 'Chưa cập nhật' }}
+                                            </p>
                                         </div>
                                     </div>
-                                    @endif
-                                    @if($customer->gender)
+
                                     <div class="flex items-center gap-5 group">
                                         <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-teal-600 group-hover:text-white transition-all shadow-sm">
                                             <i data-lucide="user" class="w-5 h-5"></i>
@@ -137,22 +138,22 @@
                                         <div>
                                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Giới tính</p>
                                             <p class="text-base font-black text-slate-800">
-                                                {{ $customer->gender === 'M' ? 'Nam' : ($customer->gender === 'F' ? 'Nữ' : 'Khác') }}
+                                                @if($customer->gender === 'M') Nam @elseif($customer->gender === 'F') Nữ @elseif($customer->gender) Khác @else Chưa cập nhật @endif
                                             </p>
                                         </div>
                                     </div>
-                                    @endif
-                                    @if($customer->address)
+
                                     <div class="flex items-center gap-5 group">
                                         <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center group-hover:scale-110 group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">
                                             <i data-lucide="map-pin" class="w-5 h-5"></i>
                                         </div>
                                         <div class="min-w-0">
                                             <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Địa chỉ</p>
-                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $customer->address }}">{{ $customer->address }}</p>
+                                            <p class="text-base font-black text-slate-800 truncate" title="{{ $customer->address ?? 'Chưa cập nhật' }}">
+                                                {{ $customer->address ?? 'Chưa cập nhật' }}
+                                            </p>
                                         </div>
                                     </div>
-                                    @endif
                                 </div>
                             </div>
 
@@ -177,8 +178,12 @@
                                                     </div>
                                                     <div>
                                                         <a href="javascript:void(0)" class="text-sm font-black text-slate-800 hover:text-violet-600 transition">{{ $guardianData->student->customer->name ?? 'Học viên không xác định' }}</a>
-                                                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                                                            Vai trò: {{ $guardianData->relationship === 'father' ? 'Bố' : ($guardianData->relationship === 'mother' ? 'Mẹ' : 'Giám hộ') }}
+                                                         <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 flex items-center gap-2">
+                                                            <span class="px-1.5 py-0.5 bg-slate-200 rounded text-slate-600">{{ $guardianData->student->student_code ?? 'Chưa có mã' }}</span>
+                                                            <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                                            <span class="{{ ($guardianData->student->status ?? '') === 'ACTIVE' ? 'text-emerald-500' : 'text-amber-500' }}">
+                                                                {{ ($guardianData->student->status ?? '') === 'ACTIVE' ? 'Đang học' : 'Tạm dừng/Dự thính' }}
+                                                            </span>
                                                         </p>
                                                     </div>
                                                 </div>
