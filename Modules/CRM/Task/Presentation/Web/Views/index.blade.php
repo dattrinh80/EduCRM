@@ -123,18 +123,19 @@
                         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showEditModal = false" x-transition.opacity></div>
                         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden text-left"
                              x-show="showEditModal" 
+                             x-init="$watch('showEditModal', value => { if(value && window.lucide) { setTimeout(() => lucide.createIcons(), 50) } })"
                              x-transition:enter="transition ease-out duration-300 transform"
                              x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                              x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100">
                             
-                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-primary-600 to-primary-500">
-                                <h3 class="text-lg font-bold text-white flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm text-white flex items-center justify-center border border-white/30 shadow-inner">
-                                        <i data-lucide="edit-3" class="w-5 h-5"></i>
+                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
                                     </div>
                                     Cập nhật nhiệm vụ
                                 </h3>
-                                <button @click="showEditModal = false" class="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition">
+                                <button @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
                                     <i data-lucide="x" class="w-5 h-5"></i>
                                 </button>
                             </div>
@@ -252,18 +253,19 @@
             <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" @click="showCreateModal = false" x-transition.opacity></div>
                         <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto overflow-hidden text-left"
                              x-show="showCreateModal" 
+                             x-init="$watch('showCreateModal', value => { if(value && window.lucide) { setTimeout(() => lucide.createIcons(), 50) } })"
                              x-transition:enter="transition ease-out duration-300 transform"
                              x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                              x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100">
                             
-                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-primary-600 to-primary-500">
-                                <h3 class="text-lg font-bold text-white flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm text-white flex items-center justify-center border border-white/30 shadow-inner">
-                                        <i data-lucide="plus-circle" class="w-5 h-5"></i>
+                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                                <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
+                                    <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
+                                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
                                     </div>
                                     Tạo nhiệm vụ mới
                                 </h3>
-                                <button @click="showCreateModal = false" class="text-white/70 hover:text-white hover:bg-white/10 p-2 rounded-xl transition">
+                                <button @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
                                     <i data-lucide="x" class="w-5 h-5"></i>
                                 </button>
                             </div>
