@@ -30,7 +30,7 @@ class SearchTaskRelationsHandler implements QueryHandler
                 $results[] = [
                     'id' => $lead->id,
                     'name' => "[Lead] {$lead->name} - {$lead->phone}",
-                    'type' => 'Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel'
+                    'type' => 'Lead'
                 ];
             }
         }
@@ -46,7 +46,7 @@ class SearchTaskRelationsHandler implements QueryHandler
                 $results[] = [
                     'id' => $customer->id,
                     'name' => "[KH] {$customer->name} - {$customer->phone}",
-                    'type' => 'Modules\CRM\Customer\Infrastructure\Persistence\CustomerModel'
+                    'type' => 'Customer'
                 ];
             }
         }

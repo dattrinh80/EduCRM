@@ -30,9 +30,9 @@ class CreateTaskHandler implements CommandHandler
             $command->assignedTo,
             $command->assignedBy,
             $command->centerId,
-            $command->startDate,
             $command->relationId,
-            $command->relationType
+            $command->relationType,
+            $command->startDate
         );
 
         $this->repository->save($task);

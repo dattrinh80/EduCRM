@@ -18,6 +18,11 @@ class ServiceProvider extends BaseServiceProvider
 
     public function boot(): void
     {
+        \Illuminate\Database\Eloquent\Relations\Relation::morphMap([
+            'Lead' => \Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel::class,
+            'Customer' => \Modules\CRM\Customer\Infrastructure\Persistence\CustomerModel::class,
+        ]);
+
         if (file_exists(__DIR__ . '/routes/api.php')) {
             $this->loadRoutesFrom(__DIR__ . '/routes/api.php');
         }

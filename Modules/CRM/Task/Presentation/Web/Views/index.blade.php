@@ -102,9 +102,12 @@
                         Giao cho: {{ $task->assignedTo->name ?? 'Người khác' }}
                     </span>
                     @if($task->relation)
+                    @php
+                        $relType = str_contains($task->relation_type, 'Lead') ? 'Lead' : (str_contains($task->relation_type, 'Customer') ? 'Khách hàng' : class_basename($task->relation_type));
+                    @endphp
                     <span class="flex items-center gap-1.5 px-2 py-0.5 bg-primary-50 text-primary-600 rounded-md font-bold">
                         <i data-lucide="link" class="w-3 h-3"></i>
-                        {{ $task->relation_type }}: {{ $task->relation->name ?? '...' }}
+                        {{ $relType }}: {{ $task->relation->name ?? '...' }}
                     </span>
                     @endif
                 </div>
