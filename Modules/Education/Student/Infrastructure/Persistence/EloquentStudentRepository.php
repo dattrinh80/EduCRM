@@ -67,6 +67,11 @@ class EloquentStudentRepository implements StudentRepositoryInterface
             ->all();
     }
 
+    public function delete(string $id): void
+    {
+        StudentModel::destroy($id);
+    }
+
     private function mapToDomain(StudentModel $model): Student
     {
         return new Student(

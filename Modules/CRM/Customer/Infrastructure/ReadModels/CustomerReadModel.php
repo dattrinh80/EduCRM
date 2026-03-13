@@ -46,4 +46,9 @@ class CustomerReadModel extends Model
     {
         return $this->hasOne(\Modules\Education\Student\Infrastructure\Persistence\StudentModel::class, 'customer_id', 'id');
     }
+
+    public function center(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(\Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::class, 'center_id');
+    }
 }

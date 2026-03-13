@@ -15,7 +15,7 @@ class GetStudentsHandler implements QueryHandler
     ) {
     }
 
-    public function handle(Query $query): array
+    public function handle(Query $query): mixed
     {
         return $this->repository->getAll();
     }
