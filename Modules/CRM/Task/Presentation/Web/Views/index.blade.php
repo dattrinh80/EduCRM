@@ -76,13 +76,16 @@
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-all p-4 flex flex-col md:flex-row gap-4 items-center group">
             <div class="flex-shrink-0">
                 <button @click="toggleStatus('{{ $task->id }}')" 
-                        class="w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all {{ $task->status === 'DONE' ? 'bg-emerald-50 border-emerald-500 text-emerald-600' : 'border-slate-200 text-slate-300 hover:border-primary-400' }}">
-                    <i data-lucide="{{ $task->status === 'DONE' ? 'check' : 'circle' }}" class="w-5 h-5"></i>
+                        class="w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all 
+                        @if($task->status === 'DONE') bg-emerald-50 border-emerald-500 text-emerald-600 
+                        @elseif($task->status === 'CANCELLED') bg-slate-50 border-slate-300 text-slate-400 
+                        @else border-slate-200 text-slate-300 hover:border-primary-400 @endif">
+                    <i data-lucide="{{ $task->status === 'DONE' ? 'check' : ($task->status === 'CANCELLED' ? 'x' : 'circle') }}" class="w-5 h-5"></i>
                 </button>
             </div>
             <div class="flex-1 min-w-0">
                 <div class="flex items-center gap-2 mb-1">
-                    <h3 class="font-bold text-slate-800 truncate {{ $task->status === 'DONE' ? 'line-through opacity-50' : '' }}">{{ $task->title }}</h3>
+                    <h3 class="font-bold text-slate-800 truncate {{ in_array($task->status, ['DONE', 'CANCELLED']) ? 'line-through opacity-50' : '' }}">{{ $task->title }}</h3>
                     @php
                         $priorityColors = ['LOW' => 'bg-slate-100 text-slate-500', 'MEDIUM' => 'bg-blue-50 text-blue-600', 'HIGH' => 'bg-orange-50 text-orange-600', 'URGENT' => 'bg-red-50 text-red-600'];
                     @endphp

@@ -47,6 +47,8 @@ class GetTasksPaginatedHandler implements QueryHandler
         return $builder
             ->with(['assignedTo', 'assignedBy', 'center', 'relation'])
             ->latest('due_date')
+            ->latest('created_at')
+            ->latest('id')
             ->paginate($query->perPage, ['*'], 'page', $query->page);
     }
 }
