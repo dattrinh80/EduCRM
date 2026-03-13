@@ -14,16 +14,16 @@ Route::prefix('api/v1/leads')
     ->middleware(['api', 'auth:sanctum'])
     ->group(function () {
         Route::get('/', [LeadApiController::class, 'index'])->middleware('permission:leads.view');
-        Route::get('/{id}', [LeadApiController::class, 'show'])->middleware('permission:leads.view');
+        Route::get('/{id}', [LeadApiController::class, 'show'])->middleware('permission:leads.view')->whereUuid('id');
         Route::post('/', [LeadApiController::class, 'store'])->middleware('permission:leads.create');
-        Route::put('/{id}', [LeadApiController::class, 'update'])->middleware('permission:leads.update');
-        Route::delete('/{id}', [LeadApiController::class, 'destroy'])->middleware('permission:leads.delete');
+        Route::put('/{id}', [LeadApiController::class, 'update'])->middleware('permission:leads.update')->whereUuid('id');
+        Route::delete('/{id}', [LeadApiController::class, 'destroy'])->middleware('permission:leads.delete')->whereUuid('id');
 
         // Lead Notes
-        Route::get('/{id}/notes', [LeadApiController::class, 'getNotes'])->middleware('permission:leads.view');
-        Route::post('/{id}/notes', [LeadApiController::class, 'storeNote'])->middleware('permission:leads.update');
+        Route::get('/{id}/notes', [LeadApiController::class, 'getNotes'])->middleware('permission:leads.view')->whereUuid('id');
+        Route::post('/{id}/notes', [LeadApiController::class, 'storeNote'])->middleware('permission:leads.update')->whereUuid('id');
 
         // Lead Activities
-        Route::get('/{id}/activities', [LeadApiController::class, 'getActivities'])->middleware('permission:leads.view');
-        Route::post('/{id}/activities', [LeadApiController::class, 'storeActivity'])->middleware('permission:leads.update');
+        Route::get('/{id}/activities', [LeadApiController::class, 'getActivities'])->middleware('permission:leads.view')->whereUuid('id');
+        Route::post('/{id}/activities', [LeadApiController::class, 'storeActivity'])->middleware('permission:leads.update')->whereUuid('id');
     });

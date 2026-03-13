@@ -20,7 +20,7 @@ class CreateLeadHandler implements CommandHandler
     ) {
     }
 
-    public function handle(Command $command): Lead
+    public function handle(Command $command): mixed
     {
         /** @var CreateLeadCommand $command */
         

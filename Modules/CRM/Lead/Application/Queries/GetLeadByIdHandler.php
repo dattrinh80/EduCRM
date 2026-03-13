@@ -10,7 +10,7 @@ use Modules\CRM\Lead\Infrastructure\ReadModels\LeadReadModel;
 
 class GetLeadByIdHandler implements QueryHandler
 {
-    public function handle(Query $query): ?LeadReadModel
+    public function handle(Query $query): mixed
     {
         /** @var GetLeadByIdQuery $query */
         

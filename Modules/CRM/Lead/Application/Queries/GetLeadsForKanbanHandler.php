@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 class GetLeadsForKanbanHandler implements QueryHandler
 {
-    public function handle(Query $query): Collection
+    public function handle(Query $query): mixed
     {
         /** @var GetLeadsForKanbanQuery $query */
         

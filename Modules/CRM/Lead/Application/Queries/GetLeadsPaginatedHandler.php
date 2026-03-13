@@ -11,7 +11,7 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GetLeadsPaginatedHandler implements QueryHandler
 {
-    public function handle(Query $query): LengthAwarePaginator
+    public function handle(Query $query): mixed
     {
         /** @var GetLeadsPaginatedQuery $query */
         $builder = LeadReadModel::query();

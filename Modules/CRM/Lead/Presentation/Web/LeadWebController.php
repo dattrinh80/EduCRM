@@ -260,48 +260,23 @@ class LeadWebController extends Controller
 
     public function export(
         Request $request, 
-        GetLeadsPaginatedHandler $handler,
-        GetActiveCentersHandler $centersHandler,
-        GetAllUsersHandler $usersHandler
+        \Modules\CRM\Lead\Application\Queries\ExportLeadsHandler $handler
     ) {
-        $search = $request->query('search');
-        $phone = $request->query('phone');
-        $centerId = $request->query('center_id');
-        $statusId = $request->query('status_id');
+        $query = new \Modules\CRM\Lead\Application\Queries\ExportLeadsQuery(
+            search: $request->query('search'),
+            phone: $request->query('phone'),
+            centerId: $request->query('center_id'),
+            statusId: $request->query('status_id'),
+            format: $request->query('format', 'excel')
+        );
 
-        $allLeads = collect();
-        $page = 1;
-        $perPage = 1000;
+        $result = $handler->handle($query);
 
-        do {
-            $query = new GetLeadsPaginatedQuery($perPage, $page, $search, $phone, $centerId, $statusId);
-            $paginator = $handler->handle($query);
-            
-            $items = \Illuminate\Database\Eloquent\Collection::make($paginator->items());
-            if ($items->isNotEmpty()) {
-                $items->loadMissing(['leadSource', 'interestType', 'leadStatus']);
-                $allLeads = $allLeads->merge($items);
-            }
-            
-            $page++;
-        } while ($paginator->hasMorePages());
-
-        $format = $request->query('format', 'excel');
-
-        $centers = $centersHandler->handle(new GetActiveCentersQuery())->pluck('name', 'id')->toArray();
-        $users = $usersHandler->handle(new GetAllUsersQuery())->pluck('name', 'id')->toArray();
-
-        if ($format === 'pdf') {
-            $pdf = Pdf::loadView('lead::exports.pdf', [
-                'leads' => $allLeads,
-                'centers' => $centers,
-                'users' => $users
-            ])->setPaper('a4', 'landscape');
-            
-            return $pdf->download('leads.pdf');
+        if ($query->format === 'pdf') {
+            return $result->download('leads.pdf');
         }
 
-        return Excel::download(new LeadsExport($allLeads, $centers, $users), 'leads.xlsx');
+        return \Maatwebsite\Excel\Facades\Excel::download($result, 'leads.xlsx');
     }
 
     public function store(Request $request, CreateLeadHandler $handler)
@@ -355,91 +330,37 @@ class LeadWebController extends Controller
         return redirect()->route('admin.leads.index')->with('success', 'Lead created successfully.');
     }
 
-    public function import(Request $request)
+    public function import(Request $request, \Modules\CRM\Lead\Application\Commands\InitiateLeadImportHandler $handler)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:5120'
         ]);
 
         try {
-            $array = Excel::toArray(new class implements \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow {
-                public function array(array $array) {}
-            }, $request->file('file'));
+            $command = new \Modules\CRM\Lead\Application\Commands\InitiateLeadImportCommand($request->file('file'));
+            $result = $handler->handle($command);
             
-            $rows = $array[0] ?? []; 
-            if (empty($rows)) {
-                return response()->json(['error' => 'File rỗng hoặc không có dữ liệu (Kiểm tra lại Sheet 1).'], 400);
-            }
-            
-            $importId = (string) \Illuminate\Support\Str::uuid();
-            \Illuminate\Support\Facades\Cache::put('lead_import_' . $importId, $rows, now()->addHours(1));
-            
-            return response()->json([
-                'import_id' => $importId,
-                'total' => count($rows)
-            ]);
+            return response()->json($result);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Lỗi đọc file Excel: ' . $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
-    public function importProcess(Request $request, \Modules\CRM\Lead\Application\Commands\ImportLeadHandler $handler)
+    public function importProcess(Request $request, \Modules\CRM\Lead\Application\Commands\ProcessLeadImportChunkHandler $handler)
     {
-        $importId = $request->input('import_id');
-        $offset = (int) $request->input('offset', 0);
-        $limit = (int) $request->input('limit', 10);
-        
-        $rows = \Illuminate\Support\Facades\Cache::get('lead_import_' . $importId);
-        if (!$rows) {
-            return response()->json(['error' => 'Tiến trình đã hết hạn hoặc không tìm thấy, vui lòng upload lại file.'], 400);
-        }
-        
-        $total = count($rows);
-        $chunk = array_slice($rows, $offset, $limit);
-        
-        $successCount = 0;
-        $errorCount = 0;
-        $logs = [];
-        
-        foreach ($chunk as $index => $row) {
-            $currentRow = $offset + $index + 2; // +1 header, +1 for 0-based to 1-based indexing
+        try {
+            $command = new \Modules\CRM\Lead\Application\Commands\ProcessLeadImportChunkCommand(
+                (string) $request->input('import_id'),
+                (int) $request->input('offset', 0),
+                (int) $request->input('limit', 10)
+            );
             
-            try {
-                $normalizedRow = [];
-                foreach ($row as $k => $v) {
-                    $normalizedRow[strtolower(trim((string)$k))] = is_string($v) ? trim($v) : $v;
-                }
-                
-                if (empty($normalizedRow['center_code'])) {
-                    throw new \Exception("Thiếu cột bắt buộc (center_code)");
-                }
-                
-                $command = new \Modules\CRM\Lead\Application\Commands\ImportLeadCommand(
-                    (string)($normalizedRow['name'] ?? ''),
-                    (string)($normalizedRow['phone'] ?? ''),
-                    empty($normalizedRow['email']) ? null : (string)$normalizedRow['email'],
-                    empty($normalizedRow['center_code']) ? null : (string)$normalizedRow['center_code'],
-                    empty($normalizedRow['dob']) ? null : (string)$normalizedRow['dob'],
-                    empty($normalizedRow['lead_source_code']) ? null : (string)$normalizedRow['lead_source_code'],
-                    empty($normalizedRow['campaign_code']) ? null : (string)$normalizedRow['campaign_code'],
-                    empty($normalizedRow['interest_type_code']) ? null : (string)$normalizedRow['interest_type_code']
-                );
-                
-                $handler->handle($command);
-                $successCount++;
-            } catch (\Exception $e) {
-                $errorCount++;
-                $logs[] = "Dòng [{$currentRow}]: " . $e->getMessage();
-            }
+            $result = $handler->handle($command);
+            
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
         }
-        
-        return response()->json([
-            'success_count' => $successCount,
-            'error_count'   => $errorCount,
-            'logs'          => $logs,
-            'next_offset'   => $offset + $limit,
-            'is_finished'   => ($offset + $limit >= $total)
-        ]);
     }
 
     public function downloadTemplate(DownloadLeadTemplateHandler $handler)
