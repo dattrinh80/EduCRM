@@ -162,168 +162,75 @@ class CustomerWebController extends Controller
 
     public function export(
         Request $request, 
-        GetCustomersPaginatedHandler $handler,
-        GetActiveCentersHandler $centersHandler
+        \Modules\CRM\Customer\Application\Queries\ExportCustomersHandler $handler
     ) {
-        $search = $request->query('search');
-        $phone = $request->query('phone');
-        $centerId = $request->query('center_id');
+        $query = new \Modules\CRM\Customer\Application\Queries\ExportCustomersQuery(
+            search: $request->query('search'),
+            phone: $request->query('phone'),
+            centerId: $request->query('center_id'),
+            format: $request->query('format', 'excel')
+        );
 
-        $allCustomers = collect();
-        $page = 1;
-        $perPage = 1000;
+        $result = $handler->handle($query);
 
-        do {
-            $query = new GetCustomersPaginatedQuery($perPage, $page, $search, $phone, $centerId);
-            $paginator = $handler->handle($query);
-            
-            $items = \Illuminate\Database\Eloquent\Collection::make($paginator->items());
-            if ($items->isNotEmpty()) {
-                $allCustomers = $allCustomers->merge($items);
-            }
-            
-            $page++;
-        } while ($paginator->hasMorePages());
-
-        $format = $request->query('format', 'excel');
-        $centers = $centersHandler->handle(new GetActiveCentersQuery())->pluck('name', 'id')->toArray();
-
-        if ($format === 'pdf') {
-            $pdf = Pdf::loadView('customer::exports.pdf', [
-                'customers' => $allCustomers,
-                'centers' => $centers
-            ])->setPaper('a4', 'landscape');
-            
-            return $pdf->download('customers.pdf');
+        if ($query->format === 'pdf') {
+            return $result->download('customers.pdf');
         }
 
-        return Excel::download(new CustomersExport($allCustomers, $centers), 'customers.xlsx');
+        return Excel::download($result, 'customers.xlsx');
     }
 
-    public function destroy(string $id, \Modules\CRM\Customer\Application\Commands\DeleteCustomerHandler $handler)
-    {
-        try {
-            $command = new \Modules\CRM\Customer\Application\Commands\DeleteCustomerCommand($id);
-            $handler->handle($command);
-        } catch (\Exception $e) {
-            return redirect()->route('admin.customers.index')->with('error', 'Khách hàng không tồn tại.');
-        }
-
-        return redirect()->route('admin.customers.index')->with('success', 'Đã xoá khách hàng thành công.');
-    }
-
-    public function storeNote(Request $request, string $id, \Modules\CRM\CustomerNote\Application\Commands\AddCustomerNoteHandler $handler)
-    {
-        $request->validate([
-            'content' => 'required|string|max:5000',
-        ]);
-
-        $handler->handle(new \Modules\CRM\CustomerNote\Application\Commands\AddCustomerNoteCommand(
-            $id,
-            $request->input('content'),
-            auth()->id()
-        ));
-
-        return redirect()->route('admin.customers.show', $id)->with('success', 'Ghi chú đã được thêm.');
-    }
-
-    public function storeActivity(Request $request, string $id, \Modules\CRM\CustomerActivity\Application\Commands\AddCustomerActivityHandler $handler)
-    {
-        $request->validate([
-            'activity_type' => 'required|string|in:call,meeting,sms,email',
-            'description' => 'nullable|string|max:5000',
-        ]);
-
-        $handler->handle(new \Modules\CRM\CustomerActivity\Application\Commands\AddCustomerActivityCommand(
-            $id,
-            $request->input('activity_type'),
-            $request->input('description'),
-            auth()->id()
-        ));
-
-        return redirect()->route('admin.customers.show', $id)->with('success', 'Hoạt động đã được ghi nhận.');
-    }
-
-    public function import(Request $request)
+    public function import(Request $request, \Modules\CRM\Customer\Application\Commands\InitiateCustomerImportHandler $handler)
     {
         $request->validate([
             'file' => 'required|mimes:xlsx,xls,csv|max:5120'
         ]);
 
         try {
-            $array = Excel::toArray(new class implements \Maatwebsite\Excel\Concerns\ToArray, \Maatwebsite\Excel\Concerns\WithHeadingRow {
-                public function array(array $array) {}
-            }, $request->file('file'));
+            $command = new \Modules\CRM\Customer\Application\Commands\InitiateCustomerImportCommand($request->file('file'));
+            $result = $handler->handle($command);
             
-            $rows = $array[0] ?? []; 
-            if (empty($rows)) {
-                return response()->json(['error' => 'File rỗng hoặc không có dữ liệu (Kiểm tra lại Sheet 1).'], 400);
-            }
-            
-            $importId = (string) \Illuminate\Support\Str::uuid();
-            \Illuminate\Support\Facades\Cache::put('customer_import_' . $importId, $rows, now()->addHours(1));
-            
-            return response()->json([
-                'import_id' => $importId,
-                'total' => count($rows)
-            ]);
+            return response()->json($result);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Lỗi đọc file Excel: ' . $e->getMessage()], 400);
+            return response()->json(['error' => $e->getMessage()], 400);
         }
     }
 
-    public function importProcess(Request $request, \Modules\CRM\Customer\Application\Commands\ImportCustomerHandler $handler)
+    public function importProcess(Request $request, \Modules\CRM\Customer\Application\Commands\ProcessCustomerImportChunkHandler $handler)
     {
-        $importId = $request->input('import_id');
-        $offset = (int) $request->input('offset', 0);
-        $limit = (int) $request->input('limit', 10);
-        
-        $rows = \Illuminate\Support\Facades\Cache::get('customer_import_' . $importId);
-        if (!$rows) {
-            return response()->json(['error' => 'Tiến trình đã hết hạn hoặc không tìm thấy, vui lòng upload lại file.'], 400);
-        }
-        
-        $total = count($rows);
-        $chunk = array_slice($rows, $offset, $limit);
-        
-        $successCount = 0;
-        $errorCount = 0;
-        $logs = [];
-        
-        foreach ($chunk as $index => $row) {
-            $currentRow = $offset + $index + 2; // +1 header, +1 for 0-based to 1-based indexing
+        try {
+            $command = new \Modules\CRM\Customer\Application\Commands\ProcessCustomerImportChunkCommand(
+                $request->input('import_id'),
+                (int) $request->input('offset', 0),
+                (int) $request->input('limit', 10)
+            );
             
-            try {
-                $normalizedRow = [];
-                foreach ($row as $k => $v) {
-                    $normalizedRow[strtolower(trim((string)$k))] = is_string($v) ? trim($v) : $v;
-                }
-                
-                $command = new \Modules\CRM\Customer\Application\Commands\ImportCustomerCommand(
-                    (string)($normalizedRow['name'] ?? ''),
-                    (string)($normalizedRow['phone'] ?? ''),
-                    empty($normalizedRow['email']) ? null : (string)$normalizedRow['email'],
-                    empty($normalizedRow['center_code']) ? null : (string)$normalizedRow['center_code'],
-                    empty($normalizedRow['dob']) ? null : (string)$normalizedRow['dob'],
-                    empty($normalizedRow['gender']) ? null : (string)$normalizedRow['gender'],
-                    empty($normalizedRow['address']) ? null : (string)$normalizedRow['address']
-                );
-                
-                $handler->handle($command);
-                $successCount++;
-            } catch (\Exception $e) {
-                $errorCount++;
-                $logs[] = "Dòng [{$currentRow}]: " . $e->getMessage();
-            }
+            $result = $handler->handle($command);
+            
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
         }
-        
-        return response()->json([
-            'success_count' => $successCount,
-            'error_count'   => $errorCount,
-            'logs'          => $logs,
-            'next_offset'   => $offset + $limit,
-            'is_finished'   => ($offset + $limit >= $total)
-        ]);
+    }
+
+    public function destroy(string $id, \Modules\CRM\Customer\Application\Commands\DeleteCustomerHandler $handler)
+    {
+        $handler->handle(new \Modules\CRM\Customer\Application\Commands\DeleteCustomerCommand($id));
+        return redirect()->route('admin.customers.index')->with('success', 'Đã xoá khách hàng thành công.');
+    }
+
+    public function storeNote(Request $request, string $id, \Modules\CRM\CustomerNote\Application\Commands\AddCustomerNoteHandler $handler)
+    {
+        $request->validate(['content' => 'required|string|max:5000']);
+        $handler->handle(new \Modules\CRM\CustomerNote\Application\Commands\AddCustomerNoteCommand($id, $request->input('content'), auth()->id()));
+        return redirect()->route('admin.customers.show', $id)->with('success', 'Ghi chú đã được thêm.');
+    }
+
+    public function storeActivity(Request $request, string $id, \Modules\CRM\CustomerActivity\Application\Commands\AddCustomerActivityHandler $handler)
+    {
+        $request->validate(['activity_type' => 'required|string|in:call,meeting,sms,email', 'description' => 'nullable|string|max:5000']);
+        $handler->handle(new \Modules\CRM\CustomerActivity\Application\Commands\AddCustomerActivityCommand($id, $request->input('activity_type'), $request->input('description'), auth()->id()));
+        return redirect()->route('admin.customers.show', $id)->with('success', 'Hoạt động đã được ghi nhận.');
     }
 
     public function downloadTemplate(\Modules\CRM\Customer\Application\Queries\DownloadCustomerTemplateHandler $handler)

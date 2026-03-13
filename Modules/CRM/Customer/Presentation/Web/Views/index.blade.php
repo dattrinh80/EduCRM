@@ -9,21 +9,7 @@
 @endsection
 
 @section('content')
-<div class="space-y-6" x-data="{ 
-    showCreateModal: {{ $errors->any() && !old('_method') ? 'true' : 'false' }},
-    showEditModal: false,
-    selectedItems: [],
-    get isAllSelected() {
-        return this.selectedItems.length > 0 && this.selectedItems.length === document.querySelectorAll('tbody input[type=checkbox]').length;
-    },
-    toggleAll(e) {
-        if (e.target.checked) {
-            this.selectedItems = Array.from(document.querySelectorAll('tbody input[type=checkbox]')).map(el => el.value);
-        } else {
-            this.selectedItems = [];
-        }
-    }
-}">
+<div class="space-y-6" x-data="customerManagementStore()">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -34,16 +20,13 @@
             </p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-            @can('customers.create')
             <x-ui.button variant="secondary" icon="file-down" @click="showImportModal = true; $dispatch('refresh-icons')">
                 <span class="hidden sm:inline">Nhập Excel</span>
             </x-ui.button>
             <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
                 <span>Thêm Khách hàng</span>
             </x-ui.button>
-            @endcan
 
-            @can('customers.export')
             <div x-data="{ open: false }" class="relative">
                 <x-ui.button variant="secondary" icon="download" @click="open = !open" @click.away="open = false" iconRight="chevron-down" ::class="open ? 'ring-2 ring-primary-500/20' : ''">
                     <span class="hidden sm:inline">Xuất dữ liệu</span>
@@ -66,7 +49,6 @@
                     </a>
                 </div>
             </div>
-            @endcan
         </div>
     </div>
 
@@ -685,6 +667,21 @@
         Alpine.data('customerManagementStore', () => ({
             showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, 
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
+            showEditModal: false,
+            selectedItems: [],
+            
+            get isAllSelected() {
+                const checkboxes = document.querySelectorAll('tbody input[type=checkbox]');
+                return checkboxes.length > 0 && this.selectedItems.length === checkboxes.length;
+            },
+            
+            toggleAll(e) {
+                if (e.target.checked) {
+                    this.selectedItems = Array.from(document.querySelectorAll('tbody input[type=checkbox]')).map(el => el.value);
+                } else {
+                    this.selectedItems = [];
+                }
+            },
             
             isImporting: false,
             importProgress: 0,

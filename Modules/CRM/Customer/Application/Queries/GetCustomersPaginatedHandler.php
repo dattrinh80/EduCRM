@@ -6,7 +6,7 @@ namespace Modules\CRM\Customer\Application\Queries;
 
 use App\Core\CQRS\QueryHandler;
 use App\Core\CQRS\Query;
-use Modules\CRM\Customer\Infrastructure\Persistence\CustomerModel;
+use Modules\CRM\Customer\Infrastructure\ReadModels\CustomerReadModel;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class GetCustomersPaginatedHandler implements QueryHandler
@@ -14,7 +14,7 @@ class GetCustomersPaginatedHandler implements QueryHandler
     public function handle(Query $query): LengthAwarePaginator
     {
         /** @var GetCustomersPaginatedQuery $query */
-        $builder = CustomerModel::query();
+        $builder = CustomerReadModel::query();
 
         if (!empty($query->search)) {
             $builder->where(function ($q) use ($query) {
