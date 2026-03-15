@@ -17,10 +17,13 @@ return new class extends Migration
             $table->string('code')->unique()->nullable();
             $table->string('channel')->nullable();
             $table->decimal('budget', 15, 2)->nullable();
+            $table->uuid('center_id')->index()->nullable(); // Added for multi-tenancy
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->boolean('is_active')->default(true);
             $table->timestamps();
+
+            $table->foreign('center_id')->references('id')->on('centers')->onDelete('cascade');
         });
     }
 

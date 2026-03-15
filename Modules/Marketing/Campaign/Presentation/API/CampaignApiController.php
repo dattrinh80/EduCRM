@@ -16,14 +16,39 @@ use Modules\Marketing\Campaign\Application\Commands\DeleteCampaignHandler;
 use Modules\Marketing\Campaign\Application\Queries\GetCampaignsQuery;
 use Modules\Marketing\Campaign\Application\Queries\GetCampaignsHandler;
 
+use Modules\Marketing\Campaign\Presentation\Web\Requests\StoreCampaignRequest;
+use Modules\Marketing\Campaign\Presentation\Web\Requests\UpdateCampaignRequest;
+
 class CampaignApiController extends Controller
 {
     public function index(Request $request, GetCampaignsHandler $handler): JsonResponse
     {
+        $perPage = (int) $request->query('per_page', 15);
+        $page = (int) $request->query('page', 1);
         $search = $request->query('search');
-        $isActive = $request->has('is_active') ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN) : null;
+        $sortBy = $request->query('sort_by');
+        $sortDir = $request->query('sort_dir', 'desc');
+        
+        $budgetFrom = $request->query('budget_from') !== null ? (float) $request->query('budget_from') : null;
+        $budgetTo = $request->query('budget_to') !== null ? (float) $request->query('budget_to') : null;
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
+        $isActive = $request->query('is_active') !== null ? filter_var($request->query('is_active'), FILTER_VALIDATE_BOOLEAN) : null;
+        $centerId = $request->query('center_id');
 
-        $query = new GetCampaignsQuery($search, $isActive);
+        $query = new GetCampaignsQuery(
+            $search, 
+            $isActive, 
+            $perPage, 
+            $page, 
+            $sortBy, 
+            $sortDir, 
+            $budgetFrom, 
+            $budgetTo, 
+            $dateFrom, 
+            $dateTo, 
+            $centerId
+        );
         $campaigns = $handler->handle($query);
 
         return response()->json([
@@ -32,29 +57,9 @@ class CampaignApiController extends Controller
         ]);
     }
 
-    public function store(Request $request, CreateCampaignHandler $handler): JsonResponse
+    public function store(StoreCampaignRequest $request, CreateCampaignHandler $handler): JsonResponse
     {
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
-
-        $rules = [
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100|unique:campaigns,code',
-            'channel' => 'nullable|string|max:100',
-            'budget' => 'nullable|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ];
-
-        if ($isGlobalScope) {
-            $rules['center_id'] = 'required|uuid|exists:centers,id';
-        }
-
-        $validated = $request->validate($rules);
-
-        $centerId = $isGlobalScope
-            ? ($validated['center_id'] ?? null)
-            : (session('current_center_id') ?? app('center_id'));
+        $validated = $request->getValidatedData();
 
         try {
             $command = new CreateCampaignCommand(
@@ -62,7 +67,7 @@ class CampaignApiController extends Controller
                 $validated['code'] ?? null,
                 $validated['channel'] ?? null,
                 $validated['budget'] ? (float)$validated['budget'] : null,
-                $centerId,
+                $validated['center_id'],
                 $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
                 $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null
             );
@@ -82,30 +87,9 @@ class CampaignApiController extends Controller
         }
     }
 
-    public function update(Request $request, string $id, UpdateCampaignHandler $handler): JsonResponse
+    public function update(UpdateCampaignRequest $request, string $id, UpdateCampaignHandler $handler): JsonResponse
     {
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
-
-        $rules = [
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100|unique:campaigns,code,' . $id,
-            'channel' => 'nullable|string|max:100',
-            'budget' => 'nullable|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'is_active' => 'required|boolean'
-        ];
-
-        if ($isGlobalScope) {
-            $rules['center_id'] = 'required|uuid|exists:centers,id';
-        }
-
-        $validated = $request->validate($rules);
-
-        $centerId = $isGlobalScope
-            ? ($validated['center_id'] ?? null)
-            : (session('current_center_id') ?? app('center_id'));
+        $validated = $request->getValidatedData();
 
         try {
             $command = new UpdateCampaignCommand(
@@ -114,7 +98,7 @@ class CampaignApiController extends Controller
                 $validated['code'] ?? null,
                 $validated['channel'] ?? null,
                 $validated['budget'] ? (float)$validated['budget'] : null,
-                $centerId,
+                $validated['center_id'],
                 $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
                 $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null,
                 (bool) $validated['is_active']
@@ -152,3 +136,4 @@ class CampaignApiController extends Controller
         }
     }
 }
+

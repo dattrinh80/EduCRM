@@ -17,6 +17,8 @@ use Modules\Marketing\Campaign\Application\Queries\GetCampaignsHandler;
 use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
 use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
 use App\Core\Helpers\PaginationHelper;
+use Modules\Marketing\Campaign\Presentation\Web\Requests\StoreCampaignRequest;
+use Modules\Marketing\Campaign\Presentation\Web\Requests\UpdateCampaignRequest;
 
 class CampaignWebController extends Controller
 {
@@ -62,36 +64,16 @@ class CampaignWebController extends Controller
         ));
     }
 
-    public function store(Request $request, CreateCampaignHandler $handler)
+    public function store(StoreCampaignRequest $request, CreateCampaignHandler $handler)
     {
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
-
-        $rules = [
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100|unique:campaigns,code',
-            'channel' => 'nullable|string|max:100',
-            'budget' => 'nullable|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-        ];
-
-        if ($isGlobalScope) {
-            $rules['center_id'] = 'required|uuid|exists:centers,id';
-        }
-
-        $validated = $request->validate($rules);
-
-        $centerId = $isGlobalScope
-            ? ($validated['center_id'] ?? null)
-            : (session('current_center_id') ?? app('center_id'));
+        $validated = $request->getValidatedData();
 
         $command = new CreateCampaignCommand(
             $validated['name'],
             $validated['code'] ?? null,
             $validated['channel'] ?? null,
             $validated['budget'] ? (float)$validated['budget'] : null,
-            $centerId,
+            $validated['center_id'],
             $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
             $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null
         );
@@ -105,30 +87,9 @@ class CampaignWebController extends Controller
         return redirect()->route('admin.campaigns.index')->with('success', 'Chiến dịch được tạo thành công.');
     }
 
-    public function update(Request $request, string $id, UpdateCampaignHandler $handler)
+    public function update(UpdateCampaignRequest $request, string $id, UpdateCampaignHandler $handler)
     {
-        $isGlobalScope = false;
-        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
-
-        $rules = [
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:100|unique:campaigns,code,' . $id,
-            'channel' => 'nullable|string|max:100',
-            'budget' => 'nullable|numeric|min:0',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'is_active' => 'required|boolean'
-        ];
-
-        if ($isGlobalScope) {
-            $rules['center_id'] = 'required|uuid|exists:centers,id';
-        }
-
-        $validated = $request->validate($rules);
-
-        $centerId = $isGlobalScope
-            ? ($validated['center_id'] ?? null)
-            : (session('current_center_id') ?? app('center_id'));
+        $validated = $request->getValidatedData();
 
         try {
             $command = new UpdateCampaignCommand(
@@ -137,7 +98,7 @@ class CampaignWebController extends Controller
                 $validated['code'] ?? null,
                 $validated['channel'] ?? null,
                 $validated['budget'] ? (float)$validated['budget'] : null,
-                $centerId,
+                $validated['center_id'],
                 $validated['start_date'] ? new \DateTimeImmutable($validated['start_date']) : null,
                 $validated['end_date'] ? new \DateTimeImmutable($validated['end_date']) : null,
                 (bool) $validated['is_active']
@@ -163,3 +124,4 @@ class CampaignWebController extends Controller
         return redirect()->route('admin.campaigns.index')->with('success', 'Xoá chiến dịch thành công.');
     }
 }
+
