@@ -44,6 +44,12 @@ class IAMSeeder extends Seeder
             'lead_sources.view', 'lead_sources.create', 'lead_sources.update', 'lead_sources.delete',
             // Interest Types
             'interest_types.view', 'interest_types.create', 'interest_types.update', 'interest_types.delete',
+            // Customers
+            'customers.view', 'customers.create', 'customers.update', 'customers.delete', 'customers.export',
+            // Tasks
+            'tasks.view', 'tasks.create', 'tasks.update', 'tasks.delete',
+            // Campaigns
+            'campaigns.view', 'campaigns.create', 'campaigns.update', 'campaigns.delete',
         ];
 
         $permissionIds = [];
