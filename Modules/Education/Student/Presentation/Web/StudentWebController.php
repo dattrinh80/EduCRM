@@ -6,6 +6,7 @@ namespace Modules\Education\Student\Presentation\Web;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use App\Core\Helpers\PaginationHelper;
 use Modules\Education\Student\Application\Queries\GetStudentsPaginatedQuery;
 use Modules\Education\Student\Application\Queries\GetStudentsPaginatedHandler;
 use Modules\Education\Student\Application\Queries\GetStudentByIdQuery;
@@ -26,22 +27,38 @@ use Modules\Education\Student\Application\Commands\InitiateStudentImportHandler;
 use Modules\Education\Student\Application\Commands\ProcessStudentImportChunkCommand;
 use Modules\Education\Student\Application\Commands\ProcessStudentImportChunkHandler;
 
+use Modules\Core\Center\Application\Queries\GetActiveCentersQuery;
+use Modules\Core\Center\Application\Queries\GetActiveCentersHandler;
+
 class StudentWebController extends Controller
 {
-    public function index(Request $request, GetStudentsPaginatedHandler $handler)
-    {
+    public function index(
+        Request $request, 
+        GetStudentsPaginatedHandler $handler,
+        GetActiveCentersHandler $centersHandler
+    ) {
+        $perPage = PaginationHelper::resolvePerPage((int) $request->get('per_page'));
+        $page = (int) $request->get('page', 1);
+        $search = $request->get('search');
+        $status = $request->get('status');
+        $sortBy = $request->get('sort_by');
+        $sortDir = PaginationHelper::resolveSortDirection($request->get('sort_direction'));
+
         $query = new GetStudentsPaginatedQuery(
-            perPage: (int) $request->get('per_page', 15),
-            page: (int) $request->get('page', 1),
-            search: $request->get('search'),
-            status: $request->get('status'),
-            sortBy: $request->get('sort_by'),
-            sortDirection: $request->get('sort_direction')
+            perPage: $perPage,
+            page: $page,
+            search: $search,
+            status: $status,
+            sortBy: $sortBy,
+            sortDirection: $sortDir
         );
 
         $students = $handler->handle($query);
-        $centers = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::all();
-        $isGlobalScope = true; // Assuming global for now, or fetch from context
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
         return view('student::index', compact('students', 'centers', 'isGlobalScope'));
     }
 
@@ -99,9 +116,9 @@ class StudentWebController extends Controller
         }
     }
 
-    public function create()
+    public function create(GetActiveCentersHandler $centersHandler)
     {
-        $centers = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::all();
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
         return view('student::create', compact('centers'));
     }
 
@@ -152,14 +169,14 @@ class StudentWebController extends Controller
         return view('student::show', compact('student'));
     }
 
-    public function edit(string $id, GetStudentByIdHandler $handler)
+    public function edit(string $id, GetStudentByIdHandler $handler, GetActiveCentersHandler $centersHandler)
     {
         $student = $handler->handle(new GetStudentByIdQuery($id));
         if (!$student) {
             return redirect()->route('admin.students.index')->with('error', 'Không tìm thấy học viên.');
         }
 
-        $centers = \Modules\Core\Center\Infrastructure\ReadModels\CenterReadModel::all();
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
         return view('student::edit', compact('student', 'centers'));
     }
 

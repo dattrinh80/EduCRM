@@ -27,6 +27,7 @@ class ServiceProvider extends BaseServiceProvider
 
         $this->loadMigrationsFrom(__DIR__ . '/Database/Migrations');
 
+
         if (is_dir(__DIR__ . '/Presentation/Web/Views')) {
             $this->loadViewsFrom(__DIR__ . '/Presentation/Web/Views', 'student');
         }

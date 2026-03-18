@@ -6,6 +6,7 @@ namespace Modules\CRM\Task\Presentation\Web;
 
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use App\Core\Helpers\PaginationHelper;
 use Modules\CRM\Task\Application\Commands\CreateTaskCommand;
 use Modules\CRM\Task\Application\Commands\CreateTaskHandler;
 use Modules\CRM\Task\Application\Commands\UpdateTaskCommand;
@@ -33,7 +34,7 @@ class TaskWebController extends Controller
         GetActiveCentersHandler $centersHandler,
         GetAllUsersHandler $usersHandler
     ) {
-        $perPage = (int) $request->query('per_page', 20);
+        $perPage = PaginationHelper::resolvePerPage((int) $request->query('per_page'));
         $page = (int) $request->query('page', 1);
         $search = $request->query('search');
         $status = $request->query('status');
