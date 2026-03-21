@@ -26,6 +26,20 @@ class CustomerTagWebController extends Controller
         return view('customer_tag::index', compact('tags', 'search'));
     }
 
+    public function create()
+    {
+        return view('customer_tag::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\CRM\CustomerTag\Domain\CustomerTagRepositoryInterface $repository)
+    {
+        $tag = $repository->findById($id);
+        if (!$tag) {
+            return response()->json(['error' => 'Customer tag not found'], 404);
+        }
+        return view('customer_tag::partials.edit_form', compact('tag'));
+    }
+
     public function store(Request $request, CreateCustomerTagHandler $handler)
     {
         $validated = $request->validate([

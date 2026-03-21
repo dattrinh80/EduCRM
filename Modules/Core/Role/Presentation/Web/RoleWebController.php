@@ -34,6 +34,39 @@ class RoleWebController extends Controller
         return view('role::index', compact('roles', 'search', 'permissionGroups'));
     }
 
+    public function create(Request $request, GetPermissionGroupsHandler $permGroupsHandler)
+    {
+        $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
+
+        // Prepare global data once for Alpine JS
+        $groupPermIds = [];
+        $allPermIds = [];
+        foreach ($permissionGroups as $group) {
+            $ids = $group->permissions->pluck('id')->toArray();
+            $groupPermIds[$group->id] = $ids;
+            $allPermIds = array_merge($allPermIds, $ids);
+        }
+
+        return view('role::partials.create_form', compact('permissionGroups', 'groupPermIds', 'allPermIds'));
+    }
+
+    public function edit(string $id, Request $request, \Modules\Core\Role\Application\Queries\GetRoleByIdHandler $handler, GetPermissionGroupsHandler $permGroupsHandler)
+    {
+        $role = $handler->handle(new \Modules\Core\Role\Application\Queries\GetRoleByIdQuery($id));
+        $permissionGroups = $permGroupsHandler->handle(new GetPermissionGroupsQuery());
+
+        // Prepare global data once for Alpine JS
+        $groupPermIds = [];
+        $allPermIds = [];
+        foreach ($permissionGroups as $group) {
+            $ids = $group->permissions->pluck('id')->toArray();
+            $groupPermIds[$group->id] = $ids;
+            $allPermIds = array_merge($allPermIds, $ids);
+        }
+
+        return view('role::partials.edit_form', compact('role', 'permissionGroups', 'groupPermIds', 'allPermIds'));
+    }
+
 
 
     public function store(Request $request, CreateRoleHandler $handler)

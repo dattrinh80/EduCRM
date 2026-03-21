@@ -130,12 +130,13 @@
                             <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
                             Khu vực nguy hiểm
                         </div>
-                        <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa học viên này? Thao tác này có thể không hoàn tác được.')">
+                        <x-ui.button type="button" variant="ghost" size="sm" class="w-full text-red-500 hover:bg-red-50 border-red-100"
+                            onclick="if(confirm('Bạn có chắc chắn muốn xóa học viên này? Thao tác này không thể hoàn tác.')) document.getElementById('delete-student-form').submit();">
+                            Xóa học viên
+                        </x-ui.button>
+                        <form id="delete-student-form" action="{{ route('admin.students.destroy', $student->id) }}" method="POST" class="hidden">
                             @csrf
                             @method('DELETE')
-                            <x-ui.button type="submit" variant="ghost" size="sm" class="w-full text-red-500 hover:bg-red-50 border-red-100">
-                                Xóa học viên
-                            </x-ui.button>
                         </form>
                     </div>
                 </x-ui.card>

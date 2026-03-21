@@ -27,6 +27,20 @@ class InterestTypeWebController extends Controller
         return view('interest-type::index', compact('interestTypes', 'search'));
     }
 
+    public function create()
+    {
+        return view('interest-type::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\Marketing\InterestType\Domain\InterestTypeRepositoryInterface $repository)
+    {
+        $interestType = $repository->findById($id);
+        if (!$interestType) {
+            return response()->json(['error' => 'Interest type not found'], 404);
+        }
+        return view('interest-type::partials.edit_form', compact('interestType'));
+    }
+
     public function store(Request $request, CreateInterestTypeHandler $handler)
     {
         $validated = $request->validate([

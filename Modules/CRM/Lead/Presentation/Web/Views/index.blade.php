@@ -346,7 +346,7 @@
         <div x-show="showDynamicModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showDynamicModal = false" x-transition.opacity></div>
             
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left" 
                  x-show="showDynamicModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -359,7 +359,7 @@
                     <div class="w-10 h-10 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin"></div>
                 </div>
 
-                <div x-html="modalContent"></div>
+                <div x-html="modalContent" class="flex-1 overflow-hidden flex flex-col"></div>
             </div>
         </div>
     </template>
@@ -370,7 +370,7 @@
         <div x-show="showImportModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showImportModal = false" x-transition.opacity></div>
             
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden text-left" 
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left" 
                  x-show="showImportModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -391,7 +391,7 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.leads.import') }}" method="POST" class="p-6" enctype="multipart/form-data" @submit.prevent="submitImport">
+                <form action="{{ route('admin.leads.import') }}" method="POST" class="p-6 flex-1 overflow-y-auto" enctype="multipart/form-data" @submit.prevent="submitImport">
                     @csrf
                     <input type="hidden" name="import" value="1">
                     
@@ -466,7 +466,7 @@
         <div x-show="showAssignModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showAssignModal = false" x-transition.opacity></div>
             
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto overflow-hidden text-left" 
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left" 
                  x-show="showAssignModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -487,7 +487,7 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.leads.assign') }}" method="POST" class="p-6">
+                <form action="{{ route('admin.leads.assign') }}" method="POST" class="p-6 flex-1 overflow-y-auto">
                     @csrf
                     <input type="hidden" name="assign" value="1">
                     <template x-for="id in selectedItems" :key="id">
@@ -530,7 +530,7 @@
         <div x-show="showMergeModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showMergeModal = false" x-transition.opacity></div>
             
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto overflow-hidden text-left" 
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left" 
                  x-show="showMergeModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -551,7 +551,7 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.leads.merge') }}" method="POST" class="p-6">
+                <form action="{{ route('admin.leads.merge') }}" method="POST" class="p-6 flex-1 overflow-y-auto">
                     @csrf
                     <input type="hidden" name="merge" value="1">
                     <template x-for="id in selectedItems" :key="id">
@@ -596,7 +596,7 @@
         <div x-show="showMassEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
             <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showMassEditModal = false" x-transition.opacity></div>
             
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left" 
                  x-show="showMassEditModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
@@ -617,7 +617,7 @@
                     </button>
                 </div>
 
-                <form action="{{ route('admin.leads.bulk-update') }}" method="POST" class="p-6">
+                <form action="{{ route('admin.leads.bulk-update') }}" method="POST" class="p-6 flex-1 overflow-y-auto">
                     @csrf
                     <input type="hidden" name="bulk_update" value="1">
                     <template x-for="id in selectedItems" :key="id">

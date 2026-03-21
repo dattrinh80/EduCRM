@@ -27,6 +27,20 @@ class LeadSourceWebController extends Controller
         return view('lead_source::index', compact('leadSources', 'search'));
     }
 
+    public function create()
+    {
+        return view('lead_source::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\Marketing\LeadSource\Domain\LeadSourceRepositoryInterface $repository)
+    {
+        $leadSource = $repository->findById($id);
+        if (!$leadSource) {
+            return response()->json(['error' => 'Lead source not found'], 404);
+        }
+        return view('lead_source::partials.edit_form', compact('leadSource'));
+    }
+
     public function store(Request $request, CreateLeadSourceHandler $handler)
     {
         $validated = $request->validate([

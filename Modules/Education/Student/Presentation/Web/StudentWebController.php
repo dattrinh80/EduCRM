@@ -116,9 +116,14 @@ class StudentWebController extends Controller
         }
     }
 
-    public function create(GetActiveCentersHandler $centersHandler)
+    public function create(GetActiveCentersHandler $centersHandler, Request $request)
     {
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        
+        if ($request->ajax()) {
+            return view('student::partials.create_form', compact('centers'));
+        }
+
         return view('student::create', compact('centers'));
     }
 
@@ -169,7 +174,7 @@ class StudentWebController extends Controller
         return view('student::show', compact('student'));
     }
 
-    public function edit(string $id, GetStudentByIdHandler $handler, GetActiveCentersHandler $centersHandler)
+    public function edit(string $id, GetStudentByIdHandler $handler, GetActiveCentersHandler $centersHandler, Request $request)
     {
         $student = $handler->handle(new GetStudentByIdQuery($id));
         if (!$student) {
@@ -177,6 +182,11 @@ class StudentWebController extends Controller
         }
 
         $centers = $centersHandler->handle(new GetActiveCentersQuery());
+
+        if ($request->ajax()) {
+            return view('student::partials.edit_form', compact('student', 'centers'));
+        }
+
         return view('student::edit', compact('student', 'centers'));
     }
 

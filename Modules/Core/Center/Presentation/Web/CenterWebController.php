@@ -29,6 +29,17 @@ class CenterWebController extends Controller
         return view('center::index', compact('centers'));
     }
 
+    public function create()
+    {
+        return view('center::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\Core\Center\Application\Queries\GetCenterByIdHandler $handler)
+    {
+        $center = $handler->handle(new \Modules\Core\Center\Application\Queries\GetCenterByIdQuery($id));
+        return view('center::partials.edit_form', compact('center'));
+    }
+
 
     public function store(Request $request, CreateCenterHandler $handler)
     {

@@ -32,8 +32,17 @@
                                 <i data-lucide="map-pin" class="w-4 h-4 opacity-70"></i>
                                 {{ $student->customer?->center?->name ?? 'Phòng ban/Trung tâm' }}
                             </span>
-                             <x-ui.badge variant="success" :dot="true" class="px-3 py-1">
-                                {{ $student->status }}
+                             @php
+                                $statusMap = [
+                                    'NEW' => ['label' => 'Mới', 'variant' => 'primary'],
+                                    'ACTIVE' => ['label' => 'Đang học', 'variant' => 'success'],
+                                    'DROPPED' => ['label' => 'Thôi học', 'variant' => 'danger'],
+                                    'GRADUATED' => ['label' => 'Tốt nghiệp', 'variant' => 'info'],
+                                ];
+                                $statusInfo = $statusMap[$student->status] ?? ['label' => $student->status, 'variant' => 'success'];
+                             @endphp
+                             <x-ui.badge :variant="$statusInfo['variant']" :dot="true" class="px-3 py-1">
+                                {{ $statusInfo['label'] }}
                             </x-ui.badge>
                         </div>
                     </div>
@@ -127,7 +136,16 @@
                                             <div>
                                                 <div class="text-sm font-bold text-slate-800 tracking-tight">{{ $guardian->name }}</div>
                                                 <div class="text-[10px] font-bold text-primary-600 uppercase tracking-widest mt-0.5">
-                                                    {{ $guardian->pivot->relationship ?? 'Người thân' }}
+                                                    @php
+                                                        $relMap = [
+                                                            'Parent' => 'Cha/Mẹ',
+                                                            'Sibling' => 'Anh/Chị/Em',
+                                                            'Grandparent' => 'Ông/Bà',
+                                                            'Other' => 'Khác'
+                                                        ];
+                                                        $rel = $relMap[$guardian->pivot->relationship] ?? $guardian->pivot->relationship;
+                                                    @endphp
+                                                    {{ $rel }}
                                                     @if($guardian->pivot->is_primary)
                                                         <span class="ml-1 text-[9px] px-1.5 py-0.5 bg-green-100 text-green-600 rounded">Liên hệ chính</span>
                                                     @endif
@@ -173,7 +191,9 @@
                         <div class="space-y-4">
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-500">Ngày gia nhập</span>
-                                <span class="text-xs font-bold text-slate-800 tabular-nums">{{ \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') }}</span>
+                                <span class="text-xs font-bold text-slate-800 tabular-nums">
+                                    {{ $student->created_at ? \Carbon\Carbon::parse($student->created_at)->format('d/m/Y') : 'N/A' }}
+                                </span>
                             </div>
                             <div class="flex items-center justify-between">
                                 <span class="text-xs text-slate-500">Mã định danh</span>
@@ -189,7 +209,9 @@
                                 <div class="w-1 h-auto bg-green-400 rounded-full shrink-0"></div>
                                 <div>
                                     <div class="text-[11px] font-bold text-slate-800 tracking-tight">Hồ sơ được tạo</div>
-                                    <p class="text-[10px] text-slate-400 mt-0.5">{{ \Carbon\Carbon::parse($student->created_at)->diffForHumans() }}</p>
+                                    <p class="text-[10px] text-slate-400 mt-0.5">
+                                        {{ $student->created_at ? \Carbon\Carbon::parse($student->created_at)->diffForHumans() : 'N/A' }}
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -213,3 +235,11 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+</script>
+@endpush

@@ -10,7 +10,7 @@
     </button>
 </div>
 
-<form action="{{ route('admin.leads.store') }}" method="POST" class="p-6">
+<form action="{{ route('admin.leads.store') }}" method="POST" class="p-6 flex-1 overflow-y-auto">
     @csrf
     <div class="space-y-4">
         <div class="grid grid-cols-2 gap-4">

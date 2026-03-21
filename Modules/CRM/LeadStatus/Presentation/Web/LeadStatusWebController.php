@@ -26,6 +26,20 @@ class LeadStatusWebController extends Controller
         return view('lead_status::index', compact('statuses', 'search'));
     }
 
+    public function create()
+    {
+        return view('lead_status::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\CRM\LeadStatus\Domain\LeadStatusRepositoryInterface $repository)
+    {
+        $status = $repository->findById($id);
+        if (!$status) {
+            return response()->json(['error' => 'Lead status not found'], 404);
+        }
+        return view('lead_status::partials.edit_form', compact('status'));
+    }
+
     public function store(Request $request, CreateLeadStatusHandler $handler)
     {
         $validated = $request->validate([

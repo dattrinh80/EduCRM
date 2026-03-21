@@ -1,5 +1,5 @@
-<div x-data="{ activeTab: 'info' }">
-    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+<div x-data="{ activeTab: 'info' }" class="flex flex-col flex-1 overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
         <div class="flex items-center gap-4">
             <div class="w-10 h-10 rounded-xl bg-primary-100 text-primary-600 flex items-center justify-center text-lg font-bold border border-primary-200">
                 {{ strtoupper(substr($lead->name, 0, 1)) }}
@@ -17,7 +17,7 @@
         </button>
     </div>
 
-    <div class="p-6">
+    <div class="p-6 flex-1 overflow-y-auto">
         <div class="border-b border-slate-200 mb-6">
             <div class="flex gap-6">
                 <button @click="activeTab = 'info'" 

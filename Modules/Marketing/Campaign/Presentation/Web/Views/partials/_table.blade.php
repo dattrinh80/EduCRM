@@ -6,7 +6,7 @@
             description="Hệ thống chưa có dữ liệu chiến dịch. Hãy bắt đầu bằng cách thêm chiến dịch đầu tiên."
             icon="megaphone"
             actionText="Thêm chiến dịch mới"
-            actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+            actionClick="loadModal('{{ route('admin.campaigns.create') }}')"
         />
     @else
 
@@ -95,7 +95,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100">
                 @forelse ($campaigns as $campaign)
-                    <tr class="hover:bg-slate-50 transition group" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('campaign_id') == $campaign->id ? 'true' : 'false' }} }">
+                    <tr class="hover:bg-slate-50 transition group">
                         <td class="p-4 px-6 whitespace-nowrap">
                             <div class="font-medium text-slate-800">{{ $campaign->name }}</div>
                             @if($campaign->code)
@@ -119,7 +119,7 @@
                             <span class="text-sm text-slate-600">{{ $campaign->channel ?: '—' }}</span>
                         </td>
                         <td class="p-4 px-6 whitespace-nowrap">
-                            <span class="text-sm text-slate-600">{{ $campaign->budget ? number_format($campaign->budget) . ' đ' : '—' }}</span>
+                            <span class="text-sm text-slate-600">{{ $campaign->budget ? number_format((float)$campaign->budget) . ' đ' : '—' }}</span>
                         </td>
                         <td class="p-4 px-6 whitespace-nowrap text-slate-500 text-sm">
                             <div>{{ $campaign->start_date ? \Carbon\Carbon::parse($campaign->start_date)->format('d/m/Y') : '—' }} đến</div>
@@ -134,7 +134,7 @@
                         <td class="p-4 px-6 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex items-center justify-end gap-3 opacity-0 group-hover:opacity-100 transition">
                                 @can('campaigns.update')
-                                <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition cursor-pointer" title="Sửa">
+                                <button type="button" @click="loadModal('{{ route('admin.campaigns.edit', $campaign->id) }}')" class="p-1.5 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition cursor-pointer" title="Sửa">
                                     <i data-lucide="edit-2" class="w-4 h-4"></i>
                                 </button>
                                 @endcan
@@ -148,8 +148,6 @@
                                 </form>
                                 @endcan
                             </div>
-
-                            @include('campaign::partials._edit_modal', ['campaign' => $campaign])
                         </td>
                     </tr>
                 @empty

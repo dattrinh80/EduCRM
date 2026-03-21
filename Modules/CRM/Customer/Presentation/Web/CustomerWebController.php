@@ -57,6 +57,21 @@ class CustomerWebController extends Controller
         ));
     }
 
+    public function create(GetActiveCentersHandler $centersHandler, GetCustomerTagsHandler $tagsHandler, Request $request)
+    {
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+        
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $allTags = $tagsHandler->handle(new GetCustomerTagsQuery());
+
+        if ($request->ajax()) {
+            return view('customer::partials.create_form', compact('centers', 'allTags', 'isGlobalScope'));
+        }
+
+        return view('customer::create', compact('centers', 'allTags', 'isGlobalScope'));
+    }
+
     public function store(Request $request, CreateCustomerHandler $handler)
     {
         $validated = $request->validate([
@@ -85,6 +100,31 @@ class CustomerWebController extends Controller
         $handler->handle($command);
 
         return redirect()->route('admin.customers.index')->with('success', 'Khách hàng đã được tạo.');
+    }
+
+    public function edit(
+        string $id, 
+        \Modules\CRM\Customer\Application\Queries\GetCustomerByIdHandler $customerHandler,
+        GetActiveCentersHandler $centersHandler, 
+        GetCustomerTagsHandler $tagsHandler,
+        Request $request
+    ) {
+        $customer = $customerHandler->handle(new \Modules\CRM\Customer\Application\Queries\GetCustomerByIdQuery($id, ['tags']));
+        if (!$customer) {
+            return redirect()->route('admin.customers.index')->with('error', 'Khách hàng không tồn tại.');
+        }
+
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $allTags = $tagsHandler->handle(new GetCustomerTagsQuery());
+
+        if ($request->ajax()) {
+            return view('customer::partials.edit_form', compact('customer', 'centers', 'allTags', 'isGlobalScope'));
+        }
+
+        return view('customer::edit', compact('customer', 'centers', 'allTags', 'isGlobalScope'));
     }
 
     public function update(Request $request, string $id, UpdateCustomerHandler $handler)

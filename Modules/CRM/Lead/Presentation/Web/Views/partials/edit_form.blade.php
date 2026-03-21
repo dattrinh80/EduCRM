@@ -13,7 +13,7 @@
     </button>
 </div>
 
-<form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="p-6 space-y-6">
+<form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="p-6 flex-1 overflow-y-auto space-y-6">
     @csrf
     @method('PUT')
     

@@ -26,6 +26,20 @@ class LeadTagWebController extends Controller
         return view('lead_tag::index', compact('tags', 'search'));
     }
 
+    public function create()
+    {
+        return view('lead_tag::partials.create_form');
+    }
+
+    public function edit(string $id, \Modules\CRM\LeadTag\Domain\LeadTagRepositoryInterface $repository)
+    {
+        $tag = $repository->findById($id);
+        if (!$tag) {
+            return response()->json(['error' => 'Lead tag not found'], 404);
+        }
+        return view('lead_tag::partials.edit_form', compact('tag'));
+    }
+
     public function store(Request $request, CreateLeadTagHandler $handler)
     {
         $validated = $request->validate([

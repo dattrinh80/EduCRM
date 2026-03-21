@@ -64,6 +64,22 @@ class CampaignWebController extends Controller
         ));
     }
 
+    public function create(GetActiveCentersHandler $centersHandler)
+    {
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        return view('campaign::partials.create_form', compact('centers'));
+    }
+
+    public function edit(string $id, \Modules\Marketing\Campaign\Domain\CampaignRepositoryInterface $repository, GetActiveCentersHandler $centersHandler)
+    {
+        $campaign = $repository->findById($id);
+        if (!$campaign) {
+            return response()->json(['error' => 'Không tìm thấy chiến dịch.'], 404);
+        }
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        return view('campaign::partials.edit_form', compact('campaign', 'centers'));
+    }
+
     public function store(StoreCampaignRequest $request, CreateCampaignHandler $handler)
     {
         $validated = $request->getValidatedData();

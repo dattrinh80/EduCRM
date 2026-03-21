@@ -23,7 +23,7 @@
             <x-ui.button variant="secondary" icon="file-down" @click="showImportModal = true; $dispatch('refresh-icons')">
                 <span class="hidden sm:inline">Nhập Excel</span>
             </x-ui.button>
-            <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            <x-ui.button variant="primary" icon="plus-circle" @click="loadModal('{{ route('admin.customers.create') }}')">
                 <span>Thêm Khách hàng</span>
             </x-ui.button>
 
@@ -243,328 +243,27 @@
                                     <a href="{{ route('admin.customers.show', $customer->id) }}" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Xem chi tiết">
                                         <i data-lucide="eye" class="w-4 h-4"></i>
                                     </a>
-                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Sửa">
+                                    <button type="button" @click="loadModal('{{ route('admin.customers.edit', $customer->id) }}')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Sửa">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
                                     <form action="{{ route('admin.customers.destroy', $customer->id) }}" method="POST" class="inline" onsubmit="return confirmDelete(this, '{{ addslashes($customer->name) }}')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition" title="Delete">
+                                        <button type="submit" class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all hover:scale-110 active:scale-95" title="Xóa">
                                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                                         </button>
                                     </form>
                                 </div>
-                                
-                                <!-- Edit Modal -->
-                                <template x-teleport="body">
-                                    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                                        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
-                                        
-                                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
-                                             x-show="showEditModal" 
-                                             x-transition:enter="transition ease-out duration-300"
-                                             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                                             x-transition:leave="transition ease-in duration-200"
-                                             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                                             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                                             
-                                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                                <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                                    <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
-                                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                                    </div>
-                                                    Sửa Khách hàng: {{ $customer->name }}
-                                                </h3>
-                                                <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
-                                                    <i data-lucide="x" class="w-5 h-5"></i>
-                                                </button>
-                                            </div>
-
-                                            <form action="{{ route('admin.customers.update', $customer->id) }}" method="POST" class="p-6">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                                
-                                                <div class="space-y-4">
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('customer_id') == $customer->id ? old('name') : $customer->name }}">
-                                                            </div>
-                                                            @if(old('customer_id') == $customer->id)
-                                                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ old('customer_id') == $customer->id ? old('phone') : $customer->phone }}">
-                                                            </div>
-                                                            @if(old('customer_id') == $customer->id)
-                                                                @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Email</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('customer_id') == $customer->id ? old('email') : $customer->email }}">
-                                                            </div>
-                                                            @if(old('customer_id') == $customer->id)
-                                                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('customer_id') == $customer->id ? old('dob') : ($customer->dob ? \Carbon\Carbon::parse($customer->dob)->format('Y-m-d') : '') }}">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="space-y-1 col-span-2 sm:col-span-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
-                                                            <div class="grid grid-cols-3 gap-2">
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (old('customer_id') == $customer->id ? old('gender') : $customer->gender) === 'MALE' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
-                                                                </label>
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (old('customer_id') == $customer->id ? old('gender') : $customer->gender) === 'FEMALE' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
-                                                                </label>
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (old('customer_id') == $customer->id ? old('gender') : $customer->gender) === 'OTHER' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-
-                                                        @if($isGlobalScope)
-                                                        <div class="space-y-1 col-span-2 sm:col-span-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Cơ sở <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn cơ sở --</option>
-                                                                    @foreach($centers as $center)
-                                                                        <option value="{{ $center->id }}" {{ (old('customer_id') == $customer->id ? old('center_id') : $customer->center_id) === $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                        </div>
-                                                        @endif
-                                                    </div>
-                                                    
-                                                    <div class="space-y-1">
-                                                        <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Địa chỉ</label>
-                                                        <div class="relative">
-                                                            <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                            <input type="text" name="address" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('customer_id') == $customer->id ? old('address') : $customer->address }}">
-                                                        </div>
-                                                    </div>
-
-                                                    {{-- Tags Section --}}
-                                                    <div class="space-y-1">
-                                                        <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest mt-4">Phân loại (Tags)</label>
-                                                        <div class="flex flex-wrap gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50/50">
-                                                            @php $customerTagIds = $customer->tags->pluck('id')->toArray(); @endphp
-                                                            @foreach($allTags as $tag)
-                                                            <label class="relative flex items-center group cursor-pointer">
-                                                                <input type="checkbox" name="tag_ids[]" value="{{ $tag->getId() }}" {{ in_array($tag->getId(), old('customer_id') == $customer->id ? old('tag_ids', $customerTagIds) : $customerTagIds) ? 'checked' : '' }} class="peer appearance-none absolute">
-                                                                <span class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all duration-200 flex items-center gap-1.5
-                                                                    peer-checked:bg-[var(--tag-color)] peer-checked:border-[var(--tag-color)] peer-checked:text-white peer-checked:shadow-md
-                                                                    hover:border-[var(--tag-color)] hover:bg-[var(--tag-color)]/5"
-                                                                    style="--tag-color: {{ $tag->color }}; border-color: {{ $tag->color }}40; color: {{ $tag->color }}">
-                                                                    <i data-lucide="tag" class="w-3 h-3"></i>
-                                                                    {{ $tag->name }}
-                                                                </span>
-                                                            </label>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
-                                                    <button type="button" @click="showEditModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                                                    <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
-                                                        <i data-lucide="save" class="w-4 h-4"></i> Cập nhật
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </template>
                             </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-        
+
         @include('partials.pagination', ['paginator' => $customers])
         @endif
     </div>
-
-    <!-- Create Modal global -->
-    <template x-teleport="body">
-        <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showCreateModal = false" x-transition.opacity></div>
-            
-            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
-                 x-show="showCreateModal" 
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave="transition ease-in duration-200"
-                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                 
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        </div>
-                        Tạo Khách hàng mới
-                    </h3>
-                    <button type="button" @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
-                </div>
-
-                <form action="{{ route('admin.customers.store') }}" method="POST" class="p-6">
-                    @csrf
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('name') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ !old('_method') ? old('phone') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Email</label>
-                                <div class="relative">
-                                    <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('email') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
-                                <div class="relative">
-                                    <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('dob') : '' }}">
-                                </div>
-                            </div>
-
-                            <div class="space-y-1 col-span-2 sm:col-span-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'MALE') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'FEMALE') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (!old('_method') && old('gender') === 'OTHER') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
-                                    </label>
-                                </div>
-                            </div>
-
-                            @if($isGlobalScope)
-                            <div class="space-y-1 col-span-2 sm:col-span-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Cơ sở <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="center_id" required class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn cơ sở --</option>
-                                        @foreach($centers as $center)
-                                            <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                            @endif
-                        </div>
-
-                        <div class="space-y-1 mt-4">
-                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Địa chỉ</label>
-                            <div class="relative">
-                                <i data-lucide="map-pin" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                <input type="text" name="address" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('address') : '' }}">
-                            </div>
-                        </div>
-
-                        {{-- Tags Section --}}
-                        <div class="space-y-1 mt-4">
-                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Phân loại (Tags)</label>
-                            <div class="flex flex-wrap gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50/50">
-                                @foreach($allTags as $tag)
-                                <label class="relative flex items-center group cursor-pointer">
-                                    <input type="checkbox" name="tag_ids[]" value="{{ $tag->getId() }}" {{ (!old('_method') && in_array($tag->getId(), old('tag_ids', []))) ? 'checked' : '' }} class="peer appearance-none absolute">
-                                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all duration-200 flex items-center gap-1.5
-                                        peer-checked:bg-[var(--tag-color)] peer-checked:border-[var(--tag-color)] peer-checked:text-white peer-checked:shadow-md
-                                        hover:border-[var(--tag-color)] hover:bg-[var(--tag-color)]/5"
-                                        style="--tag-color: {{ $tag->color }}; border-color: {{ $tag->color }}40; color: {{ $tag->color }}">
-                                        <i data-lucide="tag" class="w-3 h-3"></i>
-                                        {{ $tag->name }}
-                                    </span>
-                                </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
-                        <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
-                            <i data-lucide="save" class="w-4 h-4"></i> Tạo mới
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </template>
 
     <!-- Import Modal -->
     <template x-teleport="body">
@@ -659,16 +358,72 @@
             </div>
         </div>
     </template>
+
+    <template x-teleport="body">
+        <div x-show="showDynamicModal" 
+             x-cloak 
+             class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" 
+                 @click="showDynamicModal = false"
+                 x-show="showDynamicModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0"
+                 x-transition:enter-end="opacity-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100"
+                 x-transition:leave-end="opacity-0"></div>
+            
+            <div class="relative bg-white rounded-3xl shadow-2xl w-full max-w-xl mx-auto max-h-[90vh] overflow-hidden flex flex-col text-left border border-slate-100"
+                 x-show="showDynamicModal"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-8 sm:scale-95"
+                 x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave="ease-in duration-200"
+                 x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                 x-transition:leave-end="opacity-0 translate-y-8 sm:scale-95">
+                
+                <div x-show="isLoadingModal" class="p-12 flex flex-col items-center justify-center space-y-4">
+                    <div class="w-12 h-12 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin"></div>
+                    <p class="text-slate-500 font-medium animate-pulse">Đang tải dữ liệu...</p>
+                </div>
+
+                <div x-show="!isLoadingModal" x-html="modalContent" class="flex-1 overflow-hidden flex flex-col"></div>
+            </div>
+        </div>
+    </template>
 </div>
 
 @push('scripts')
 <script>
     document.addEventListener('alpine:init', () => {
         Alpine.data('customerManagementStore', () => ({
-            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') ? 'true' : 'false' }}, 
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
-            showEditModal: false,
             selectedItems: [],
+            
+            showDynamicModal: false,
+            modalContent: '',
+            isLoadingModal: false,
+
+            async loadModal(url) {
+                this.showDynamicModal = true;
+                this.isLoadingModal = true;
+                try {
+                    const response = await fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    this.modalContent = await response.text();
+                    this.isLoadingModal = false;
+                    this.$nextTick(() => {
+                        if (window.lucide) { lucide.createIcons(); }
+                    });
+                } catch (error) {
+                    console.error('Error loading modal:', error);
+                    this.modalContent = '<div class="p-8 text-center text-red-500">Đã có lỗi xảy ra khi tải dữ liệu.</div>';
+                    this.isLoadingModal = false;
+                }
+            },
             
             get isAllSelected() {
                 const checkboxes = document.querySelectorAll('tbody input[type=checkbox]');

@@ -42,6 +42,29 @@ class UserWebController extends Controller
         return view('user::index', compact('users', 'roles', 'centers', 'search', 'roleId'));
     }
 
+    public function create(GetAllRolesHandler $rolesHandler, GetActiveCentersHandler $centersHandler)
+    {
+        $roles = $rolesHandler->handle(new GetAllRolesQuery());
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        return view('user::partials.create_form', compact('roles', 'centers'));
+    }
+
+    public function edit(
+        string $id,
+        \Modules\Core\User\Infrastructure\ReadModels\UserReadModel $userModel,
+        GetAllRolesHandler $rolesHandler,
+        GetActiveCentersHandler $centersHandler
+    ) {
+        $user = $userModel::with('userRoles.role')->find($id);
+        if (!$user) {
+            return response()->json(['error' => 'User not found.'], 404);
+        }
+        $roles = $rolesHandler->handle(new GetAllRolesQuery());
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+
+        return view('user::partials.edit_form', compact('user', 'roles', 'centers'));
+    }
+
 
 
     public function store(Request $request, CreateUserHandler $handler)
