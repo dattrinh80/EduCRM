@@ -16,7 +16,7 @@ return new class extends Migration
             $table->uuid('assigned_to')->nullable()->after('interest_type_id');
 
             // Foreign keys
-            $table->foreign('source_id')->references('id')->on('sources')->onDelete('set null');
+            $table->foreign('source_id')->references('id')->on('lead_sources')->onDelete('set null');
             $table->foreign('interest_type_id')->references('id')->on('interest_types')->onDelete('set null');
             $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
             

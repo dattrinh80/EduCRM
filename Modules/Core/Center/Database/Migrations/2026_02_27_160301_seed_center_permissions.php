@@ -23,8 +23,6 @@ return new class extends Migration
                     'id' => (string) Str::uuid(),
                     'name' => $perm['name'],
                     'description' => $perm['description'],
-                    'created_at' => now(),
-                    'updated_at' => now(),
                 ]);
             }
         }

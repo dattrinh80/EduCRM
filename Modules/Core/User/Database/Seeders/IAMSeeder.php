@@ -54,20 +54,27 @@ class IAMSeeder extends Seeder
 
         $permissionIds = [];
         foreach ($permissions as $perm) {
-            $id = (string) Str::uuid();
-            $permissionIds[$perm] = $id;
-            DB::table('permissions')->insert([
-                'id' => $id,
-                'name' => $perm,
-            ]);
+            $existing = DB::table('permissions')->where('name', $perm)->first();
+            if ($existing) {
+                $permissionIds[$perm] = $existing->id;
+            } else {
+                $id = (string) Str::uuid();
+                $permissionIds[$perm] = $id;
+                DB::table('permissions')->insert([
+                    'id' => $id,
+                    'name' => $perm,
+                ]);
+            }
         }
 
         // ── Role → Permissions (Admin gets ALL) ────────────
         foreach ($permissionIds as $permId) {
-            DB::table('role_permissions')->insert([
-                'role_id' => $adminRoleId,
-                'permission_id' => $permId,
-            ]);
+            if (!DB::table('role_permissions')->where('role_id', $adminRoleId)->where('permission_id', $permId)->exists()) {
+                DB::table('role_permissions')->insert([
+                    'role_id' => $adminRoleId,
+                    'permission_id' => $permId,
+                ]);
+            }
         }
 
         // Manager gets view + create + update + export on leads/students/courses
@@ -77,19 +84,23 @@ class IAMSeeder extends Seeder
             'courses.view', 'courses.create', 'courses.update',
         ];
         foreach ($managerPerms as $perm) {
-            DB::table('role_permissions')->insert([
-                'role_id' => $managerRoleId,
-                'permission_id' => $permissionIds[$perm],
-            ]);
+            if (!DB::table('role_permissions')->where('role_id', $managerRoleId)->where('permission_id', $permissionIds[$perm])->exists()) {
+                DB::table('role_permissions')->insert([
+                    'role_id' => $managerRoleId,
+                    'permission_id' => $permissionIds[$perm],
+                ]);
+            }
         }
 
         // Staff gets view only
         $staffPerms = ['leads.view', 'students.view', 'courses.view'];
         foreach ($staffPerms as $perm) {
-            DB::table('role_permissions')->insert([
-                'role_id' => $staffRoleId,
-                'permission_id' => $permissionIds[$perm],
-            ]);
+            if (!DB::table('role_permissions')->where('role_id', $staffRoleId)->where('permission_id', $permissionIds[$perm])->exists()) {
+                DB::table('role_permissions')->insert([
+                    'role_id' => $staffRoleId,
+                    'permission_id' => $permissionIds[$perm],
+                ]);
+            }
         }
 
         // ── Admin User ─────────────────────────────────────
