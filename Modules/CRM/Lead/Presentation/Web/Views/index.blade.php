@@ -63,7 +63,7 @@
             <x-ui.button variant="secondary" icon="file-down" @click="showImportModal = true; $dispatch('refresh-icons')">
                 <span class="hidden sm:inline">Nhập Excel</span>
             </x-ui.button>
-            <x-ui.button variant="primary" icon="plus-circle" @click="showCreateModal = true; $dispatch('refresh-icons')">
+            <x-ui.button variant="primary" icon="plus-circle" @click="loadModal('{{ route('admin.leads.create') }}')">
                 <span>Thêm Lead</span>
             </x-ui.button>
             @endcan
@@ -139,7 +139,7 @@
                 description="Hệ thống chưa ghi nhận dữ liệu Lead nào khớp với bộ lọc của bạn."
                 icon="users-2"
                 actionText="Tạo Lead mới ngay"
-                actionClick="showCreateModal = true; $dispatch('refresh-icons')"
+                actionClick="loadModal('{{ route('admin.leads.create') }}')"
             />
         @else
         <div class="overflow-x-auto">
@@ -216,13 +216,13 @@
                 </thead>
                 <tbody class="divide-y divide-slate-100">
                     @foreach ($leads as $lead)
-                        <tr class="hover:bg-slate-50 transition group" :class="{ 'bg-primary-50/30': selectedItems.includes('{{ $lead->id }}') }" x-data="{ showEditModal: {{ $errors->any() && old('_method') == 'PUT' && old('lead_id') == $lead->id ? 'true' : 'false' }}, selectedCenterId: '{{ $lead->center_id }}' }">
+                        <tr class="hover:bg-slate-50 transition group" :class="{ 'bg-primary-50/30': selectedItems.includes('{{ $lead->id }}') }">
                             <td class="p-4 px-6 whitespace-nowrap">
                                 <input type="checkbox" value="{{ $lead->id }}" x-model="selectedItems" class="rounded border-slate-300 text-primary-500 focus:ring-primary-500 w-4 h-4 cursor-pointer">
                             </td>
                             <td class="p-4 px-6 whitespace-nowrap">
                                 <div class="flex items-center gap-2">
-                                    <a href="{{ route('admin.leads.show', $lead->id) }}" class="font-medium text-slate-800 hover:text-primary-600 transition">{{ $lead->name }}</a>
+                                    <button type="button" @click="loadModal('{{ route('admin.leads.show', $lead->id) }}')" class="font-medium text-slate-800 hover:text-primary-600 transition">{{ $lead->name }}</button>
                                     @if($lead->gender)
                                     <x-ui.badge variant="{{ $lead->gender === 'MALE' ? 'info' : ($lead->gender === 'FEMALE' ? 'danger' : 'secondary') }}" class="text-[9px] px-1.5 py-0">
                                         {{ $lead->gender === 'MALE' ? 'Nam' : ($lead->gender === 'FEMALE' ? 'Nữ' : 'Khác') }}
@@ -314,7 +314,7 @@
                                     </a>
                                     @endcan
                                     @can('leads.update')
-                                    <button type="button" @click="showEditModal = true; $dispatch('refresh-icons')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Sửa">
+                                    <button type="button" @click="loadModal('{{ route('admin.leads.edit', $lead->id) }}')" class="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all hover:scale-110 active:scale-95 cursor-pointer" title="Sửa">
                                         <i data-lucide="edit-2" class="w-4 h-4"></i>
                                     </button>
                                     @endcan
@@ -328,244 +328,6 @@
                                     </form>
                                     @endcan
                                 </div>
-                                
-                                <!-- Edit Modal -->
-                                @can('leads.update')
-                                <template x-teleport="body">
-                                    <div x-show="showEditModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                                        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showEditModal = false" x-transition.opacity></div>
-                                        
-                                        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
-                                             x-show="showEditModal" 
-                                             x-transition:enter="transition ease-out duration-300"
-                                             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
-                                             x-transition:leave="transition ease-in duration-200"
-                                             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                                             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
-                                             
-                                            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                                                <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                                    <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
-                                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                                    </div>
-                                                    Sửa Lead: {{ $lead->name }}
-                                                </h3>
-                                                <button type="button" @click="showEditModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
-                                                    <i data-lucide="x" class="w-5 h-5"></i>
-                                                </button>
-                                            </div>
-
-                                            <form action="{{ route('admin.leads.update', $lead->id) }}" method="POST" class="p-6">
-                                                @csrf
-                                                @method('PUT')
-                                                <input type="hidden" name="lead_id" value="{{ $lead->id }}">
-                                                
-                                                <div class="space-y-4">
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('name') : $lead->name }}">
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ old('lead_id') == $lead->id ? old('phone') : $lead->phone }}">
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Email</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('email') : $lead->email }}">
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ old('lead_id') == $lead->id ? old('dob') : ($lead->dob ? \Carbon\Carbon::parse($lead->dob)->format('Y-m-d') : '') }}">
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
-                                                            <div class="grid grid-cols-3 gap-2">
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'MALE' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
-                                                                </label>
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'FEMALE' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
-                                                                </label>
-                                                                <label class="cursor-pointer">
-                                                                    <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (old('lead_id') == $lead->id ? old('gender') : $lead->gender) === 'OTHER' ? 'checked' : '' }}>
-                                                                    <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="lead_source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn Nguồn --</option>
-                                                                    @foreach($leadSources as $leadSource)
-                                                                        <option value="{{ $leadSource->id }}" {{ (old('lead_id') == $lead->id ? old('lead_source_id') : $lead->lead_source_id) === $leadSource->id ? 'selected' : '' }}>{{ $leadSource->name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('lead_source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ)</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn Nhu cầu --</option>
-                                                                    @foreach($interestTypes as $interest)
-                                                                        <option value="{{ $interest->id }}" {{ (old('lead_id') == $lead->id ? old('interest_type_id') : $lead->interest_type_id) === $interest->id ? 'selected' : '' }}>{{ $interest->name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('interest_type_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                        <div class="grid grid-cols-2 gap-4">
-                                                        @if($isGlobalScope)
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Cơ sở <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="center_id" required x-model="selectedCenterId" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn cơ sở --</option>
-                                                                    @foreach($centers as $center)
-                                                                        <option value="{{ $center->id }}" {{ (old('lead_id') == $lead->id ? old('center_id') : $lead->center_id) === $center->id ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                        @endif
-
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Người phụ trách</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chưa giao --</option>
-                                                                    <template x-for="u in allUsers.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
-                                                                        <option :value="u.id" x-text="u.name" :selected="u.id == '{{ $lead->assigned_to }}'"></option>
-                                                                    </template>
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="grid grid-cols-2 gap-4">
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block">Chiến dịch</label>
-                                                            <div class="relative">
-                                                                <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    <option value="">-- Chọn chiến dịch/category --</option>
-                                                                    <template x-for="c in allCampaigns.filter(i => !selectedCenterId || i.center_id == selectedCenterId || !i.center_id)">
-                                                                        <option :value="c.id" x-text="c.name" :selected="c.id == '{{ $lead->campaign_id }}'"></option>
-                                                                    </template>
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('campaign_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                        
-                                                        <div class="space-y-1">
-                                                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Trạng thái <span class="text-red-500">*</span></label>
-                                                            <div class="relative">
-                                                                <i data-lucide="tag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                                                <select name="status_id" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                                                    @foreach($statuses as $st)
-                                                                        <option value="{{ $st->getId() }}" {{ (old('lead_id') == $lead->id ? old('status_id') : $lead->status_id) === $st->getId() ? 'selected' : '' }}>{{ $st->name }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                                            </div>
-                                                            @if(old('lead_id') == $lead->id)
-                                                                @error('status_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                                            @endif
-                                                        </div>
-                                                    </div>
-
-                                                    {{-- Tags Section --}}
-                                                    <div class="space-y-1">
-                                                        <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest mt-4">Phân loại (Tags)</label>
-                                                        <div class="flex flex-wrap gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50/50">
-                                                            @php $leadTagIds = $lead->tags->pluck('id')->toArray(); @endphp
-                                                            @foreach($allTags as $tag)
-                                                            <label class="relative flex items-center group cursor-pointer">
-                                                                <input type="checkbox" name="tag_ids[]" value="{{ $tag->getId() }}" {{ in_array($tag->getId(), old('lead_id') == $lead->id ? old('tag_ids', $leadTagIds) : $leadTagIds) ? 'checked' : '' }} class="peer appearance-none absolute">
-                                                                <span class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all duration-200 flex items-center gap-1.5
-                                                                    peer-checked:bg-[var(--tag-color)] peer-checked:border-[var(--tag-color)] peer-checked:text-white peer-checked:shadow-md
-                                                                    hover:border-[var(--tag-color)] hover:bg-[var(--tag-color)]/5"
-                                                                    style="--tag-color: {{ $tag->color }}; border-color: {{ $tag->color }}40; color: {{ $tag->color }}">
-                                                                    <i data-lucide="tag" class="w-3 h-3"></i>
-                                                                    {{ $tag->name }}
-                                                                </span>
-                                                            </label>
-                                                            @endforeach
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
-                                                    <button type="button" @click="showEditModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                                                    <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
-                                                        <i data-lucide="save" class="w-4 h-4"></i> Cập nhật
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </template>
-                                @endcan
                             </td>
                         </tr>
                     @endforeach
@@ -577,14 +339,15 @@
         @endif
     </div>
 
-    <!-- Create Modal -->
-    @can('leads.create')
+                 
+
+    <!-- Dynamic Modal Shell -->
     <template x-teleport="body">
-        <div x-show="showCreateModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" @click="showCreateModal = false" x-transition.opacity></div>
+        <div x-show="showDynamicModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" @click="showDynamicModal = false" x-transition.opacity></div>
             
             <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-auto overflow-hidden text-left" 
-                 x-show="showCreateModal" 
+                 x-show="showDynamicModal" 
                  x-transition:enter="transition ease-out duration-300"
                  x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
@@ -592,225 +355,14 @@
                  x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
                  x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
                  
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <h3 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                        <div class="w-8 h-8 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center">
-                            <i data-lucide="user-plus" class="w-4 h-4"></i>
-                        </div>
-                        Tạo Lead Mới
-                    </h3>
-                    <button type="button" @click="showCreateModal = false" class="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition">
-                        <i data-lucide="x" class="w-5 h-5"></i>
-                    </button>
+                <div x-show="isLoadingModal" class="absolute inset-0 bg-white/50 backdrop-blur-[1px] z-50 flex items-center justify-center">
+                    <div class="w-10 h-10 border-4 border-primary-100 border-t-primary-500 rounded-full animate-spin"></div>
                 </div>
 
-                <form action="{{ route('admin.leads.store') }}" method="POST" class="p-6">
-                    @csrf
-                    <div class="space-y-4">
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Họ tên <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="user" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="name" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('name') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Số điện thoại <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="phone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="text" name="phone" required class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition tabular-nums" value="{{ !old('_method') ? old('phone') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('phone') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Email</label>
-                                <div class="relative">
-                                    <i data-lucide="mail" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="email" name="email" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('email') : '' }}">
-                                </div>
-                                @if(!old('_method'))
-                                    @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Ngày sinh</label>
-                                <div class="relative">
-                                    <i data-lucide="calendar" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <input type="date" name="dob" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition" value="{{ !old('_method') ? old('dob') : '' }}">
-                                </div>
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Giới tính</label>
-                                <div class="grid grid-cols-3 gap-2">
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="MALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'MALE') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nam</div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="FEMALE" class="peer hidden" {{ (!old('_method') && old('gender') === 'FEMALE') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Nữ</div>
-                                    </label>
-                                    <label class="cursor-pointer">
-                                        <input type="radio" name="gender" value="OTHER" class="peer hidden" {{ (!old('_method') && old('gender') === 'OTHER') ? 'checked' : '' }}>
-                                        <div class="flex items-center justify-center py-2 rounded-xl border border-slate-200 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:text-primary-700 hover:bg-slate-50 transition text-sm">Khác</div>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Nguồn</label>
-                                <div class="relative">
-                                    <i data-lucide="share-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="lead_source_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn Nguồn --</option>
-                                        @foreach($leadSources as $leadSource)
-                                            <option value="{{ $leadSource->id }}" {{ (!old('_method') && old('lead_source_id') === $leadSource->id) ? 'selected' : '' }}>{{ $leadSource->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('lead_source_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block">Nhu cầu (Dịch vụ)</label>
-                                <div class="relative">
-                                    <i data-lucide="list-todo" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="interest_type_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn Nhu cầu --</option>
-                                        @foreach($interestTypes as $interest)
-                                            <option value="{{ $interest->id }}" {{ (!old('_method') && old('interest_type_id') === $interest->id) ? 'selected' : '' }}>{{ $interest->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('interest_type_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            @if($isGlobalScope)
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Cơ sở <span class="text-red-500">*</span></label>
-                                <div class="relative">
-                                    <i data-lucide="building-2" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="center_id" required x-model="createModalCenterId" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn cơ sở --</option>
-                                        @foreach($centers as $center)
-                                            <option value="{{ $center->id }}" {{ (!old('_method') && old('center_id') === $center->id) ? 'selected' : '' }}>[{{ $center->code }}] {{ $center->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('center_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                            @endif
-
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Người phụ trách</label>
-                                <div class="relative">
-                                    <i data-lucide="user-check" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="assigned_to" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chưa giao --</option>
-                                        <template x-for="u in allUsers.filter(i => !createModalCenterId || i.center_id == createModalCenterId || !i.center_id)">
-                                            <option :value="u.id" x-text="u.name" :selected="u.id == '{{ old('assigned_to') }}'"></option>
-                                        </template>
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('assigned_to') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Chiến dịch</label>
-                                <div class="relative">
-                                    <i data-lucide="megaphone" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="campaign_id" class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Chọn chiến dịch/category --</option>
-                                        <template x-for="c in allCampaigns.filter(i => !createModalCenterId || i.center_id == createModalCenterId || !i.center_id)">
-                                            <option :value="c.id" x-text="c.name" :selected="c.id == '{{ old('campaign_id') }}'"></option>
-                                        </template>
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('campaign_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                            
-                            <div class="space-y-1">
-                                <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Trạng thái</label>
-                                <div class="relative">
-                                    <i data-lucide="tag" class="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                                    <select name="status_id" class="w-full pl-10 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm transition appearance-none bg-white">
-                                        <option value="">-- Mặc định (New) --</option>
-                                        @foreach($statuses as $st)
-                                            <option value="{{ $st->getId() }}" {{ (!old('_method') && old('status_id') === $st->getId()) ? 'selected' : '' }}>{{ $st->name }}</option>
-                                        @endforeach
-                                    </select>
-                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400"><i data-lucide="chevron-down" class="w-4 h-4"></i></div>
-                                </div>
-                                @if(!old('_method'))
-                                    @error('status_id') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
-                                @endif
-                            </div>
-                        </div>
-
-                        {{-- Tags Section --}}
-                        <div class="space-y-1 mt-4">
-                            <label class="text-sm font-medium text-slate-700 block text-xs uppercase tracking-widest">Phân loại (Tags)</label>
-                            <div class="flex flex-wrap gap-2 p-3 border border-slate-100 rounded-xl bg-slate-50/50">
-                                @foreach($allTags as $tag)
-                                <label class="relative flex items-center group cursor-pointer">
-                                    <input type="checkbox" name="tag_ids[]" value="{{ $tag->getId() }}" {{ (!old('_method') && in_array($tag->getId(), old('tag_ids', []))) ? 'checked' : '' }} class="peer appearance-none absolute">
-                                    <span class="px-3 py-1.5 rounded-lg text-xs font-bold border-2 transition-all duration-200 flex items-center gap-1.5
-                                        peer-checked:bg-[var(--tag-color)] peer-checked:border-[var(--tag-color)] peer-checked:text-white peer-checked:shadow-md
-                                        hover:border-[var(--tag-color)] hover:bg-[var(--tag-color)]/5"
-                                        style="--tag-color: {{ $tag->color }}; border-color: {{ $tag->color }}40; color: {{ $tag->color }}">
-                                        <i data-lucide="tag" class="w-3 h-3"></i>
-                                        {{ $tag->name }}
-                                    </span>
-                                </label>
-                                @endforeach
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="pt-6 mt-6 border-t border-slate-100 flex gap-3 justify-end">
-                        <button type="button" @click="showCreateModal = false" class="px-5 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-100 rounded-xl transition">Hủy</button>
-                        <button type="submit" class="px-6 py-2.5 bg-primary-500 text-white rounded-xl hover:bg-primary-600 transition shadow-lg shadow-primary-500/30 flex items-center gap-2 font-medium">
-                            <i data-lucide="plus" class="w-4 h-4"></i> Tạo Lead
-                        </button>
-                    </div>
-                </form>
+                <div x-html="modalContent"></div>
             </div>
         </div>
     </template>
-    @endcan
 
     @can('leads.create')
     <!-- Import Modal -->
@@ -1186,6 +738,7 @@
         </div>
     </template>
     @endcan
+
 </div>
 
 @push('scripts')
@@ -1198,8 +751,39 @@
         Alpine.data('leadManagementStore', () => ({
             allCampaigns: window.allCampaigns,
             allUsers: window.allUsers,
-            createModalCenterId: '{{ old('center_id') }}',
-            showCreateModal: {{ $errors->any() && !old('_method') && !old('import') && !old('assign') && !old('merge') && !old('bulk_update') ? 'true' : 'false' }}, 
+            
+            // Dynamic Modal Logic
+            showDynamicModal: false,
+            modalContent: '',
+            isLoadingModal: false,
+            selectedCenterId: '{{ old('center_id') }}',
+
+            async loadModal(url) {
+                this.isLoadingModal = true;
+                this.showDynamicModal = true;
+                this.modalContent = '<div class="flex items-center justify-center p-12"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div></div>';
+                
+                try {
+                    const response = await fetch(url, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    const html = await response.text();
+                    this.modalContent = html;
+                    
+                    this.$nextTick(() => {
+                        if (window.lucide) {
+                            window.lucide.createIcons();
+                        }
+                    });
+                } catch (error) {
+                    this.modalContent = '<div class="p-6 text-red-500">Lỗi khi tải dữ liệu: ' + error.message + '</div>';
+                } finally {
+                    this.isLoadingModal = false;
+                }
+            },
+
             showImportModal: {{ $errors->any() && old('import') ? 'true' : 'false' }},
             showAssignModal: {{ $errors->any() && old('assign') ? 'true' : 'false' }},
             showMergeModal: {{ $errors->any() && old('merge') ? 'true' : 'false' }},

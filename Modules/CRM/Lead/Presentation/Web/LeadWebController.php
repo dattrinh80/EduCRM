@@ -59,7 +59,11 @@ class LeadWebController extends Controller
     /**
      * Lead Detail Page
      */
+    /**
+     * Lead Detail Page
+     */
     public function show(
+        Request $request,
         string $id,
         GetLeadByIdHandler $leadHandler,
         GetActiveCentersHandler $centersHandler,
@@ -79,6 +83,9 @@ class LeadWebController extends Controller
         ]));
 
         if (!$lead) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Lead not found.'], 404);
+            }
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
         }
 
@@ -104,6 +111,14 @@ class LeadWebController extends Controller
             relationType: 'Lead'
         ));
 
+        if ($request->ajax()) {
+            return view('lead::partials.detail_content', compact(
+                'lead', 'activities', 'notes', 'tasks',
+                'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+                'isGlobalScope'
+            ));
+        }
+
         return view('lead::detail', compact(
             'lead', 'activities', 'notes', 'tasks',
             'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
@@ -112,9 +127,46 @@ class LeadWebController extends Controller
     }
 
     /**
+     * Create Lead Page (AJAX Partial)
+     */
+    public function create(
+        Request $request,
+        GetActiveCentersHandler $centersHandler,
+        GetLeadSourcesHandler $leadSourcesHandler,
+        GetInterestTypesHandler $interestTypesHandler,
+        GetCampaignsHandler $campaignsHandler,
+        GetAllUsersHandler $usersHandler,
+        GetLeadStatusesHandler $statusesHandler,
+        GetLeadTagsHandler $tagsHandler
+    ) {
+        $isGlobalScope = false;
+        try { $isGlobalScope = app('is_global_scope'); } catch (\Exception $e) {}
+
+        $usersQueryCenterId = $isGlobalScope ? null : (app()->has('center_id') ? app('center_id') : null);
+
+        $centers = $centersHandler->handle(new GetActiveCentersQuery());
+        $leadSources = $leadSourcesHandler->handle(new GetLeadSourcesQuery(null, true));
+        $interestTypes = $interestTypesHandler->handle(new GetInterestTypesQuery(null, true));
+        $campaigns = $campaignsHandler->handle(new GetCampaignsQuery(null, true));
+        $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
+        $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
+        $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
+
+        if ($request->ajax()) {
+            return view('lead::partials.create_form', compact(
+                'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+                'isGlobalScope'
+            ));
+        }
+
+        return redirect()->route('admin.leads.index');
+    }
+
+    /**
      * Edit Lead Page
      */
     public function edit(
+        Request $request,
         string $id,
         GetLeadByIdHandler $leadHandler,
         GetActiveCentersHandler $centersHandler,
@@ -128,6 +180,9 @@ class LeadWebController extends Controller
         $lead = $leadHandler->handle(new GetLeadByIdQuery($id, ['tags']));
 
         if (!$lead) {
+            if ($request->ajax()) {
+                return response()->json(['error' => 'Lead not found.'], 404);
+            }
             return redirect()->route('admin.leads.index')->with('error', 'Lead not found.');
         }
 
@@ -143,6 +198,13 @@ class LeadWebController extends Controller
         $users = $usersHandler->handle(new GetAllUsersQuery($usersQueryCenterId));
         $statuses = $statusesHandler->handle(new GetLeadStatusesQuery(null, true));
         $allTags = $tagsHandler->handle(new GetLeadTagsQuery());
+
+        if ($request->ajax()) {
+            return view('lead::partials.edit_form', compact(
+                'lead', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',
+                'isGlobalScope'
+            ));
+        }
 
         return view('lead::edit', compact(
             'lead', 'centers', 'leadSources', 'interestTypes', 'campaigns', 'users', 'statuses', 'allTags',

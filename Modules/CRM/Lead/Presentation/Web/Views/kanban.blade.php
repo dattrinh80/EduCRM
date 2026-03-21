@@ -29,13 +29,13 @@
                             @endif
                         </div>
                         <div class="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <a href="{{ route('admin.leads.show', $lead->id) }}" class="p-1 text-slate-400 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('admin.leads.show', $lead->id) }}" class="p-1 text-slate-400 hover:text-primary-600 transition-colors" title="Xem chi tiết">
                                 <i data-lucide="eye" class="w-3.5 h-3.5"></i>
                             </a>
                         </div>
                     </div>
                     
-                    <h4 class="font-bold text-slate-800 text-sm mb-1 group-hover:text-primary-600 transition-colors">{{ $lead->name }}</h4>
+                    <a href="{{ route('admin.leads.show', $lead->id) }}"><h4 class="font-bold text-slate-800 text-sm mb-1 group-hover:text-primary-600 transition-colors cursor-pointer">{{ $lead->name }}</h4></a>
                     <p class="text-[11px] text-slate-500 font-medium tabular-nums mb-3 flex items-center gap-1.5">
                         <i data-lucide="phone" class="w-3 h-3 opacity-60"></i>
                         {{ $lead->phone }}
