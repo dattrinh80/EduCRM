@@ -10,13 +10,13 @@ return new class extends Migration
     {
         Schema::table('leads', function (Blueprint $table) {
             $table->date('dob')->nullable()->after('email');
-            $table->uuid('source_id')->nullable()->after('status');
-            $table->uuid('campaign_id')->nullable()->after('source_id');
+            $table->uuid('lead_source_id')->nullable()->after('status');
+            $table->uuid('campaign_id')->nullable()->after('lead_source_id');
             $table->uuid('interest_type_id')->nullable()->after('campaign_id');
             $table->uuid('assigned_to')->nullable()->after('interest_type_id');
 
             // Foreign keys
-            $table->foreign('source_id')->references('id')->on('lead_sources')->onDelete('set null');
+            $table->foreign('lead_source_id')->references('id')->on('lead_sources')->onDelete('set null');
             $table->foreign('interest_type_id')->references('id')->on('interest_types')->onDelete('set null');
             $table->foreign('assigned_to')->references('id')->on('users')->onDelete('set null');
             
@@ -28,13 +28,13 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('leads', function (Blueprint $table) {
-            $table->dropForeign(['source_id']);
+            $table->dropForeign(['lead_source_id']);
             $table->dropForeign(['interest_type_id']);
             $table->dropForeign(['assigned_to']);
 
             $table->dropColumn([
                 'dob',
-                'source_id',
+                'lead_source_id',
                 'campaign_id',
                 'interest_type_id',
                 'assigned_to',

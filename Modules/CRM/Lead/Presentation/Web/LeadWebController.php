@@ -311,18 +311,19 @@ class LeadWebController extends Controller
             : (session('current_center_id') ?? app('center_id'));
 
         $command = new CreateLeadCommand(
-            $validated['name'],
-            $validated['phone'],
-            $validated['email'] ?? null,
-            $centerId,
-            $validated['dob'] ?? null,
-            $validated['lead_source_id'] ?? null,
-            $validated['campaign_id'] ?? null,
-            $validated['interest_type_id'] ?? null,
-            $validated['assigned_to'] ?? null,
-            $validated['status_id'] ?? null,
-            $validated['tag_ids'] ?? [],
-            auth()->id()
+            name: $validated['name'],
+            phone: $validated['phone'],
+            email: $validated['email'] ?? null,
+            centerId: $centerId,
+            dob: $validated['dob'] ?? null,
+            gender: null,
+            leadSourceId: $validated['lead_source_id'] ?? null,
+            campaignId: $validated['campaign_id'] ?? null,
+            interestTypeId: $validated['interest_type_id'] ?? null,
+            assignedTo: $validated['assigned_to'] ?? null,
+            statusId: $validated['status_id'] ?? null,
+            tagIds: $validated['tag_ids'] ?? [],
+            assignedBy: auth()->id()
         );
 
         $handler->handle($command);
@@ -399,19 +400,20 @@ class LeadWebController extends Controller
 
         try {
             $command = new UpdateLeadCommand(
-                $id,
-                $validated['name'],
-                $validated['phone'],
-                $validated['status_id'],
-                $validated['email'] ?? null,
-                $centerId,
-                $validated['dob'] ?? null,
-                $validated['lead_source_id'] ?? null,
-                $validated['campaign_id'] ?? null,
-                $validated['interest_type_id'] ?? null,
-                $validated['assigned_to'] ?? null,
-                $validated['tag_ids'] ?? [],
-                auth()->id()
+                id: $id,
+                name: $validated['name'],
+                phone: $validated['phone'],
+                statusId: $validated['status_id'],
+                email: $validated['email'] ?? null,
+                centerId: $centerId,
+                dob: $validated['dob'] ?? null,
+                gender: null,
+                leadSourceId: $validated['lead_source_id'] ?? null,
+                campaignId: $validated['campaign_id'] ?? null,
+                interestTypeId: $validated['interest_type_id'] ?? null,
+                assignedTo: $validated['assigned_to'] ?? null,
+                tagIds: $validated['tag_ids'] ?? [],
+                assignedBy: auth()->id()
             );
 
             $handler->handle($command);
