@@ -98,10 +98,13 @@
                         <div class="space-y-1">
                             <span class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Giới tính</span>
                             <div class="flex items-center gap-1.5">
-                                @if(($student->customer?->gender ?? '') === 'MALE')
+                                @php
+                                    $gender = $student->customer?->gender ?? '';
+                                @endphp
+                                @if($gender === 'MALE')
                                     <i data-lucide="user" class="w-4 h-4 text-blue-500"></i>
                                     <span class="text-sm font-bold text-slate-700">Nam</span>
-                                @elseif(($student->customer?->gender ?? '') === 'FEMALE')
+                                @elseif($gender === 'FEMALE')
                                     <i data-lucide="user" class="w-4 h-4 text-pink-500"></i>
                                     <span class="text-sm font-bold text-slate-700">Nữ</span>
                                 @else
@@ -143,10 +146,10 @@
                                                             'Grandparent' => 'Ông/Bà',
                                                             'Other' => 'Khác'
                                                         ];
-                                                        $rel = $relMap[$guardian->pivot->relationship] ?? $guardian->pivot->relationship;
+                                                        $rel = $relMap[$guardian->pivot->relationship ?? ''] ?? ($guardian->pivot->relationship ?? 'Người thân');
                                                     @endphp
                                                     {{ $rel }}
-                                                    @if($guardian->pivot->is_primary)
+                                                    @if($guardian->pivot?->is_primary)
                                                         <span class="ml-1 text-[9px] px-1.5 py-0.5 bg-green-100 text-green-600 rounded">Liên hệ chính</span>
                                                     @endif
                                                 </div>

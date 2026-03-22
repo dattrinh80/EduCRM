@@ -122,26 +122,50 @@
                         </div>
                     </div>
                 </x-ui.card>
-
-                <!-- Danger Zone -->
-                <x-ui.card>
-                    <div class="p-4 bg-red-50/30 rounded-2xl">
-                        <div class="flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-widest mb-3">
-                            <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
-                            Khu vực nguy hiểm
-                        </div>
-                        <x-ui.button type="button" variant="ghost" size="sm" class="w-full text-red-500 hover:bg-red-50 border-red-100"
-                            onclick="if(confirm('Bạn có chắc chắn muốn xóa học viên này? Thao tác này không thể hoàn tác.')) document.getElementById('delete-student-form').submit();">
-                            Xóa học viên
-                        </x-ui.button>
-                        <form id="delete-student-form" action="{{ route('admin.students.destroy', $student->id) }}" method="POST" class="hidden">
-                            @csrf
-                            @method('DELETE')
-                        </form>
-                    </div>
-                </x-ui.card>
             </div>
         </div>
     </form>
+
+    <!-- Danger Zone (Outside Main Form) -->
+    <x-ui.card>
+        <div class="p-4 bg-red-50/30 rounded-2xl">
+            <div class="flex items-center gap-2 text-red-600 font-bold text-xs uppercase tracking-widest mb-3">
+                <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                Khu vực nguy hiểm
+            </div>
+            <form action="{{ route('admin.students.destroy', $student->id) }}" method="POST" onsubmit="return confirmDelete(this, '{{ addslashes($student->customer?->name ?? $student->student_code) }}')">
+                @csrf
+                @method('DELETE')
+                <x-ui.button type="submit" variant="ghost" size="sm" class="w-full text-red-500 hover:bg-red-50 border-red-100">
+                    Xóa học viên
+                </x-ui.button>
+            </form>
+        </div>
+    </x-ui.card>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    function confirmDelete(form, name) {
+        if (typeof window.confirmCustom === 'function') {
+            window.confirmCustom({
+                title: 'Xóa học viên',
+                text: `Bạn có chắc chắn muốn xóa học viên "${name}"? Hành động này không thể hoàn tác.`,
+                icon: 'warning',
+                confirmText: 'Xác nhận xóa',
+                cancelText: 'Hủy bỏ',
+                onConfirm: () => {
+                    form.submit();
+                }
+            });
+            return false;
+        }
+        return confirm(`Xác nhận xóa học viên "${name}"?`);
+    }
+</script>
+@endpush

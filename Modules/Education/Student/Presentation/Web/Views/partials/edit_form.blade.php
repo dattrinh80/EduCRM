@@ -227,7 +227,4 @@
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
     }
-</script>of lucide !== 'undefined') {
-        lucide.createIcons();
-    }
 </script>
