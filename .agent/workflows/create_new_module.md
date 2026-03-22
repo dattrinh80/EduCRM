@@ -8,52 +8,69 @@ Dự án EduCRM sử dụng kiến trúc **Modular Monolith** kết hợp **Doma
 
 Bất cứ AI Agent nào khi tham gia phát triển dự án này **bắt buộc** phải tuân thủ nghiêm ngặt các yêu cầu và trình tự thực hiện sau đây khi tạo một Module hoặc một tính năng mới.
 
+# Hướng dẫn tạo Module hoặc chức năng mới
+
+Dự án EduCRM sử dụng kiến trúc **Modular Monolith** kết hợp **Domain-Driven Design (DDD)**, **CQRS (Command Query Responsibility Segregation)** và **Clean Architecture**. Nhờ đó, tính đóng gói rất cao, việc bảo trì và mở rộng sẽ cực kỳ dễ dàng.
+
+Bất cứ AI Agent nào khi tham gia phát triển dự án này **bắt buộc** phải tuân thủ nghiêm ngặt các yêu cầu và trình tự thực hiện sau đây khi tạo một Module hoặc một tính năng mới.
+
 ## Nguyên tắc cốt lõi:
-- Viết code theo hướng "Từ lõi ra ngoài" (Inside-Out).
-- Đảm bảo "Single Responsibility" (Đơn trách nhiệm). Bóc tách logic ra khỏi Controller.
-- Không để logic Database (Eloquent) lẫn vào trong tầng Domain (Cốt lõi).
+- **Inside-Out Development**: Viết nghiệp vụ từ lõi (Domain) ra ngoài (Presentation).
+- **Single Responsibility**: Tách biệt rõ ràng logic nghiệp vụ (Handlers) khỏi việc điều hướng (Controllers).
+- **Premium UI Standard**: Giao diện phải hiện đại, sử dụng **`rounded-3xl`**, đổ bóng nhẹ và tương tác mượt mà qua AlpineJS.
 
 ## Các bước thực hiện bắt buộc:
 
-### Bước 1: Tạo Database Migration (Hạ tầng Database)
-1. Tạo file migration trong thư mục `Modules/{ModuleName}/Database/Migrations`.
-2. Tạo các cột cần thiết cho bảng cơ sở dữ liệu (ví dụ: `name`, `description`, `is_active`...).
-3. Thực thi migration.
-4. (Tuỳ chọn) Tạo Database Seeder hoặc Factory nếu cần thiết để mock dữ liệu.
+### Bước 1: Tạo Database & Permission (Hạ tầng)
+1. **Migration**: Tạo bảng trong `Modules/{ModuleName}/Database/Migrations`. Sử dụng UUID cho Primary Key.
+2. **Permissions**: Khai báo các khóa quyền (`view-*`, `create-*`, `edit-*`, `delete-*`) và cập nhật vào `PermissionSeeder` của hệ thống.
+3. **Seeders**: Tạo dữ liệu mẫu hoặc cấu hình ban đầu nếu cần.
 
-### Bước 2: Khai báo lõi Domain Layer (Thiết kế nghiệp vụ)
-1. Định nghĩa "Thực thể" chính (ví dụ Tạo module "Task"). Khởi tạo class Entity trong thư mục `Modules/{ModuleName}/Domain/` (Ví dụ: `Task.php`).
-2. Khai báo các thuộc tính, constructor, các hành vi bên trong của Entity đó (không được sử dụng framework cụ thể trong file này ngoài PHP thuần).
-3. Tạo ra Interface kết nối (Ví dụ `TaskRepositoryInterface.php`) bên trong `Modules/{ModuleName}/Domain/`. Định nghĩa các hàm hợp đồng như `save(Task $task): void`, `findById(int $id): ?Task`, `delete(Task $task): void`...
+### Bước 2: Khai báo lõi Domain Layer (Nghiệp vụ thuần)
+1. **Entity**: Tạo class trong `Modules/{ModuleName}/Domain/` (Ví dụ: `Task.php`). 
+   - Sử dụng PHP 8 constructor promotion.
+   - Luôn có phương thức `static create()` và các phương thức `update()`, `changeStatus()` chứa logic kiểm tra nghiệp vụ.
+2. **Repository Interface**: Định nghĩa hợp đồng lưu trữ trong cùng thư mục Domain. Ví dụ: `TaskRepositoryInterface.php`.
 
-### Bước 3: Khai báo Infrastructure Layer (Hạ tầng lưu trữ Eloquent)
-1. Tạo Model Eloquent (Read Model) trong `Modules/{ModuleName}/Infrastructure/ReadModels` chuyên để serve nhu cầu đọc danh sách. Model này sử dụng extends từ `Illuminate\Database\Eloquent\Model`.
-2. Tạo Implement class (Ví dụ `EloquentTaskRepository.php`) tại `Modules/{ModuleName}/Infrastructure/Persistence/` đóng vai trò implements interface định nghĩa ở Bước 2 (`TaskRepositoryInterface`). Lớp này thực sự gọi Eloquent Model để thực hiện lệnh tạo/sửa/xoá trên DB.
+### Bước 3: Khai báo Infrastructure Layer (Lưu trữ & Truy vấn)
+1. **Read Model**: Tạo Eloquent model trong `Infrastructure/ReadModels` để phục vụ Query. Model này có thể chứa các Scope để filter dữ liệu.
+2. **Repository Implementation**: Tạo class trong `Infrastructure/Persistence/` để thực thi Interface ở Bước 2. 
+   - Nhiệm vụ: Chuyển đổi (Map) dữ liệu giữa **Domain Entity** và **Read Model** khi `save()` hoặc `findById()`.
 
-### Bước 4: Xác định Use Case thông qua Application Layer (CQRS)
-1. **Thao tác Ghi (Commands - Create/Update/Delete)**: 
-   - Nằm tại `Modules/{ModuleName}/Application/Commands/`.
-   - Tạo class Command chứa các thuộc tính/dữ liệu đầu vào (DTO).
-   - Tạo class Handler nhận Command, map sang Domain Entity và lưu dữ liệu thông qua Repository Interface.
-   - Khi xử lý Create/Update phải đảm bảo logic kiểm tra Data hoặc Business rules ngay trong phần Constructor của Entity.
-2. **Thao tác Đọc (Queries - Get List/Show detail)**:
-   - Nằm tại `Modules/{ModuleName}/Application/Queries/`.
-   - Tạo các class Query chứa các params điều kiện tìm kiếm.
-   - Tạo class Handler thực trực tiếp gọi thẳng Eloquent Model ở `ReadModels` với tốc độ truy xuất siêu nhanh, nhằm bỏ qua bước biến map lại thành Object Entity.
+### Bước 4: Xác định Use Case qua Application Layer (CQRS)
+1. **Commands (Ghi)**: Nằm tại `Modules/{ModuleName}/Application/Commands/`.
+   - `Command`: Đối tượng chứa dữ liệu đầu vào (DTO).
+   - `Handler`: Nhận Command, gọi Repository để lấy/lưu Entity, thực thi logic nghiệp vụ.
+2. **Queries (Đọc)**: Nằm tại `Modules/{ModuleName}/Application/Queries/`.
+   - Tối ưu hiệu năng bằng cách gọi trực tiếp **Read Model** (Eloquent) để trả về dữ liệu cho danh sách hoặc chi tiết.
 
-### Bước 5: Phân quyền bằng Roles & Permissions (Rất quan trọng)
-1. Bất kể tạo Module gì, đều sinh ra các keys phân quyền theo cấu trúc module (VD: `view-task`, `create-task`, `edit-task`, `delete-task`).
-2. Cập nhật các quyền này vào hệ thống Seeder hoặc Migration cho quyền, liên kết với `Role` hiện tại trong module permission `Modules/Core/Permission`.
-3. Đảm bảo ở Controller sau này, mọi hàm đều phải được check middleware `permission:key-quyen`.
+### Bước 5: Presentation Layer (Web & API)
+**Lưu ý**: Phải triển khai song song Web và API (Mobile App).
 
-### Bước 6: Khai báo giao diện Presentation Layer (BẮT BUỘC CÓ CẢ WEB VÀ API)
-**Lưu ý quan trọng**: Tất cả các module và chức năng mới đều CẦN PHẢI triển khai hệ thống API song song với Web UI để phục vụ cho việc kết nối trên app Mobile trong tương lai.
-1. Khởi tạo Controllers phục vụ cho Web ở `Modules/{ModuleName}/Presentation/Web/`. Nếu có view sẽ được đặt ở `Modules/{ModuleName}/Presentation/Web/Views`.
-2. Khởi tạo Controllers phục vụ cho App Mobile (API) ở `Modules/{ModuleName}/Presentation/API/`. Trả về JSON Data Resources theo chuẩn.
-3. Controller tuyệt đối cấm chứa business logic. Trách nhiệm duy nhất của nó lúc này chỉ là lấy Form Request, bắt validation request nếu cần thiết, rồi khởi tạo một Command/Query => Đẩy vào class Handler => Render kết quả lấy được sang cho HTML view blade hoặc JSON.
+1. **Web Controller**: Đặt tại `Presentation/Web/`.
+   - **AJAX Support**: Các hàm `show()`, `create()`, `edit()` phải kiểm tra `$request->ajax()` và trả về **Partial View** (ví dụ: `partials.create_form`) để load vào Modal động.
+2. **Views & UI Components**:
+   - Sử dụng hệ thống component `<x-ui.*>`.
+   - **Thiết kế Premium**: Luôn dùng **`rounded-3xl`** cho các container chính và Card.
+   - **Sticky Modal**: Form trong modal bắt buộc theo cấu trúc: Fixed Header -> Scrollable Content -> Fixed Footer (chứa nút Action) để đảm bảo nút bấm luôn lộ diện.
+3. **API Controller**: Đặt tại `Presentation/API/`. Trả về JSON thông qua Laravel Resources.
+4. **Icons**: Sử dụng Lucide Icons qua `data-lucide` và gọi `lucide.createIcons()` sau mỗi lần load nội dung bằng AJAX.
 
-### Bước 7: Cấu hình Routing & ServiceProvider
-1. Cấu hình HTTP endpoint trong `Modules/{ModuleName}/routes/web.php` hoặc `api.php`.
-2. Đăng ký module trong `ServiceProvider.php` tại gốc của module (`Modules/{ModuleName}/ServiceProvider.php`):
-   - Hàm `register()`: Rất quan trọng, phải Bind RepositoryInterface chạy bằng Implemention Repository thực tế. (`$this->app->bind(...)`).
-   - Hàm `boot()`: Đăng ký Router, Migration, View và Translation.
+### Bước 6: Cấu hình Routing & ServiceProvider
+1. **Routes**: Cấu hình trong `Modules/{ModuleName}/routes/web.php` và `api.php`.
+2. **ServiceProvider**: Đăng ký module và quan trọng nhất là **Bind Repository Interface** vào **Eloquent Implementation**:
+   ```php
+   $this->app->bind(TaskRepositoryInterface::class, EloquentTaskRepository::class);
+   ```
+3. Đăng ký các thư mục Views, Migrations và Translations.
+
+## Checklist khi hoàn thành:
+- [ ] Code tuân thủ `declare(strict_types=1);`.
+- [ ] Không gọi Eloquent Model trực tiếp trong Command Handler.
+- [ ] Modal có thanh cuộn nội dung riêng và Footer cố định.
+- [ ] Giao diện sử dụng bo góc `rounded-3xl`.
+- [ ] Đã có đầy đủ phân quyền bằng Middleware.
+- [ ] API đã sẵn sàng cho Mobile.
+
+---
+*Cập nhật bởi Antigravity cho EduCRM - 2026*
